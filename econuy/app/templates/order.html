@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container"><br>
+    <h2>Definir orden de transformaciones</h2>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        {% if form.errors %}
+        {{ form.errors }}
+        {% endif %}
+        <p>{% if "usd" in transformations %}
+            {{ form.usd_order.label }}
+            {{ form.usd_order }}
+            {% endif %}</p>
+        <p>{% if "real" in transformations %}
+            {{ form.real_order.label }}
+            {{ form.real_order }}
+            {% endif %}</p>
+        <p>{% if "gdp" in transformations %}
+            {{ form.gdp_order.label }}
+            {{ form.gdp_order }}
+            {% endif %}</p>
+        <p>{% if "freq" in transformations %}
+            {{ form.freq_order.label }}
+            {{ form.freq_order }}
+            {% endif %}</p>
+        <p>{% if "cum" in transformations %}
+            {{ form.cum_order.label }}
+            {{ form.cum_order }}
+            {% endif %}</p>
+        <p>{% if "base_index" in transformations %}
+            {{ form.base_index_order.label }}
+            {{ form.base_index_order }}
+            {% endif %}</p>
+        <p>{% if "seas" in transformations %}
+            {{ form.seas_order.label }}
+            {{ form.seas_order }}
+            {% endif %}</p>
+
+        <p>{{ form.submit() }}</p>
+    </form>
+</div>
+{% endblock %}

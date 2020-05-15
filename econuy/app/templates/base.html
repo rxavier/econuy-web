@@ -1,0 +1,65 @@
+{% extends "bootstrap/base.html" %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
+      rel="stylesheet">
+<link rel="shortcut icon"
+      href="{{ url_for('static', filename='favicon.ico') }}">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+<title>
+    {% block title %}
+    econ.uy
+    {% endblock %}
+</title>
+{% endblock %}
+
+{% block body %}
+<body style="font-family: 'Roboto', sans-serif; margin-left: 100px; margin-right: 100px">
+
+<script>
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+
+{% block navbar %}
+<div>
+    <p style="text-align:center;"><img src="{{url_for('static', filename='logo.png')}}" width=250></p>
+</div>
+<p style="text-align:center;">
+    <a href="{{ url_for('submit') }}" style='margin-left: 20px; margin-right: 20px'>Inicio</a>
+    <a href="{{ url_for('about') }}" style='margin-left: 20px; margin-right: 20px'>Sobre</a>
+    <a href="https://github.com/rxavier/econuy" style='margin-left: 20px; margin-right: 20px'>Github</a>
+</p>
+<hr>
+{% endblock %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+{% block content %}
+{% endblock %}
+
+{% block footer %}
+<footer>
+    <hr>
+    <p>Si usás datos de este sitio, considerá citar: "econ.uy:
+        <a href="https://github.com/rxavier/econuy">https://github.com/rxavier/econuy</a>"
+    </p>
+</footer>
+{% endblock %}
+
+
+</body>
+{% endblock %}
