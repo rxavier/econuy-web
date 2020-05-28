@@ -30,6 +30,12 @@ def submit():
             "indicator": {
                 "data": form.indicator.data,
                 "label": indicator_choices[form.indicator.data]},
+            "start": {
+                "data": fix_date(form.start.data),
+                "label": form.start.label},
+            "end": {
+                "data": fix_date(form.end.data),
+                "label": form.end.label},
             "usd": {"data": form.usd.data,
                     "label": form.usd.label},
             "real": {"data": form.real.data,
@@ -144,7 +150,9 @@ def query():
         "seas": lambda x: transform.decompose(x,
                                               flavor=data["seas_type"]["data"])
     }
-    output = sqlutil.read(con=db.engine, table_name=indicator)
+    output = sqlutil.read(con=db.engine, table_name=indicator,
+                          start_date=session["request"]["start"]["data"],
+                          end_date=session["request"]["end"]["data"])
     if len(session["transformations"]) > 0:
         for t in session["transformations"].values():
             output = function_dict[t](output)

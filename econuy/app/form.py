@@ -102,6 +102,10 @@ class SubmitForm(FlaskForm):
                                         "external_sep"],
                                        message="Seleccionar una tabla.")
                             ])
+    start = DateField("Fecha inicial", format="%Y-%m-%d",
+                      validators=[Optional()])
+    end = DateField("Fecha final", format="%Y-%m-%d",
+                    validators=[Optional(), LaterDate("start")])
     usd = BooleanField("Convertir a dólares")
     real = BooleanField("Deflactar")
     real_start = DateField("Fecha inicial", format="%Y-%m-%d",
