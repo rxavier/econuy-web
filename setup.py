@@ -19,7 +19,12 @@ def reqs_pipfile_lock(pipfile_lock: Union[str, os.PathLike, None] = None,
 
 
 packages = find_packages(".", exclude=["*.test", "*.test.*"])
-pipfile_lock_requirements = reqs_pipfile_lock(exclude=["psycopg2"])
+pipfile_lock_requirements = reqs_pipfile_lock(exclude=["psycopg2",
+                                                       "flask",
+                                                       "flask-sqlalchemy",
+                                                       "flask-bootstrap",
+                                                       "flask-wtf",
+                                                       "python-dotenv"])
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -49,7 +54,12 @@ setup(
     keywords=["uruguay", "economy", "economic", "statistics", "data"],
     install_requires=pipfile_lock_requirements,
     extras_require={
-        "pgsql":  ["psycopg2==2.8.5"]},
+        "pgsql":  ["psycopg2==2.8.5"],
+        "flask": ["flask==1.1.2",
+                  "flask-sqlalchemy==2.4.1",
+                  "flask-bootstrap==3.3.7.1",
+                  "flask-wtf==0.14.3",
+                  "python-dotenv=0.13.0"]},
     packages=packages,
     python_requires=">=3.6"
 )
