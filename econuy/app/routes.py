@@ -1,8 +1,6 @@
-from collections import OrderedDict
 from random import sample
 from string import ascii_letters
 
-from flask_sqlalchemy import inspect
 from sqlalchemy.exc import ProgrammingError
 from flask import (render_template, redirect, url_for,
                    session, make_response, flash)
@@ -195,11 +193,3 @@ def fix_date(choice):
         return choice.strftime("%Y-%m-%d")
     else:
         return choice
-
-
-def clear_tables(con):
-    for table in inspect(con).get_table_names():
-        if table.startswith("export_"):
-            db.engine.execute(f'DROP TABLE IF EXISTS "{table}"')
-
-    return
