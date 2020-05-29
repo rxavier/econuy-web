@@ -2,7 +2,7 @@ from econuy.retrieval import (cpi, fiscal_accounts, commodity_index,
                               labor, national_accounts, nxr, rxr, reserves)
 from econuy.frequent import (labor_rate_people, inflation, fiscal,
                              labor_real_wages)
-from econuy.app.webapp import db
+from econuy.app import db
 from econuy.app.tasks import full_update
 
 
