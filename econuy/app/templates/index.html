@@ -29,8 +29,11 @@
                todos los datos disponibles.">
                 <img src="static/info.png" width=22px></a>
             </br>
-            {% for error in form.indicator.errors %}
+            {% for error in form.start.errors %}
             <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            {% for error in form.end.errors %}
+            <span style="color: red; margin-left: 350px">[{{ error }}]</span>
             {% endfor %}
 
         </p>
