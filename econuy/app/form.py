@@ -45,6 +45,16 @@ class LaterDate(object):
 
 class SubmitForm(FlaskForm):
     indicators = [
+        ("frequent_sep", "----- Tablas frecuentes -----"),
+        ("tfm_prices", "Indicadores seleccionados de precios"),
+        ("tfm_fiscal_gps_uyu_fssadj",
+         "Cuentas fiscales: Sector público consolidado (ajustado FSS)"),
+        ("tfm_fiscal_nfps_uyu_fssadj",
+         "Cuentas fiscales: Sector público no financiero (ajustado FSS)"),
+        ("tfm_fiscal_gc_uyu_fssadj",
+         "Cuentas fiscales: Gobierno central-BPS (ajustado FSS)"),
+        ("tfm_labor_nsa", "Mercado laboral: tasas y personas"),
+        ("tfm_wages_nsa", "Mercado laboral: salarios nominales y reales"),
         ("activity_sep", "----- Actividad económica -----"),
         ("naccounts_gas_con_nsa",
          "Cuentas nacionales: Demanda, precios constantes, series armonizadas (mar-05, T)"),
