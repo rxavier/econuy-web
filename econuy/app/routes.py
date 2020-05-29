@@ -146,8 +146,7 @@ def query():
             end_date=data["base_index_end"]["data"],
             base=data["base_index_base"]["data"]),
         "seas": lambda x: transform.decompose(x,
-                                              flavor=data["seas_type"]["data"],
-                                              x13_binary=None)
+                                              flavor=data["seas_type"]["data"])
     }
     output = sqlutil.read(con=db.engine, table_name=indicator,
                           start_date=session["request"]["start"]["data"],
