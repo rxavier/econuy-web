@@ -18,13 +18,14 @@ decorator==4.4.2
 defusedxml==0.6.0
 docutils==0.16
 dominate==2.5.1
--e git+https://github.com/rxavier/uy-econ.git@5abc96567a2f8d08470bf31a231358ab8fcb75c8#egg=econuy
+-e git+https://github.com/rxavier/uy-econ.git@a9d67e38b9596fa4c4e0d5a335bae134338d6fa9#egg=econuy
 entrypoints==0.3
 flake8==3.8.2
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1
 Flask-SQLAlchemy==2.4.1
 Flask-WTF==0.14.3
+gunicorn==20.0.4
 idna==2.8
 imagesize==1.2.0
 importlib-metadata==1.6.0

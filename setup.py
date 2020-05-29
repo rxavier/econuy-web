@@ -24,7 +24,8 @@ pipfile_lock_requirements = reqs_pipfile_lock(exclude=["psycopg2",
                                                        "flask-sqlalchemy",
                                                        "flask-bootstrap",
                                                        "flask-wtf",
-                                                       "python-dotenv"])
+                                                       "python-dotenv",
+                                                       "gunicorn"])
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -59,7 +60,8 @@ setup(
                   "flask-sqlalchemy==2.4.1",
                   "flask-bootstrap==3.3.7.1",
                   "flask-wtf==0.14.3",
-                  "python-dotenv=0.13.0"]},
+                  "python-dotenv==0.13.0",
+                  "gunicorn==20.0.4"]},
     packages=packages,
     python_requires=">=3.6"
 )
