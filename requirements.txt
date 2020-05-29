@@ -18,7 +18,7 @@ decorator==4.4.2
 defusedxml==0.6.0
 docutils==0.16
 dominate==2.5.1
--e .[pgsql, flask]
+-e git+https://github.com/rxavier/uy-econ.git@a9d67e38b9596fa4c4e0d5a335bae134338d6fa9#egg=econuy
 entrypoints==0.3
 flake8==3.8.2
 Flask==1.1.2
