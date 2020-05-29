@@ -6,7 +6,7 @@ from flask import (render_template, redirect, url_for,
                    session, make_response, flash)
 
 from econuy import transform
-from econuy.app import app, db
+from econuy.app.webapp import app, db
 from econuy.app.form import SubmitForm, OrderForm
 from econuy.utils import sqlutil
 

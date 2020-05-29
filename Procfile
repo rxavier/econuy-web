@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath econuy app:app
+web: gunicorn --chdir econuy/app webapp:app

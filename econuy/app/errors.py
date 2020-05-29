@@ -1,5 +1,5 @@
 from flask import render_template
-from econuy.app import app
+from econuy.app.webapp import app
 
 
 @app.errorhandler(404)
