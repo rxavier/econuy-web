@@ -5,10 +5,10 @@ from sqlalchemy import inspect
 
 
 def full_update(con: Union[Connection, Engine],
-                functions: List) -> List:
+                functions: List, **kwargs) -> List:
     output = []
     for f in functions:
-        output.append(f(update_loc=con, save_loc=con))
+        output.append(f(update_loc=con, save_loc=con, **kwargs))
     return output
 
 
