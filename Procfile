@@ -1,2 +1,2 @@
-release: release.sh
+release: ./release.sh
 web: gunicorn econuy.app:app
