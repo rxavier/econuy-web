@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<div class="container"><br>
+
 
     <form action="" method="post">
         {{ form.hidden_tag() }}
@@ -12,7 +12,7 @@
         <h2>{{ form.indicator.label }}</h2>
         {{ form.indicator }}
         <a href="#" data-toggle="tooltip" data-placement="right"
-           style="margin-left: 20px"
+           style="margin-left: 1.5%"
            title="Entre paréntesis se detalla la fecha inicial y la frecuencia.">
             <img src="static/info.png" width=22px></a></br>
         {% for error in form.indicator.errors %}
@@ -24,7 +24,7 @@
             {{ form.end.label }}
             {{ form.end }}
             <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 20px"
+               style="margin-left: 1.5%"
                title="Si no se eligen fechas se reportan
                todos los datos disponibles.">
                 <img src="static/info.png" width=22px></a>
@@ -33,7 +33,7 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
             {% for error in form.end.errors %}
-            <span style="color: red; margin-left: 350px">[{{ error }}]</span>
+            <span style="color: red; margin-left: 18%">[{{ error }}]</span>
             {% endfor %}
 
         </p>
@@ -46,13 +46,13 @@
         <p>
             {{ form.real }}
             {{ form.real.label }}</br>
-        <p style="margin-left: 40px">
+        <p style="margin-left: 2%">
             {{ form.real_start.label }}
             {{ form.real_start }}
             {{ form.real_end.label }}
             {{ form.real_end }}
             <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 20px"
+               style="margin-left: 1.5%"
                title="Es posible deflactar a) definiendo solo una fecha (la de inicio)
            para que los datos queden expresados a precios de ese mes,
            b) definiendo ambas para que los datos queden expresados a precios
@@ -69,7 +69,7 @@
             {{ form.gdp }}
             {{ form.gdp.label }}
             <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 20px"
+               style="margin-left: 1.5%"
                title="En caso de querer calcular un flujo en porcentaje del PBI,
                es necesario acumular anualmente antes de aplicar esta
                transformación."> <img src="static/info.png" width=22px"></a>
@@ -78,17 +78,17 @@
             {{ form.freq }}
             {{ form.freq.label }}
             <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 20px"
+               style="margin-left: 1.5%"
                title="Esta transformación toma en cuenta si los datos son flujo
                       o stock."> <img src="static/info.png"
                                       width=22px"></a></br>
-        <p style="margin-left: 40px">
+        <p style="margin-left: 2%">
             {{ form.frequency.label }}
             {{ form.frequency }}
             {{ form.operation_res.label }}
             {{ form.operation_res }}
             <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 20px"
+               style="margin-left: 1.5%"
                title="Estas dos selecciones deben ser consistentes con la frecuencia
                   de los datos base. Es decir, si el cuadro seleccionado es de
                   frecuencia trimestral y se quiere transformar a frecuencia
@@ -103,12 +103,12 @@
             {{ form.cum }}
             {{ form.cum.label }}
             <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 20px"
+               style="margin-left: 1.5%"
                title="Esta transformación mantiene la frecuencia, pero cada
                       período pasa a ser la suma o promedio de ese período y
                       de los x períodos anteriores">
                 <img src="static/info.png" width=22px></a></br>
-        <p style="margin-left: 40px">
+        <p style="margin-left: 2%">
             {{ form.periods.label }}
             {{ form.periods }}
             {{ form.operation.label }}
@@ -121,7 +121,7 @@
         <p>
             {{ form.base_index }}
             {{ form.base_index.label }}</br>
-        <p style="margin-left: 40px">
+        <p style="margin-left: 2%">
             {{ form.base_index_start.label }}
             {{ form.base_index_start }}
             {{ form.base_index_end.label }}
@@ -129,7 +129,7 @@
             {{ form.base_index_base.label }}
             {{ form.base_index_base }}
             <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 20px" data-html="true"
+               style="margin-left: 1.5%" data-html="true"
                title="La fecha final es opcional, en cuyo caso el índice será
                   <i>valor de fecha inicial=valor base</i>. Si se define fecha
                   final, el índice será <i>promedio de valores entre fecha
@@ -139,7 +139,7 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
             {% for error in form.base_index_base.errors %}
-            <span style="color: red; margin-left: 400px">[{{ error }}]</span>
+            <span style="color: red; margin-left: 20%">[{{ error }}]</span>
             {% endfor %}
         </p>
         </p>
@@ -147,17 +147,17 @@
             {{ form.seas }}
             {{ form.seas.label }}
             <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 20px"
+               style="margin-left: 1.5%"
                title="Esta transformación puede demorar dependiendo de la
                       cantidad y características de las series del cuadro
                       seleccionado.">
                 <img src="static/info.png" width=22px></a></br>
-        <p style="margin-left: 40px">
+        <p style="margin-left: 2%">
             {{ form.seas_type.label }}
             {{ form.seas_type }}
         </p>
         </p></br>
         <p>{{ form.submit() }}</p>
     </form>
-</div>
+
 {% endblock %}
