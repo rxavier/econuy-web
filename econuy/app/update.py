@@ -28,3 +28,5 @@ if __name__ == "__main__":
            aggregation="nfps", fss=True)
     fiscal(update_loc=db.engine, save_loc=db.engine,
            aggregation="gc", fss=True)
+    national_accounts._lin_gdp(update_loc=db.engine, save_loc=db.engine,
+                               only_get=False, only_get_na=True)
