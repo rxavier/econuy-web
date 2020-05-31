@@ -145,15 +145,14 @@
             {% endfor %}
         </p>
         </p>
+        <hr style="width:40%; text-align:left; margin-left: 0;">
+        <h4>Experimental</h4>
+        <p>Esta transformación puede demorar y generar un timeout
+            dependiendo de la cantidad y características de las series del
+            cuadro seleccionado.</p>
         <p>
             {{ form.seas }}
-            {{ form.seas.label }}
-            <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 1.5%"
-               title="Esta transformación puede demorar dependiendo de la
-                      cantidad y características de las series del cuadro
-                      seleccionado.">
-                <img src="static/info.png" width=22px></a></br>
+            {{ form.seas.label }}</br>
         <p style="margin-left: 2%">
             {{ form.seas_type.label }}
             {{ form.seas_type }}
