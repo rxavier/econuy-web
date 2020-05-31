@@ -32,6 +32,10 @@
             {{ form.base_index_order.label }}
             {{ form.base_index_order }}
             {% endif %}</p>
+        <p>{% if "chg_diff" in transformations %}
+            {{ form.chg_diff_order.label }}
+            {{ form.chg_diff_order }}
+            {% endif %}</p>
         <p>{% if "seas" in transformations %}
             {{ form.seas_order.label }}
             {{ form.seas_order }}

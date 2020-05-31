@@ -23,6 +23,8 @@ def submit():
         frequency_choices = dict(form.frequency.choices)
         operation_res_choices = dict(form.operation_res.choices)
         operation_choices = dict(form.operation.choices)
+        chg_diff_type_choices = dict(form.chg_diff_type.choices)
+        chg_diff_period_choices = dict(form.chg_diff_period.choices)
         seas_type_choices = dict(form.seas_type.choices)
         session["request"] = {
             "indicator": {
@@ -65,6 +67,14 @@ def submit():
                                "label": form.base_index_end.label},
             "base_index_base": {"data": form.base_index_base.data,
                                 "label": form.base_index_base.label},
+            "chg_diff": {"data": form.chg_diff.data,
+                         "label": form.chg_diff.label},
+            "chg_diff_type": {"data": form.chg_diff_type.data,
+                              "label": chg_diff_type_choices[
+                                  form.chg_diff_type.data]},
+            "chg_diff_period": {"data": form.chg_diff_period.data,
+                                "label": chg_diff_period_choices[
+                                    form.chg_diff_period.data]},
             "seas": {"data": form.seas.data,
                      "label": form.seas.label},
             "seas_type": {"data": form.seas_type.data,
@@ -93,7 +103,7 @@ def order():
     transformations = [k for k, v in session["request"].items()
                        if v["data"] is True]
     form = OrderForm()
-    orders = [(str(i), str(i)) for i in range(1, 8)]
+    orders = [(str(i), str(i)) for i in range(1, 9)]
     order_count = orders[:len(transformations)]
     form.usd_order.choices = order_count
     form.real_order.choices = order_count
@@ -101,6 +111,7 @@ def order():
     form.freq_order.choices = order_count
     form.cum_order.choices = order_count
     form.base_index_order.choices = order_count
+    form.chg_diff_order.choices = order_count
     form.seas_order.choices = order_count
     if form.validate_on_submit():
         order_submit = {
@@ -110,6 +121,7 @@ def order():
             "freq": form.freq_order.data,
             "cum": form.cum_order.data,
             "base_index": form.base_index_order.data,
+            "chg_diff": form.chg_diff_order.data,
             "seas": form.seas_order.data
         }
         pruned_order = {k: v for k, v in order_submit.items()
@@ -148,6 +160,9 @@ def query():
             x, start_date=data["base_index_start"]["data"],
             end_date=data["base_index_end"]["data"],
             base=data["base_index_base"]["data"]),
+        "chg_diff": lambda x: transform.chg_diff(
+            x, operation=data["chg_diff_type"]["data"],
+            period_op=data["chg_diff_period"]["data"]),
         "seas": lambda x: transform.decompose(x,
                                               flavor=data["seas_type"]["data"])
     }

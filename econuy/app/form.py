@@ -102,6 +102,11 @@ class SubmitForm(FlaskForm):
     frequencies = [("M", "Mensual"),
                    ("Q-DEC", "Trimestral"),
                    ("A-DEC", "Anual")]
+    chg_type = [("diff", "Cambio"),
+                ("chg", "Variación porcentual")]
+    chg_period = [("last", "Último período"),
+                  ("inter", "Interanual"),
+                  ("annual", "Anual")]
     seas_types = [("seas", "Desestacionalizado"),
                   ("trend", "Tendencia-ciclo")]
 
@@ -148,13 +153,17 @@ class SubmitForm(FlaskForm):
                                        RequiredIf(base_index=True,
                                                   message="Campo requerido.")
                                    ])
+    chg_diff = BooleanField("Calcular variaciones o diferencias")
+    chg_diff_type = SelectField("Tipo", choices=chg_type, default="chg")
+    chg_diff_period = SelectField("Períodos", choices=chg_period,
+                                  default="last")
     seas = BooleanField("Desestacionalizar")
     seas_type = SelectField("Tipo", choices=seas_types, default="seas")
     submit = SubmitField("Consultar")
 
 
 class OrderForm(FlaskForm):
-    order = [(str(i), str(i)) for i in range(1, 8)]
+    order = [(str(i), str(i)) for i in range(1, 9)]
     usd_order = SelectField("Convertir a dólares", choices=order,
                             validators=[DataRequired()], default="1")
     real_order = SelectField("Deflactar", choices=order,
@@ -167,6 +176,9 @@ class OrderForm(FlaskForm):
                             validators=[DataRequired()], default="1")
     base_index_order = SelectField("Calcular índice base", choices=order,
                                    validators=[DataRequired()], default="1")
+    chg_diff_order = SelectField("Calcular variaciones o diferencias",
+                                 choices=order, validators=[DataRequired()],
+                                 default="1")
     seas_order = SelectField("Desestacionalizar", choices=order,
                              validators=[DataRequired()], default="1")
     submit = SubmitField("Consultar")
