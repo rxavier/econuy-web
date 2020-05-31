@@ -97,6 +97,7 @@ class SubmitForm(FlaskForm):
     operations = [("average", "Promedio"), ("sum", "Suma")]
     operations_res = [("average", "Reducir frecuencia: promedio"),
                       ("sum", "Reducir frecuencia: suma"),
+                      ("upsample", "Reducir frecuencia: último período"),
                       ("upsample", "Aumentar frecuencia")]
     frequencies = [("M", "Mensual"),
                    ("Q-DEC", "Trimestral"),
