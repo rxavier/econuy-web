@@ -20,7 +20,7 @@ defusedxml==0.6.0
 distlib==0.3.0
 docutils==0.16
 dominate==2.5.1
--e git+https://github.com/rxavier/uy-econ.git@9ea54ab9402e66ad0f565ada419b566a00fc6ce9#egg=econuy
+-e git+https://github.com/rxavier/uy-econ.git@72e47d0b52ee3991be2f476801ca6f08624a1d54#egg=econuy
 entrypoints==0.3
 filelock==3.0.12
 flake8==3.8.2
