@@ -128,12 +128,15 @@ def query():
     indicator = data["indicator"]["data"]
     indicator_label = data["indicator"]["label"]
     function_dict = {
-        "usd": lambda x: transform.convert_usd(x),
+        "usd": lambda x: transform.convert_usd(x, update_loc=db.engine,
+                                               only_get=True),
         "real": lambda x: transform.convert_real(
-            x, start_date=data["real_start"]["data"],
+            x, update_loc=db.engine, only_get=True,
+            start_date=data["real_start"]["data"],
             end_date=data["real_end"]["data"]
         ),
-        "gdp": lambda x: transform.convert_gdp(x),
+        "gdp": lambda x: transform.convert_gdp(x, update_loc=db.engine,
+                                               only_get=True),
         "freq": lambda x: transform.resample(x,
                                              target=data["frequency"]["data"],
                                              operation=data["operation_res"][
