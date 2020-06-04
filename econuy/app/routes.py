@@ -26,6 +26,7 @@ def submit():
         chg_diff_type_choices = dict(form.chg_diff_type.choices)
         chg_diff_period_choices = dict(form.chg_diff_period.choices)
         seas_type_choices = dict(form.seas_type.choices)
+        seas_method_choices = dict(form.seas_method.choices)
         session["request"] = {
             "indicator": {
                 "data": form.indicator.data,
@@ -78,8 +79,11 @@ def submit():
             "seas": {"data": form.seas.data,
                      "label": form.seas.label},
             "seas_type": {"data": form.seas_type.data,
-                          "label": seas_type_choices[form.seas_type.data]}
+                          "label": seas_type_choices[form.seas_type.data]},
+            "seas_method": {"data": form.seas_method.data,
+                            "label": seas_method_choices[form.seas_method.data]}
         }
+
         transformations = [k for k, v in session["request"].items()
                            if v["data"] is True]
         if len(transformations) > 1:
@@ -164,7 +168,9 @@ def query():
             x, operation=data["chg_diff_type"]["data"],
             period_op=data["chg_diff_period"]["data"]),
         "seas": lambda x: transform.decompose(x,
-                                              flavor=data["seas_type"]["data"])
+                                              flavor=data["seas_type"]["data"],
+                                              method=data["seas_method"]["data"],
+                                              force_x13=True)
     }
     output = sqlutil.read(con=db.engine, table_name=indicator,
                           start_date=session["request"]["start"]["data"],

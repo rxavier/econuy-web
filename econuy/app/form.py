@@ -109,6 +109,9 @@ class SubmitForm(FlaskForm):
                   ("annual", "Anual")]
     seas_types = [("seas", "Desestacionalizado"),
                   ("trend", "Tendencia-ciclo")]
+    seas_methods = [("x13", "X13 ARIMA"),
+                    ("loess", "Loess"),
+                    ("ma", "Medias móviles")]
 
     indicator = SelectField("Indicador", choices=indicators,
                             validators=[
@@ -158,7 +161,8 @@ class SubmitForm(FlaskForm):
     chg_diff_period = SelectField("Períodos", choices=chg_period,
                                   default="last")
     seas = BooleanField("Desestacionalizar")
-    seas_type = SelectField("Tipo", choices=seas_types, default="seas")
+    seas_type = SelectField("Componente", choices=seas_types, default="seas")
+    seas_method = SelectField("Método", choices=seas_methods, default="loess")
     submit = SubmitField("Consultar")
 
 

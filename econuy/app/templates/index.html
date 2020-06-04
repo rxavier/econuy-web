@@ -155,17 +155,20 @@
             {{ form.chg_diff_period }}
         </p>
         </p>
-        <hr style="width:40%; text-align:left; margin-left: 0;">
-        <h4>Experimental</h4>
-        <p>Esta transformación puede demorar y generar un timeout
-            dependiendo de la cantidad y características de las series del
-            cuadro seleccionado.</p>
         <p>
             {{ form.seas }}
             {{ form.seas.label }}</br>
         <p style="margin-left: 2%">
+            {{ form.seas_method.label }}
+            {{ form.seas_method }}
             {{ form.seas_type.label }}
             {{ form.seas_type }}
+        <a href="#" data-toggle="tooltip" data-placement="right"
+           style="margin-left: 1.5%" data-html="true"
+           title="El procesamiento con el método X13 ARIMA puede demorar
+            dependiendo del tipo y largo de series en la tabla seleccionada.
+            En algunos casos la consulta puede ser terminada.">
+            <img src="static/info.png" width=22px></a>
         </p>
         </p></br>
         <p>{{ form.submit() }}</p>
