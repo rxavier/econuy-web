@@ -3,4 +3,4 @@ from econuy.app.tasks import clear_tables
 
 
 if __name__ == "__main__":
-    clear_tables(db.engine)
+    clear_tables(db.get_engine(bind="queries"))

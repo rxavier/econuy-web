@@ -179,7 +179,8 @@ def query():
         for t in session["transformations"].values():
             output = function_dict[t](output)
     session["table"] = "export_" + "".join(sample(ascii_letters, 12))
-    sqlutil.df_to_sql(output, name=session["table"], con=db.engine)
+    sqlutil.df_to_sql(output, name=session["table"],
+                      con=db.get_engine(bind="queries"))
     transf_parameters = [data[i]["label"] for i in
                          session["transformations"].values()]
     return render_template("query.html", indicator_label=indicator_label,
@@ -192,7 +193,8 @@ def query():
 @app.route("/exportar", methods=["GET"])
 def export():
     try:
-        data = sqlutil.read(con=db.engine, table_name=session["table"])
+        data = sqlutil.read(con=db.get_engine(bind="queries"),
+                            table_name=session["table"])
     except ProgrammingError:
         return flash("La tabla ya no está disponible para descargar. "
                      "Intente la consulta nuevamente.")
