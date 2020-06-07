@@ -1,7 +1,7 @@
-from econuy.retrieval import (cpi, fiscal_accounts, commodity_index,
+from econuy.retrieval import (cpi, fiscal_accounts, commodity_index, trade,
                               labor, national_accounts, nxr, rxr, reserves)
 from econuy.frequent import (labor_rate_people, inflation, fiscal,
-                             labor_real_wages)
+                             labor_real_wages, trade_balance)
 from econuy.app import db
 from econuy.app.tasks import full_update
 
@@ -19,9 +19,11 @@ if __name__ == "__main__":
                            rxr.get_official,
                            rxr.get_custom,
                            reserves.get_changes,
+                           trade.get,
                            labor_rate_people,
                            inflation,
-                           labor_real_wages])
+                           labor_real_wages,
+                           trade_balance])
     fiscal(update_loc=db.engine, save_loc=db.engine,
            aggregation="gps", fss=True)
     fiscal(update_loc=db.engine, save_loc=db.engine,
