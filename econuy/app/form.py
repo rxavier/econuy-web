@@ -53,6 +53,7 @@ class SubmitForm(FlaskForm):
         ("tfm_labor_nsa", "Mercado laboral: tasas y personas (ene-06, M)"),
         ("tfm_wages_nsa", "Mercado laboral: salarios nominales y reales (ene-68, M)"),
         ("tfm_tb", "Comercio internacional: balanza comercial por país (ene-00, M)"),
+        ("tfm_tot", "Comercio internacional: términos de intercambio (ene-05, M)"),
         ("activity_sep", "----- Actividad económica -----"),
         ("naccounts_gas_con_nsa", "Cuentas nacionales: Demanda, precios constantes, series armonizadas (mar-05, T)"),
         ("naccounts_ind_con_nsa", "Cuentas nacionales: Oferta, precios constantes, series armonizadas (mar-05, T)"),
