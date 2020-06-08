@@ -10,7 +10,9 @@ def full_update(con: Union[Connection, Engine],
     output = []
     for f in functions:
         try:
+            print(f"Running {f.__module__}...")
             output.append(f(update_loc=con, save_loc=con, **kwargs))
+            print("Success.")
         except:
             # This exception is intentionally broad.
             # If any function fails, carry on with the next one.
