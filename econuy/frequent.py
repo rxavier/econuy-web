@@ -217,8 +217,8 @@ def fiscal(aggregation: str = "gps", fss: bool = True,
     proc["Egresos: Totales GC-BPS aj. FSS"] = (proc["Egresos: Totales GC-BPS"]
                                                - proc["Intereses: FSS"])
     proc["Resultado: Primario SPNF aj. FSS"] = (
-            proc["Resultado: Primario SPNF"]
-            - proc["Ingresos: FSS"])
+        proc["Resultado: Primario SPNF"]
+        - proc["Ingresos: FSS"])
     proc["Resultado: Global SPNF aj. FSS"] = (proc["Resultado: Global SPNF"]
                                               - proc["Ingresos: FSS"]
                                               + proc["Intereses: FSS"])
@@ -228,12 +228,12 @@ def fiscal(aggregation: str = "gps", fss: bool = True,
                                              - proc["Ingresos: FSS"]
                                              + proc["Intereses: FSS"])
     proc["Resultado: Primario GC-BPS aj. FSS"] = (
-            proc["Resultado: Primario GC-BPS"]
-            - proc["Ingresos: FSS"])
+        proc["Resultado: Primario GC-BPS"]
+        - proc["Ingresos: FSS"])
     proc["Resultado: Global GC-BPS aj. FSS"] = (
-            proc["Resultado: Global GC-BPS"]
-            - proc["Ingresos: FSS"]
-            + proc["Intereses: FSS"])
+        proc["Resultado: Global GC-BPS"]
+        - proc["Ingresos: FSS"]
+        + proc["Intereses: FSS"])
 
     output = proc.loc[:, fiscal_metadata[aggregation][fss]]
     metadata._set(output, area="Cuentas fiscales y deuda",
@@ -478,10 +478,12 @@ def trade_balance(update_loc: Union[str, PathLike, Engine,
     """
     data = trade.get(update_loc=update_loc, save_loc=save_loc,
                      only_get=only_get)
-    exports = data["tb_x_dest_val"].rename(columns=
-                                           {"Total exportaciones": "Total"})
-    imports = data["tb_m_orig_val"].rename(columns=
-                                           {"Total importaciones": "Total"})
+    exports = data["tb_x_dest_val"].rename(
+        columns={"Total exportaciones": "Total"}
+    )
+    imports = data["tb_m_orig_val"].rename(
+        columns={"Total importaciones": "Total"}
+    )
     net = exports - imports
 
     if save_loc is not None:
@@ -529,10 +531,12 @@ def terms_of_trade(update_loc: Union[str, PathLike, Engine,
     """
     data = trade.get(update_loc=update_loc, save_loc=save_loc,
                      only_get=only_get)
-    exports = data["tb_x_dest_pri"].rename(columns=
-                                           {"Total exportaciones": "Total"})
-    imports = data["tb_m_orig_pri"].rename(columns=
-                                           {"Total importaciones": "Total"})
+    exports = data["tb_x_dest_pri"].rename(
+        columns={"Total exportaciones": "Total"}
+    )
+    imports = data["tb_m_orig_pri"].rename(
+        columns={"Total exportaciones": "Total"}
+    )
     tot = exports / imports
     tot = tot.loc[:, ["Total"]]
     tot.rename(columns={"Total": "Términos de intercambio"}, inplace=True)
