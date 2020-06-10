@@ -1,60 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-<p>econ.uy tiene un único fin: simplificarle la vida a quienes necesiten
-    acceder a estadísticas básicas de la economía uruguaya.
-    El público objetivo es amplio: es suficientemente simple como para ser
-    usado por personas sin conocimiento específico, pero permite hacer
-    transformaciones más utiles para quienes tengan más idea.</p>
-<p>En resumidas cuentas: econ.uy descarga datos públicos y limpia las planillas
-    para dejarlas en un formato del siguiente tipo:</p>
-<p><table width=30%>
-    <tr>
-        <th>Fecha</th>
-        <th>A</th>
-        <th>B</th>
-    </tr>
-    <tr>
-        <td>Ene-2000</td>
-        <td>5.1</td>
-        <td>-2.5</td>
-    </tr>
-    <tr>
-        <td>Feb-2000</td>
-        <td>7.1</td>
-        <td>-1.9</td>
-    </tr>
-    <tr>
-        <td>..</td>
-        <td>..</td>
-        <td>..</td>
-    </tr>
-    <tr>
-        <td>Dic-2019</td>
-        <td>14.9</td>
-        <td>2.3</td>
-    </tr>
-</table></p></br>
-<p>Se eliminan filas vacías, columnas vacías, notas al pie, etc. Cada columna
-contiene la información del indicador y sus metadatos (área, frecuencia,
-    unidad, etc.).
-</p>
-<p>
-Los datos originales son en un 90% de fuentes nacionales (fundamentalmente
-BCU e INE), aunque se usan otras fuentes para el Índice econ.uy de Precios
-de Materias Primas (IePMP) y los tipos de cambio reales bilaterales.
-Los datos son descargados directamente de sitios públicos, por lo que
-puede haber interrupciones en el servicio cuando:
+<h1>Sobre econuy</h1>
+<p><b>econuy</b> facilita el acceso a estadísticas de la economía uruguaya. Apunta a:</p>
 <ul>
-    <li>La web cambia</li>
-    <li>La web no está disponible</li>
-    <li>El archivo de datos descargado cambia</li>
+    <li>Reunir datos de varios sitios web en el mismo lugar (INE, BCU, MEF, FMI, etc.).</li>
+    <li>Presentar planillas limpias, sin notas, sin títulos, en formato
+        <a href="https://es.wikipedia.org/wiki/Tidy_data">tidy data</a>.</li>
+    <li>Incluir metadatos claros para cada indicador.</li>
+    <li>Permitir el cálculo de transformaciones sobre los datos (por ejemplo, convertir a dólares).
+    </li>
+    <li>Permitir descargar los datos.</li>
 </ul>
-En ese caso, se puede crear un issue en
-<a href="https://github.com/rxavier/econuy/issues">Github</a> para alertarme
-del problema.</p>
+<p>Dos veces al día se actualizan todos los datos disponibles, por lo que el
+    tiempo entre que nueva información
+    se hace pública y están disponibles en <b>econuy</b> debería ser bastante
+    corto.</p>
 <p>
-    En paralelo a esta web, econ.uy puede ser usado como un paquete de Python.
-    Las instrucciones para esto se encuentran en el <a href="https://github.com/rxavier/econuy">README.</a>
+    Los datos son descargados automáticamente de sitios públicos, lo que significa que
+    puede haber demoras en las actualizaciones cuando a) la URL desde la
+    que se descargan los datos cambia; b) la URL no está disponible;
+    c) el archivo de origen cambió de manera no esperada.
+
+    En ese caso, se puede crear un issue en
+    <a href="https://github.com/rxavier/econuy/issues">Github</a> para
+    alertarme del problema.</p>
+<p>
+    En paralelo a esta web, <b>econuy</b> puede ser usado como un paquete de Python.
+    Las instrucciones para esto se encuentran en el <a
+        href="https://github.com/rxavier/econuy">README.</a>
 </p>
 {% endblock %}

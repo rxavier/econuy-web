@@ -4,6 +4,7 @@
 {% block content %}
 
 
+<h1>Realizar una consulta de datos</h1>
 
     <form action="" method="post">
         {{ form.hidden_tag() }}
@@ -53,12 +54,10 @@
             {{ form.real_end }}
             <a href="#" data-toggle="tooltip" data-placement="right"
                style="margin-left: 1.5%"
-               title="Es posible deflactar a) definiendo solo una fecha (la de inicio)
-           para que los datos queden expresados a precios de ese mes,
+               title="Es posible deflactar a) definiendo solo la fecha de
+               inicio para que los datos queden expresados a precios de ese mes,
            b) definiendo ambas para que los datos queden expresados a precios
-           promedio de ese rango de meses, c) sin definir fechas en caso de que
-           no sea necesario que los datos queden expresados a precios de un mes
-           específico.">
+           promedio de ese rango de meses, c) sin definir fechas.">
                 <img src="static/info.png" width=22px></a></br>
             {% for error in form.real_end.errors %}
             <span style="color: red;">[{{ error }}]</span>
@@ -71,17 +70,11 @@
             <a href="#" data-toggle="tooltip" data-placement="right"
                style="margin-left: 1.5%"
                title="En caso de querer calcular un flujo en porcentaje del PBI,
-               es necesario acumular anualmente antes de aplicar esta
-               transformación."> <img src="static/info.png" width=22px"></a>
+               acumular anualmente antes."> <img src="static/info.png" width=22px"></a>
         </p>
         <p>
             {{ form.freq }}
-            {{ form.freq.label }}
-            <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 1.5%"
-               title="Esta transformación toma en cuenta si los datos son flujo
-                      o stock."> <img src="static/info.png"
-                                      width=22px"></a></br>
+            {{ form.freq.label }}</br>
         <p style="margin-left: 2%">
             {{ form.frequency.label }}
             {{ form.frequency }}
@@ -90,26 +83,16 @@
             <a href="#" data-toggle="tooltip" data-placement="right"
                style="margin-left: 1.5%"
                title="Estas dos selecciones deben ser consistentes con la frecuencia
-                  de los datos base. Es decir, si el cuadro seleccionado es de
+                  de los datos base. Por ejemplo, si el cuadro seleccionado es de
                   frecuencia trimestral y se quiere transformar a frecuencia
                   mensual, el único método correspondiente es 'Aumentar
-                  frecuencia', que interpolará linealmente los datos faltantes.
-                  Si se quiere transformar a frecuencia anual se puede elegir
-                  cualquiera de los métodos de 'Reducir frecuencia', aunque
-                  si los datos base son un stock (y no un flujo), cualquiera
-                  de los métodos de reducción dará el mismo resultado.">
+                  frecuencia', que interpolará linealmente los datos faltantes.">
                 <img src="static/info.png" width=22px></a>
         </p>
         </p>
         <p>
             {{ form.cum }}
-            {{ form.cum.label }}
-            <a href="#" data-toggle="tooltip" data-placement="right"
-               style="margin-left: 1.5%"
-               title="Esta transformación mantiene la frecuencia, pero cada
-                      período pasa a ser la suma o promedio de ese período y
-                      de los x-1 períodos anteriores">
-                <img src="static/info.png" width=22px></a></br>
+            {{ form.cum.label }}</br>
         <p style="margin-left: 2%">
             {{ form.periods.label }}
             {{ form.periods }}
