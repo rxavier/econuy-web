@@ -58,15 +58,13 @@ tbody tr td:first-child {
 </ol>
 {% endif %}
 
-<p align="right"><a href="{{ url_for('export') }}">
+<p align="left"><a href="{{ url_for('export') }}">
     <img src="static/csv.png" width=30px
          style="margin-right: 0.5%; vertical-align: middle">
     Descargar CSV</a></p>
 
-<div style="overflow:scroll; height:30%">
 {% for table in tables %}
 {{ table|safe }}
 {% endfor %}
-</div>
 
 {% endblock %}

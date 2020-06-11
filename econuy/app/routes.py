@@ -14,7 +14,6 @@ from econuy.utils import sqlutil
 
 
 @app.route("/", methods=["GET", "POST"])
-@app.route("/index", methods=["GET", "POST"])
 def submit():
     # for key in ["request", "transformations"]:
     # session.pop(key, None)
