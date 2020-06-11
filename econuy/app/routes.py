@@ -1,6 +1,8 @@
 from random import sample
 from string import ascii_letters
 
+import pandas as pd
+import numpy as np
 from sqlalchemy.exc import ProgrammingError
 from flask import (render_template, redirect, url_for,
                    session, make_response, flash)
@@ -195,12 +197,15 @@ def export():
     try:
         data = sqlutil.read(con=db.get_engine(bind="queries"),
                             table_name=session["table"])
+        credit = pd.DataFrame(columns=data.columns, index=[np.nan] * 2)
+        credit.iloc[1, 0] = "https://econuy.herokuapp.com/"
+        output = data.append(credit)
     except ProgrammingError:
         return flash("La tabla ya no está disponible para descargar. "
                      "Intente la consulta nuevamente.")
     db.engine.execute(f'DROP TABLE IF EXISTS "{session["table"]}"')
     db.engine.execute(f'DROP TABLE IF EXISTS "{session["table"]}_metadata"')
-    response = make_response(data.to_csv())
+    response = make_response(output.to_csv())
     response.headers["Content-Type"] = "text/csv"
     response.headers[
         "content-disposition"] = "attachment; filename=econuy-export.csv"
