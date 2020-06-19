@@ -12,7 +12,7 @@
         <p>
         <h2>{{ form.indicator.label }}</h2>
         {{ form.indicator }}
-        <a href="#" data-toggle="tooltip" data-placement="right"
+        <a data-toggle="tooltip" data-placement="right"
            style="margin-left: 1.5%"
            title="Entre paréntesis se detalla la fecha inicial y la frecuencia.">
             <img src="static/info.png" width=22px></a></br>
@@ -24,7 +24,7 @@
             {{ form.start }}
             {{ form.end.label }}
             {{ form.end }}
-            <a href="#" data-toggle="tooltip" data-placement="right"
+            <a data-toggle="tooltip" data-placement="right"
                style="margin-left: 1.5%"
                title="Si no se eligen fechas se reportan
                todos los datos disponibles.">
@@ -52,7 +52,7 @@
             {{ form.real_start }}
             {{ form.real_end.label }}
             {{ form.real_end }}
-            <a href="#" data-toggle="tooltip" data-placement="right"
+            <a data-toggle="tooltip" data-placement="right"
                style="margin-left: 1.5%"
                title="Es posible deflactar a) definiendo solo la fecha de
                inicio para que los datos queden expresados a precios de ese mes,
@@ -67,7 +67,7 @@
         <p>
             {{ form.gdp }}
             {{ form.gdp.label }}
-            <a href="#" data-toggle="tooltip" data-placement="right"
+            <a data-toggle="tooltip" data-placement="right"
                style="margin-left: 1.5%"
                title="En caso de querer calcular un flujo en porcentaje del PBI,
                acumular anualmente antes."> <img src="static/info.png" width=22px"></a>
@@ -80,7 +80,7 @@
             {{ form.frequency }}
             {{ form.operation_res.label }}
             {{ form.operation_res }}
-            <a href="#" data-toggle="tooltip" data-placement="right"
+            <a data-toggle="tooltip" data-placement="right"
                style="margin-left: 1.5%"
                title="Estas dos selecciones deben ser consistentes con la frecuencia
                   de los datos base. Por ejemplo, si el cuadro seleccionado es de
@@ -113,7 +113,7 @@
             {{ form.base_index_end }}
             {{ form.base_index_base.label }}
             {{ form.base_index_base }}
-            <a href="#" data-toggle="tooltip" data-placement="right"
+            <a data-toggle="tooltip" data-placement="right"
                style="margin-left: 1.5%" data-html="true"
                title="La fecha final es opcional, en cuyo caso el índice será
                   <i>valor de fecha inicial=valor base</i>. Si se define fecha
@@ -146,7 +146,7 @@
             {{ form.seas_method }}
             {{ form.seas_type.label }}
             {{ form.seas_type }}
-        <a href="#" data-toggle="tooltip" data-placement="right"
+        <a data-toggle="tooltip" data-placement="right"
            style="margin-left: 1.5%" data-html="true"
            title="El procesamiento con el método X13 ARIMA puede demorar
             dependiendo del tipo y largo de series en la tabla seleccionada.
