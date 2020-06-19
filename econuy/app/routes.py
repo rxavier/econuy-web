@@ -187,7 +187,8 @@ def query():
     return render_template("query.html", indicator_label=indicator_label,
                            tables=[output.to_html(header="true",
                                                   float_format=lambda x:
-                                                  '{:,.1f}'.format(x))],
+                                                  '{:,.1f}'.format(x),
+                                                  table_id="scroll")],
                            transformations=transf_parameters)
 
 

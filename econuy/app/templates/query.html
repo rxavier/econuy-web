@@ -43,8 +43,9 @@ tbody tr td:first-child {
   max-width: 8em;
   word-break: break-all;
 }
-
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.2.1/jquery.floatThead.min.js">
+</script>
 {% endblock %}
 
 {% block content %}
@@ -66,5 +67,11 @@ tbody tr td:first-child {
 {% for table in tables %}
 {{ table|safe }}
 {% endfor %}
+
+<script>
+$(function(){
+	$('#scroll').floatThead();
+});
+</script>
 
 {% endblock %}
