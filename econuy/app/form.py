@@ -161,6 +161,7 @@ class SubmitForm(FlaskForm):
     seas = BooleanField("Desestacionalizar")
     seas_type = SelectField("Componente", choices=seas_types, default="seas")
     seas_method = SelectField("Método", choices=seas_methods, default="loess")
+    only_dl = BooleanField("Descargar datos sin visualizar")
     submit = SubmitField("Consultar")
 
 

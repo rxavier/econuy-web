@@ -82,11 +82,13 @@ def submit():
             "seas_type": {"data": form.seas_type.data,
                           "label": seas_type_choices[form.seas_type.data]},
             "seas_method": {"data": form.seas_method.data,
-                            "label": seas_method_choices[form.seas_method.data]}
+                            "label": seas_method_choices[form.seas_method.data]},
+            "only_dl": {"data": form.only_dl.data,
+                        "label": form.only_dl.label}
         }
 
         transformations = [k for k, v in session["request"].items()
-                           if v["data"] is True]
+                           if v["data"] is True if k != "only_dl"]
         if len(transformations) > 1:
             return redirect(url_for("order"))
         elif len(transformations) == 1:
@@ -184,12 +186,15 @@ def query():
                       con=db.get_engine(bind="queries"))
     transf_parameters = [data[i]["label"] for i in
                          session["transformations"].values()]
-    return render_template("query.html", indicator_label=indicator_label,
-                           tables=[output.to_html(header="true",
-                                                  float_format=lambda x:
-                                                  '{:,.1f}'.format(x),
-                                                  table_id="scroll")],
-                           transformations=transf_parameters)
+    if session["request"]["only_dl"]["data"] is True:
+        return redirect(url_for("export"))
+    else:
+        return render_template("query.html", indicator_label=indicator_label,
+                               tables=[output.to_html(header="true",
+                                                      float_format=lambda x:
+                                                      '{:,.1f}'.format(x),
+                                                      table_id="scroll")],
+                               transformations=transf_parameters)
 
 
 @app.route("/exportar", methods=["GET"])
