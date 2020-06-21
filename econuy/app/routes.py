@@ -108,7 +108,7 @@ def about():
 @app.route("/orden", methods=["GET", "POST"])
 def order():
     transformations = [k for k, v in session["request"].items()
-                       if v["data"] is True]
+                       if v["data"] is True if k != "only_dl"]
     form = OrderForm()
     orders = [(str(i), str(i)) for i in range(1, 9)]
     order_count = orders[:len(transformations)]
