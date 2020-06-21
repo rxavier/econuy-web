@@ -47,8 +47,6 @@ tbody tr td:first-child {
   word-break: break-all;
 }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.2.1/jquery.floatThead.min.js">
-</script>
 {% endblock %}
 
 {% block content %}
@@ -67,14 +65,10 @@ tbody tr td:first-child {
          style="margin-right: 0.5%; vertical-align: middle">
     Descargar CSV</a></p>
 
+<div style="overflow:auto">
 {% for table in tables %}
 {{ table|safe }}
 {% endfor %}
-
-<script>
-$(function(){
-	$('#scroll').floatThead();
-});
-</script>
+</div>
 
 {% endblock %}
