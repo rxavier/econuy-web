@@ -3,13 +3,14 @@ from string import ascii_letters
 
 import pandas as pd
 import numpy as np
+from sqlalchemy import inspect
 from sqlalchemy.exc import ProgrammingError
 from flask import (render_template, redirect, url_for,
                    session, make_response, flash)
 
 from econuy import transform
 from econuy.app import app, db
-from econuy.app.form import SubmitForm, OrderForm
+from econuy.app.form import SubmitForm, OrderForm, ColumnForm
 from econuy.utils import sqlutil
 
 
@@ -83,21 +84,53 @@ def submit():
                           "label": seas_type_choices[form.seas_type.data]},
             "seas_method": {"data": form.seas_method.data,
                             "label": seas_method_choices[form.seas_method.data]},
+            "some_cols": {"data": form.some_cols.data,
+                          "label": form.some_cols.label},
             "only_dl": {"data": form.only_dl.data,
                         "label": form.only_dl.label}
         }
 
-        transformations = [k for k, v in session["request"].items()
-                           if v["data"] is True if k != "only_dl"]
-        if len(transformations) > 1:
+        session["transformations"] = [k for k, v in session["request"].items()
+                                      if v["data"] is True if k not in
+                                      ["only_dl", "some_cols"]]
+        if session["request"]["some_cols"]["data"] is True:
+            return redirect(url_for("columns"))
+        else:
+            session["columns"] = "*"
+        if len(session["transformations"]) > 1:
             return redirect(url_for("order"))
-        elif len(transformations) == 1:
-            session["transformations"] = {1: transformations[0]}
+        elif len(session["transformations"]) == 1:
+            session["transformations"] = {1: session["transformations"][0]}
             return redirect(url_for("query"))
         else:
             session["transformations"] = {}
             return redirect(url_for("query"))
     return render_template("index.html", form=form)
+
+
+@app.route("/series", methods=["GET", "POST"])
+def columns():
+    cols_data = inspect(db.engine).get_columns(table_name=session["request"]
+                                               ["indicator"]["data"])
+    col_names = [x["name"] for x in cols_data[1:]]
+    form = ColumnForm()
+    form.columns.choices.extend([(col, col) for col in col_names])
+    size = min(20, len(form.columns.choices))
+    form.columns.render_kw = {"size": str(size)}
+    if form.validate_on_submit():
+        if "*" in form.columns.data:
+            session["columns"] = "*"
+        else:
+            session["columns"] = form.columns.data
+        if len(session["transformations"]) > 1:
+            return redirect(url_for("order"))
+        elif len(session["transformations"]) == 1:
+            session["transformations"] = {1: session["transformations"][0]}
+            return redirect(url_for("query"))
+        else:
+            session["transformations"] = {}
+            return redirect(url_for("query"))
+    return render_template("columns.html", form=form)
 
 
 @app.route("/sobre", methods=["GET"])
@@ -107,8 +140,7 @@ def about():
 
 @app.route("/orden", methods=["GET", "POST"])
 def order():
-    transformations = [k for k, v in session["request"].items()
-                       if v["data"] is True if k != "only_dl"]
+    transformations = session["transformations"]
     form = OrderForm()
     orders = [(str(i), str(i)) for i in range(1, 9)]
     order_count = orders[:len(transformations)]
@@ -176,6 +208,7 @@ def query():
                                               force_x13=True)
     }
     output = sqlutil.read(con=db.engine, table_name=indicator,
+                          cols=session["columns"],
                           start_date=session["request"]["start"]["data"],
                           end_date=session["request"]["end"]["data"])
     if len(session["transformations"]) > 0:

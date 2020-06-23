@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import (SelectField, BooleanField,
+from wtforms import (SelectField, SelectMultipleField, BooleanField,
                      SubmitField, IntegerField)
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, NoneOf, Optional, ValidationError
@@ -40,6 +40,18 @@ class LaterDate(object):
     def __call__(self, form, field):
         other_field = form[self.other]
         if field.data <= other_field.data:
+            raise ValidationError(self.message)
+
+
+class NoneOfMultiple(object):
+    def __init__(self, value, message=None):
+        self.value = value
+        if not message:
+            message = "Seleccionar una opción válida."
+        self.message = message
+
+    def __call__(self, form, field):
+        if any(item in field.data for item in self.value):
             raise ValidationError(self.message)
 
 
@@ -161,6 +173,7 @@ class SubmitForm(FlaskForm):
     seas = BooleanField("Desestacionalizar")
     seas_type = SelectField("Componente", choices=seas_types, default="seas")
     seas_method = SelectField("Método", choices=seas_methods, default="loess")
+    some_cols = BooleanField("Filtrar series de la tabla")
     only_dl = BooleanField("Descargar datos sin visualizar")
     submit = SubmitField("Consultar")
 
@@ -184,4 +197,15 @@ class OrderForm(FlaskForm):
                                  default="1")
     seas_order = SelectField("Desestacionalizar", choices=order,
                              validators=[DataRequired()], default="1")
-    submit = SubmitField("Consultar")
+    submit = SubmitField("Aceptar")
+
+
+class ColumnForm(FlaskForm):
+    choices = [("*", "Todas las series disponibles"), ("sep", "-----")]
+    columns = SelectMultipleField(
+        "Elegir series", choices=choices,
+        validators=[DataRequired(),
+                    NoneOfMultiple(["sep"])]
+    )
+    submit = SubmitField("Aceptar")
+
