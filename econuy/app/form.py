@@ -116,7 +116,7 @@ class SubmitForm(FlaskForm):
                                 DataRequired(),
                                 NoneOf(["activity_sep", "prices_sep",
                                         "fiscal_sep", "labor_sep",
-                                        "external_sep"],
+                                        "external_sep", "frequent_sep"],
                                        message="Seleccionar una tabla.")
                             ])
     start = DateField("Fecha inicial", format="%Y-%m-%d",
