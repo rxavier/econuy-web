@@ -5,9 +5,7 @@
     <h2>Definir orden de transformaciones</h2>
     <form action="" method="post">
         {{ form.hidden_tag() }}
-        {% if form.errors %}
-        {{ form.errors }}
-        {% endif %}
+
         <p>{% if "usd" in transformations %}
             {{ form.usd_order.label }}
             {{ form.usd_order }}
