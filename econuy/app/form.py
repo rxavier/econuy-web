@@ -57,7 +57,7 @@ class NoneOfMultiple(object):
 
 class SubmitForm(FlaskForm):
     indicators = [
-        ("frequent_sep", "----- Tablas frecuentes -----"),
+        ("frequent_sep", "----- Tablas especiales -----"),
         ("tfm_prices", "Indicadores seleccionados de precios (ene-37, M)"),
         ("tfm_fiscal_gps_uyu_fssadj", "Cuentas fiscales: Sector público consolidado, ajustado FSS (ene-99, M)"),
         ("tfm_fiscal_nfps_uyu_fssadj", "Cuentas fiscales: Sector público no financiero, ajustado FSS (ene-99, M)"),
@@ -66,6 +66,8 @@ class SubmitForm(FlaskForm):
         ("tfm_wages_nsa", "Mercado laboral: salarios nominales y reales (ene-68, M)"),
         ("tfm_tb", "Comercio internacional: balanza comercial por país (ene-00, M)"),
         ("tfm_tot", "Comercio internacional: términos de intercambio (ene-05, M)"),
+        ("rxr_custom", "Tipos de cambio reales, cálculos econuy (dic-79, M)"),
+        ("commodity_index", "Índice econuy de precios de materias primas (ene-02, M)"),
         ("activity_sep", "----- Actividad económica -----"),
         ("naccounts_gas_con_nsa", "Cuentas nacionales: Demanda, precios constantes, series armonizadas (mar-05, T)"),
         ("naccounts_ind_con_nsa", "Cuentas nacionales: Oferta, precios constantes, series armonizadas (mar-05, T)"),
@@ -101,9 +103,7 @@ class SubmitForm(FlaskForm):
         ("tb_m_orig_val", "Comercio internacional: Importaciones por origen, valor (ene-00, M)"),
         ("tb_m_orig_vol", "Comercio internacional: Importaciones por origen, volumen (ene-05, M)"),
         ("tb_m_orig_pri", "Comercio internacional: Importaciones por origen, precio (ene-05, M)"),
-        ("rxr_official", "Tipos de cambio reales, BCU (ene-00, M)"),
-        ("rxr_custom", "Tipos de cambio reales, cálculos econ.uy (dic-79, M)"),
-        ("commodity_index", "Índice econ.uy de precios de materias primas (ene-02, M)")]
+        ("rxr_official", "Tipos de cambio reales, BCU (ene-00, M)")]
     operations = [("average", "Promedio"), ("sum", "Suma")]
     operations_res = [("average", "Reducir frecuencia: promedio"),
                       ("sum", "Reducir frecuencia: suma"),
@@ -123,7 +123,7 @@ class SubmitForm(FlaskForm):
                     ("loess", "Loess"),
                     ("ma", "Medias móviles")]
 
-    indicator = SelectField("Indicador", choices=indicators,
+    indicator = SelectField("Cuadro", choices=indicators,
                             validators=[
                                 DataRequired(),
                                 NoneOf(["activity_sep", "prices_sep",
@@ -173,7 +173,7 @@ class SubmitForm(FlaskForm):
     seas = BooleanField("Desestacionalizar")
     seas_type = SelectField("Componente", choices=seas_types, default="seas")
     seas_method = SelectField("Método", choices=seas_methods, default="loess")
-    some_cols = BooleanField("Filtrar series de la tabla")
+    some_cols = BooleanField("Filtrar series del cuadro")
     only_dl = BooleanField("Descargar datos sin visualizar")
     submit = SubmitField("Consultar")
 
