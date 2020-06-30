@@ -55,13 +55,13 @@ setup(
     keywords=["uruguay", "economy", "economic", "statistics", "data"],
     install_requires=pipfile_lock_requirements,
     extras_require={
-        "pgsql":  ["psycopg2==2.8.5"],
-        "flask": ["flask==1.1.2",
-                  "flask-sqlalchemy==2.4.1",
-                  "flask-bootstrap==3.3.7.1",
-                  "flask-wtf==0.14.3",
-                  "python-dotenv==0.13.0",
-                  "gunicorn==20.0.4"]},
+        "pgsql":  ["psycopg2"],
+        "flask": ["flask",
+                  "flask-sqlalchemy",
+                  "flask-bootstrap",
+                  "flask-wtf",
+                  "python-dotenv",
+                  "gunicorn"]},
     packages=packages,
     python_requires=">=3.6"
 )
