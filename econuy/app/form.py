@@ -58,7 +58,7 @@ class NoneOfMultiple(object):
 class SubmitForm(FlaskForm):
     indicators = [
         ("frequent_sep", "----- Tablas especiales -----"),
-        ("tfm_prices", "Indicadores seleccionados de precios (ene-37, M)"),
+        ("tfm_prices", "Indicadores seleccionados de precios (mar-97, M)"),
         ("tfm_fiscal_gps_uyu_fssadj", "Cuentas fiscales: Sector público consolidado, ajustado FSS (ene-99, M)"),
         ("tfm_fiscal_nfps_uyu_fssadj", "Cuentas fiscales: Sector público no financiero, ajustado FSS (ene-99, M)"),
         ("tfm_fiscal_gc_uyu_fssadj", "Cuentas fiscales: Gobierno central-BPS, ajustado FSS (ene-99, M)"),
