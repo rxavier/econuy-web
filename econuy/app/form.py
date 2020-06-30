@@ -39,8 +39,9 @@ class LaterDate(object):
 
     def __call__(self, form, field):
         other_field = form[self.other]
-        if field.data <= other_field.data:
-            raise ValidationError(self.message)
+        if other_field.data is not None:
+            if field.data <= other_field.data:
+                raise ValidationError(self.message)
 
 
 class NoneOfMultiple(object):
