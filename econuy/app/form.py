@@ -103,7 +103,9 @@ class SubmitForm(FlaskForm):
         ("tb_m_orig_val", "Comercio internacional: Importaciones por origen, valor (ene-00, M)"),
         ("tb_m_orig_vol", "Comercio internacional: Importaciones por origen, volumen (ene-05, M)"),
         ("tb_m_orig_pri", "Comercio internacional: Importaciones por origen, precio (ene-05, M)"),
-        ("rxr_official", "Tipos de cambio reales, BCU (ene-00, M)")]
+        ("rxr_official", "Tipos de cambio reales, BCU (ene-00, M)"),
+        ("money_sep", "----- Moneda y banca -----"),
+        ("reserves_chg", "Variación en las reservas del BCU (2-ene-13, D)")]
     operations = [("average", "Promedio"), ("sum", "Suma")]
     operations_res = [("average", "Reducir frecuencia: promedio"),
                       ("sum", "Reducir frecuencia: suma"),
@@ -128,7 +130,8 @@ class SubmitForm(FlaskForm):
                                 DataRequired(),
                                 NoneOf(["activity_sep", "prices_sep",
                                         "fiscal_sep", "labor_sep",
-                                        "external_sep", "frequent_sep"],
+                                        "external_sep", "money_sep",
+                                        "frequent_sep"],
                                        message="Seleccionar una tabla.")
                             ])
     start = DateField("Fecha inicial", format="%Y-%m-%d",
