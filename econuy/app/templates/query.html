@@ -26,7 +26,6 @@ table tbody tr:hover {
   background-color: #babdbe;
 }
 table thead {
-  background: #424242;
   font-size: 13px;
   border-bottom: 5px solid #FFFFFF;
 }
@@ -46,6 +45,8 @@ tbody tr td:first-child {
   max-width: 8em;
   word-break: break-all;
 }
+thead tr:first-child th { position: sticky; top: 0; background: #424242;}
+thead tr:not(:first-child) th { background: #424242;}
 </style>
 {% endblock %}
 
