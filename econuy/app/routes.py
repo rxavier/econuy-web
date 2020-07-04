@@ -1,5 +1,6 @@
 from random import sample
 from string import ascii_letters
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
@@ -208,12 +209,15 @@ def query():
                                               force_x13=True)
     }
     output = sqlutil.read(con=db.engine, table_name=indicator,
-                          cols=session["columns"],
-                          start_date=session["request"]["start"]["data"],
-                          end_date=session["request"]["end"]["data"])
+                          cols=session["columns"])
     if len(session["transformations"]) > 0:
         for t in session["transformations"].values():
             output = function_dict[t](output)
+    start = (session["request"]["start"]["data"]
+             or "1900-01-01")
+    end = (session["request"]["end"]["data"] or
+           datetime.now().strftime("%Y-%m-%d"))
+    output = output.loc[start:end]
     session["table"] = "export_" + "".join(sample(ascii_letters, 12))
     sqlutil.df_to_sql(output, name=session["table"],
                       con=db.get_engine(bind="queries"))
