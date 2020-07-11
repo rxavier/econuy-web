@@ -12,7 +12,7 @@ from flask import (render_template, redirect, url_for,
 from econuy import transform
 from econuy.app import app, db
 from econuy.app.form import SubmitForm, OrderForm, ColumnForm
-from econuy.utils import sqlutil
+from econuy.utils import sqlutil, metadata
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -223,6 +223,7 @@ def query():
                       con=db.get_engine(bind="queries"))
     transf_parameters = [data[i]["label"] for i in
                          session["transformations"].values()]
+    sources = metadata._get_sources(dataset=indicator, html_urls=True)
     if session["request"]["only_dl"]["data"] is True:
         return redirect(url_for("export"))
     else:
@@ -231,7 +232,8 @@ def query():
                                                       float_format=lambda x:
                                                       '{:,.1f}'.format(x),
                                                       table_id="scroll")],
-                               transformations=transf_parameters)
+                               transformations=transf_parameters,
+                               sources=sources)
 
 
 @app.route("/exportar", methods=["GET"])

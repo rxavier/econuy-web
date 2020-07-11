@@ -71,5 +71,22 @@ thead tr:not(:first-child) th { background: #424242;}
 {{ table|safe }}
 {% endfor %}
 </div>
-
+<br>
+<p>Links directos:
+    {% if sources[0]|length == 0 %}
+    no disponible.
+    {% else %}
+    {{ sources[0]|safe }}.
+    {% endif %}<br>
+Links indirectos:
+    {% if sources[1]|length == 0 %}
+    no disponible.
+    {% else %}
+    {{ sources[1]|safe }}.
+    {% endif %}<br>
+Fuentes: {% if sources[2]|length == 0 %}
+    no disponible.
+    {% else %}
+    {{ sources[2]|safe }}.
+    {% endif %}</p>
 {% endblock %}
