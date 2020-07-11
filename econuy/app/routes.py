@@ -242,7 +242,7 @@ def export():
         data = sqlutil.read(con=db.get_engine(bind="queries"),
                             table_name=session["table"])
         credit = pd.DataFrame(columns=data.columns, index=[np.nan] * 2)
-        credit.iloc[1, 0] = "https://econuy.herokuapp.com/"
+        credit.iloc[1, 0] = "https://econ.uy"
         output = data.append(credit)
     except ProgrammingError:
         return flash("La tabla ya no está disponible para descargar. "
