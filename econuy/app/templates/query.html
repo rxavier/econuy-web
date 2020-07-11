@@ -72,21 +72,24 @@ thead tr:not(:first-child) th { background: #424242;}
 {% endfor %}
 </div>
 <br>
-<p>Links directos:
+<p><b>Fuentes</b>
+    <ul>
+    <li>Links directos:
     {% if sources[0]|length == 0 %}
     no disponible.
     {% else %}
     {{ sources[0]|safe }}.
-    {% endif %}<br>
-Links indirectos:
+        {% endif %}</li>
+<li>Links indirectos:
     {% if sources[1]|length == 0 %}
     no disponible.
     {% else %}
     {{ sources[1]|safe }}.
-    {% endif %}<br>
-Fuentes: {% if sources[2]|length == 0 %}
+    {% endif %}</li>
+<li>Proveedores: {% if sources[2]|length == 0 %}
     no disponible.
     {% else %}
     {{ sources[2]|safe }}.
-    {% endif %}</p>
+    {% endif %}</li>
+</ul></p>
 {% endblock %}
