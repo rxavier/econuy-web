@@ -136,15 +136,19 @@ class SubmitForm(FlaskForm):
                                        message="Seleccionar una tabla.")
                             ])
     start = DateField("Fecha inicial", format="%Y-%m-%d",
-                      validators=[Optional()])
+                      validators=[Optional()],
+                      render_kw={"placeholder": "yyyy-mm-dd"})
     end = DateField("Fecha final", format="%Y-%m-%d",
-                    validators=[Optional(), LaterDate("start")])
+                    validators=[Optional(), LaterDate("start")],
+                    render_kw={"placeholder": "yyyy-mm-dd"})
     usd = BooleanField("Convertir a dólares")
     real = BooleanField("Deflactar")
     real_start = DateField("Fecha inicial", format="%Y-%m-%d",
-                           validators=[Optional()])
+                           validators=[Optional()],
+                           render_kw={"placeholder": "yyyy-mm-dd"})
     real_end = DateField("Fecha final", format="%Y-%m-%d",
-                         validators=[Optional(), LaterDate("real_start")])
+                         validators=[Optional(), LaterDate("real_start")],
+                         render_kw={"placeholder": "yyyy-mm-dd"})
     gdp = BooleanField("Calcular % PBI")
     freq = BooleanField("Cambiar frequencia")
     frequency = SelectField("Frecuencia", choices=frequencies,
@@ -161,10 +165,12 @@ class SubmitForm(FlaskForm):
                                  validators=[
                                      RequiredIf(base_index=True,
                                                 message="Campo requerido.")
-                                 ])
+                                 ],
+                                 render_kw={"placeholder": "yyyy-mm-dd"})
     base_index_end = DateField("Fecha final", format="%Y-%m-%d",
                                validators=[Optional(),
-                                           LaterDate("base_index_start")])
+                                           LaterDate("base_index_start")],
+                               render_kw={"placeholder": "yyyy-mm-dd"})
     base_index_base = IntegerField("Valor base",
                                    validators=[
                                        RequiredIf(base_index=True,
