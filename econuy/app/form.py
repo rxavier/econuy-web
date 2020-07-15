@@ -141,6 +141,8 @@ class SubmitForm(FlaskForm):
     end = DateField("Fecha final", format="%Y-%m-%d",
                     validators=[Optional(), LaterDate("start")],
                     render_kw={"placeholder": "yyyy-mm-dd"})
+    tail = IntegerField("Últimos x períodos", validators=[Optional()],
+                        render_kw={"style": "width: 80px"})
     usd = BooleanField("Convertir a dólares")
     real = BooleanField("Deflactar")
     real_start = DateField("Fecha inicial", format="%Y-%m-%d",

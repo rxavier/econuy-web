@@ -40,6 +40,9 @@ def submit():
             "end": {
                 "data": fix_date(form.end.data),
                 "label": form.end.label},
+            "tail": {
+                "data": form.tail.data,
+                "label": form.tail.label},
             "usd": {"data": form.usd.data,
                     "label": form.usd.label},
             "real": {"data": form.real.data,
@@ -213,11 +216,14 @@ def query():
     if len(session["transformations"]) > 0:
         for t in session["transformations"].values():
             output = function_dict[t](output)
-    start = (session["request"]["start"]["data"]
-             or "1900-01-01")
-    end = (session["request"]["end"]["data"] or
-           datetime.now().strftime("%Y-%m-%d"))
-    output = output.loc[start:end]
+    if session["request"]["tail"]["data"] is not None:
+        output = output.tail(session["request"]["tail"]["data"])
+    else:
+        start = (session["request"]["start"]["data"]
+                 or "1900-01-01")
+        end = (session["request"]["end"]["data"] or
+               datetime.now().strftime("%Y-%m-%d"))
+        output = output.loc[start:end]
     session["table"] = "export_" + "".join(sample(ascii_letters, 12))
     sqlutil.df_to_sql(output, name=session["table"],
                       con=db.get_engine(bind="queries"))

@@ -30,6 +30,8 @@
                todos los datos disponibles.">
                 <img src="static/info.png" width=22px></a>
             </br>
+        {{ form.tail.label }}
+        {{ form.tail }}
             {% for error in form.start.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
