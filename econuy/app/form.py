@@ -112,21 +112,23 @@ class SubmitForm(FlaskForm):
                       ("sum", "Reducir frecuencia: suma"),
                       ("end", "Reducir frecuencia: último período"),
                       ("upsample", "Aumentar frecuencia")]
-    frequencies = [("M", "Mensual"),
+    frequencies = [("A-DEC", "Anual"),
                    ("Q-DEC", "Trimestral"),
-                   ("A-DEC", "Anual")]
-    chg_type = [("diff", "Cambio"),
-                ("chg", "Variación porcentual")]
+                   ("M", "Mensual"),
+                   ("2W", "14 días"),
+                   ("W", "Semanal")]
+    chg_type = [("chg", "Variación porcentual"),
+                ("diff", "Cambio")]
     chg_period = [("last", "Último período"),
                   ("inter", "Interanual"),
                   ("annual", "Anual")]
     seas_types = [("seas", "Desestacionalizado"),
                   ("trend", "Tendencia-ciclo")]
-    seas_methods = [("x13", "X13 ARIMA"),
-                    ("loess", "Loess"),
-                    ("ma", "Medias móviles")]
+    seas_methods = [("loess", "Loess"),
+                    ("ma", "Medias móviles"),
+                    ("x13", "X13 ARIMA")]
 
-    indicator = SelectField("Cuadro", choices=indicators,
+    indicator = SelectField("Seleccionar tabla de datos", choices=indicators,
                             validators=[
                                 DataRequired(),
                                 NoneOf(["activity_sep", "prices_sep",
@@ -134,7 +136,7 @@ class SubmitForm(FlaskForm):
                                         "external_sep", "money_sep",
                                         "frequent_sep"],
                                        message="Seleccionar una tabla.")
-                            ])
+                            ], id="indicator")
     start = DateField("Fecha inicial", format="%Y-%m-%d",
                       validators=[Optional()],
                       render_kw={"placeholder": "yyyy-mm-dd"})
@@ -160,7 +162,8 @@ class SubmitForm(FlaskForm):
     cum = BooleanField("Acumular")
     periods = IntegerField("Períodos",
                            validators=[RequiredIf(cum=True,
-                                                  message="Campo requerido.")])
+                                                  message="Campo requerido.")],
+                           render_kw={"style": "width: 80px"})
     operation = SelectField("Método", choices=operations, default="sum")
     base_index = BooleanField("Calcular índice base")
     base_index_start = DateField("Fecha inicial", format="%Y-%m-%d",
@@ -177,7 +180,7 @@ class SubmitForm(FlaskForm):
                                    validators=[
                                        RequiredIf(base_index=True,
                                                   message="Campo requerido.")
-                                   ])
+                                   ], render_kw={"style": "width: 80px"})
     chg_diff = BooleanField("Calcular variaciones o diferencias")
     chg_diff_type = SelectField("Tipo", choices=chg_type, default="chg")
     chg_diff_period = SelectField("Períodos", choices=chg_period,
