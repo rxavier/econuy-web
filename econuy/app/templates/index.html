@@ -12,6 +12,7 @@
   width: 300px;
 }
 
+
 </style>
 {% endblock %}
 
@@ -23,42 +24,51 @@
     {{ form.hidden_tag() }}
 
     <h2>{{ form.indicator.label }}</h2>
-    <p>
-    <div id="ext">
-        <div id="int">
 
-            {{ form.indicator }}
-            <a data-toggle="tooltip" data-placement="right"
-               style="margin-left: 1.5%"
-               title="Entre paréntesis se detalla la fecha inicial y la frecuencia.">
-                <img src="static/info.png" width=22px></a>
-            {% for error in form.indicator.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-    </p>
-    <p style="margin-left: 2%; margin-bottom: 0;">
+    <p>
+        <div id="ext">
+            <div id="int">
+
+    <p>{{ form.indicator }}
+
+        <a data-toggle="tooltip" data-placement="right"
+           style="margin-left: 1.5%"
+           title="Entre paréntesis se detalla la fecha inicial y la frecuencia.">
+            <img src="static/info.png" width=22px></a>
+        {% for error in form.indicator.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}</p>
+
+    <div style="display: inline-block;">
         {{ form.start.label }}
         {{ form.start }}
+    </div>
+    <div style="display: inline-block;">
         {{ form.end.label }}
-        {{ form.end }} <a data-toggle="tooltip" data-placement="right"
-                          style="margin-left: 1.5%"
-                          title="Si no se eligen fechas se reportan
+        {{ form.end }}
+    </div>
+    <div style="display: inline-block;">
+        <a data-toggle="tooltip" data-placement="right"
+           style="margin-left: 1.5%"
+           title="Si no se eligen fechas se reportan
                todos los datos disponibles. Alternativamente,
                elegir cuántos períodos recientes mostrar.">
-        <img src="static/info.png" width=22px></a>
-        </br>
+            <img src="static/info.png" width=22px></a></div>
+    </br>
+    <div style="display: inline-block;">
         {{ form.tail.label }}
         {{ form.tail }}
-        {% for error in form.start.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-        {% for error in form.end.errors %}
-        <span style="color: red; margin-left: 18%">[{{ error }}]</span>
-        {% endfor %}
-        {% for error in form.tail.errors %}
-        <span style="color: red; margin-left: 18%">[{{ error }}]</span>
-        {% endfor %}
-        </div></div></p>
+    </div>
+    {% for error in form.start.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    {% for error in form.end.errors %}
+    <span style="color: red; margin-left: 18%">[{{ error }}]</span>
+    {% endfor %}
+    {% for error in form.tail.errors %}
+    <span style="color: red; margin-left: 18%">[{{ error }}]</span>
+    {% endfor %}
+    </div></div></p>
 
     </br>
     <h2>Seleccionar transformaciones</h2>
@@ -79,22 +89,26 @@
     <p>
         {{ form.real }}
         {{ form.real.label }}</p>
-    <p style="margin-left: 2%; margin-bottom: 0">
+    <div style="display: inline-block;">
         {{ form.real_start.label }}
         {{ form.real_start }}
+    </div>
+    <div style="display: inline-block;">
         {{ form.real_end.label }}
         {{ form.real_end }}
+    </div>
+    <div style="display: inline-block;">
         <a data-toggle="tooltip" data-placement="right"
            style="margin-left: 1.5%"
            title="Es posible deflactar a) definiendo solo la fecha de
                inicio para que los datos queden expresados a precios de ese mes,
            b) definiendo ambas para que los datos queden expresados a precios
            promedio de ese rango de meses, c) sin definir fechas.">
-            <img src="static/info.png" width=22px></a>
-        {% for error in form.real_end.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p></div></div></p>
+            <img src="static/info.png" width=22px></a></div>
+    {% for error in form.real_end.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </div></div></p>
 
     <div id="ext">
         <div id="int">
@@ -109,11 +123,16 @@
     <p>
         {{ form.freq }}
         {{ form.freq.label }}</p>
-    <p style="margin-left: 2%; margin-bottom: 0">
+
+    <div style="display: inline-block;">
         {{ form.frequency.label }}
         {{ form.frequency }}
+    </div>
+    <div style="display: inline-block;">
         {{ form.operation_res.label }}
         {{ form.operation_res }}
+    </div>
+    <div style="display: inline-block;">
         <a data-toggle="tooltip" data-placement="right"
            style="margin-left: 1.5%"
            title="Estas dos selecciones deben ser consistentes con la frecuencia
@@ -121,8 +140,8 @@
                   frecuencia trimestral y se quiere transformar a frecuencia
                   mensual, el único método correspondiente es 'Aumentar
                   frecuencia', que interpolará linealmente los datos faltantes.">
-            <img src="static/info.png" width=22px></a>
-    </p>
+            <img src="static/info.png" width=22px></a></div>
+
     </div></div>
     </p>
     <p>
@@ -131,15 +150,18 @@
     <p>
         {{ form.cum }}
         {{ form.cum.label }}</p>
-    <p style="margin-left: 2%; margin-bottom: 0">
+    <div style="display: inline-block;">
         {{ form.periods.label }}
         {{ form.periods }}
+    </div>
+    <div style="display: inline-block;">
         {{ form.operation.label }}
-        {{ form.operation }}</br>
-        {% for error in form.periods.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
+        {{ form.operation }}
+    </div>
+    {% for error in form.periods.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+
     </div></div>
     </p>
     <p>
@@ -148,27 +170,32 @@
     <p>
         {{ form.base_index }}
         {{ form.base_index.label }}</p>
-    <p style="margin-left: 2%; margin-bottom: 0">
+    <div style="display: inline-block;">
         {{ form.base_index_start.label }}
         {{ form.base_index_start }}
+    </div>
+    <div style="display: inline-block;">
         {{ form.base_index_end.label }}
         {{ form.base_index_end }}
+    </div>
+    <div style="display: inline-block;">
         {{ form.base_index_base.label }}
         {{ form.base_index_base }}
+    </div>
+    <div style="display: inline-block;">
         <a data-toggle="tooltip" data-placement="right"
            style="margin-left: 1.5%" data-html="true"
            title="La fecha final es opcional, en cuyo caso el índice será
                   <i>valor de fecha inicial=valor base</i>. Si se define fecha
                   final, el índice será <i>promedio de valores entre fecha
                   inicial y fecha final=valor base</i>.">
-            <img src="static/info.png" width=22px></a></br>
-        {% for error in form.base_index_start.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-        {% for error in form.base_index_base.errors %}
-        <span style="color: red; margin-left: 20%">[{{ error }}]</span>
-        {% endfor %}
-    </p>
+            <img src="static/info.png" width=22px></a></div>
+    {% for error in form.base_index_start.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    {% for error in form.base_index_base.errors %}
+    <span style="color: red; margin-left: 20%">[{{ error }}]</span>
+    {% endfor %}
     </div></div>
     </p>
     <p>
@@ -177,12 +204,15 @@
     <p>
         {{ form.chg_diff }}
         {{ form.chg_diff.label }}</p>
-    <p style="margin-left: 2%; margin-bottom: 0">
+    <div style="display: inline-block;">
         {{ form.chg_diff_type.label }}
         {{ form.chg_diff_type }}
+    </div>
+    <div style="display: inline-block;">
         {{ form.chg_diff_period.label }}
         {{ form.chg_diff_period }}
-    </p>
+    </div>
+
     </div></div>
     </p>
     <p>
@@ -191,18 +221,21 @@
     <p>
         {{ form.seas }}
         {{ form.seas.label }}</p>
-    <p style="margin-left: 2%; margin-bottom: 0">
+    <div style="display: inline-block;">
         {{ form.seas_method.label }}
         {{ form.seas_method }}
+    </div>
+    <div style="display: inline-block;">
         {{ form.seas_type.label }}
         {{ form.seas_type }}
+    </div>
+    <div style="display: inline-block;">
         <a data-toggle="tooltip" data-placement="right"
            style="margin-left: 1.5%" data-html="true"
            title="El procesamiento con el método X13 ARIMA puede demorar
             dependiendo del tipo y largo de series en la tabla seleccionada.
             En algunos casos la consulta puede ser terminada.">
-            <img src="static/info.png" width=22px></a>
-    </p>
+            <img src="static/info.png" width=22px></a></div>
     </div></div>
     </p>
     <p>
