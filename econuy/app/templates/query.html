@@ -48,6 +48,30 @@ tbody tr td:first-child {
 thead tr:first-child th { position: sticky; top: 0; background: #424242;}
 thead tr:not(:first-child) th { background: #424242;}
 </style>
+<script type="text/javascript">
+    function selectElementContents(el) {
+        var body = document.body, range, sel;
+        if (document.createRange && window.getSelection) {
+            range = document.createRange();
+            sel = window.getSelection();
+            sel.removeAllRanges();
+            try {
+                range.selectNodeContents(el);
+                sel.addRange(range);
+            } catch (e) {
+                range.selectNode(el);
+                sel.addRange(range);
+            }
+            document.execCommand("copy");
+
+        } else if (body.createTextRange) {
+            range = body.createTextRange();
+            range.moveToElementText(el);
+            range.select();
+            range.execCommand("Copy");
+        }
+    }
+</script>
 {% endblock %}
 
 {% block content %}
@@ -61,10 +85,14 @@ thead tr:not(:first-child) th { background: #424242;}
 </ol>
 {% endif %}
 
-<p align="left"><a href="{{ url_for('export') }}">
+<p><div><a href="{{ url_for('export') }}">
     <img src="static/csv.png" width=30px
-         style="margin-right: 0.5%; vertical-align: middle">
-    Descargar CSV</a></p>
+         style="margin-right: 0.5%; vertical-align: middle">Descargar CSV</a></div><br>
+<div><a href="#" onclick="selectElementContents( document.getElementById('copy') );"
+        data-toggle="tooltip" data-placement="right"
+        title="Esta acción reduce la precisión de los decimales.">
+    <img src="static/clip.png" width=30px
+         style="margin-right: 0.5%; vertical-align: middle">Copiar al portapapeles</a></div></p>
 
 <div style="overflow:auto;height:600px">
 {% for table in tables %}

@@ -237,7 +237,7 @@ def query():
                                tables=[output.to_html(header="true",
                                                       float_format=lambda x:
                                                       '{:,.1f}'.format(x),
-                                                      table_id="scroll")],
+                                                      table_id="copy")],
                                transformations=transf_parameters,
                                sources=sources)
 
