@@ -190,7 +190,8 @@ class SubmitForm(FlaskForm):
     seas_method = SelectField("Método", choices=seas_methods, default="loess")
     some_cols = BooleanField("Filtrar series del cuadro")
     only_dl = BooleanField("Descargar datos sin visualizar")
-    submit = SubmitField("Consultar")
+    submit = SubmitField("Consultar", render_kw={"type": "button",
+                                                 "class": "btn btn-dark"})
 
 
 class OrderForm(FlaskForm):
@@ -212,7 +213,8 @@ class OrderForm(FlaskForm):
                                  default="1")
     seas_order = SelectField("Desestacionalizar", choices=order,
                              validators=[DataRequired()], default="1")
-    submit = SubmitField("Aceptar")
+    submit = SubmitField("Aceptar", render_kw={"type": "button",
+                                               "class": "btn btn-dark"})
 
 
 class ColumnForm(FlaskForm):
@@ -222,5 +224,6 @@ class ColumnForm(FlaskForm):
         validators=[DataRequired(),
                     NoneOfMultiple(["sep"])]
     )
-    submit = SubmitField("Aceptar")
+    submit = SubmitField("Aceptar", render_kw={"type": "button",
+                                               "class": "btn btn-dark"})
 

@@ -45,8 +45,8 @@ tbody tr td:first-child {
   max-width: 8em;
   word-break: break-all;
 }
-thead tr:first-child th { position: sticky; top: 0; background: #424242;}
-thead tr:not(:first-child) th { background: #424242;}
+thead tr:first-child th { position: sticky; top: 0; background: #292b2c;}
+thead tr:not(:first-child) th { background: #292b2c;}
 </style>
 <script type="text/javascript">
     function selectElementContents(el) {
@@ -85,14 +85,15 @@ thead tr:not(:first-child) th { background: #424242;}
 </ol>
 {% endif %}
 
-<p><div><a href="{{ url_for('export') }}">
-    <img src="static/csv.png" width=30px
-         style="margin-right: 0.5%; vertical-align: middle">Descargar CSV</a></div><br>
-<div><a href="#" onclick="selectElementContents( document.getElementById('copy') );"
+<div style="margin-bottom: 10px">
+<button type="button" class="btn btn-dark" style="font-size: 13px;"
+        onclick="location.href='{{ url_for('export') }}'">
+    Descargar CSV</button>
+<button type="button" class="btn btn-dark" id="mobilehide" style="font-size: 13px;"
+        onclick="selectElementContents( document.getElementById('copy-table') );"
         data-toggle="tooltip" data-placement="right"
         title="Esta acción reduce la precisión de los decimales.">
-    <img src="static/clip.png" width=30px
-         style="margin-right: 0.5%; vertical-align: middle">Copiar al portapapeles</a></div></p>
+    Copiar al portapapeles</button></div>
 
 <div style="overflow:auto;height:600px">
 {% for table in tables %}
@@ -120,4 +121,11 @@ thead tr:not(:first-child) th { background: #424242;}
     {{ sources[2]|safe }}.
     {% endif %}</li>
 </ul></p>
+
+<script type="text/javascript">
+    var mobile = (/iphone|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
+    if (mobile) {
+        $('#mobilehide').hide();
+    }
+</script>
 {% endblock %}
