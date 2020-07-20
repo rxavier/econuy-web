@@ -144,7 +144,8 @@ class SubmitForm(FlaskForm):
                     validators=[Optional(), LaterDate("start")],
                     render_kw={"placeholder": "yyyy-mm-dd"})
     tail = IntegerField("Últimos x períodos", validators=[Optional()],
-                        render_kw={"style": "width: 80px"})
+                        render_kw={"style": "width: 80px",
+                                   "placeholder": 12})
     usd = BooleanField("Convertir a dólares")
     real = BooleanField("Deflactar")
     real_start = DateField("Fecha inicial", format="%Y-%m-%d",
@@ -163,7 +164,8 @@ class SubmitForm(FlaskForm):
     periods = IntegerField("Períodos",
                            validators=[RequiredIf(cum=True,
                                                   message="Campo requerido.")],
-                           render_kw={"style": "width: 80px"})
+                           render_kw={"style": "width: 80px",
+                                      "placeholder": 12})
     operation = SelectField("Método", choices=operations, default="sum")
     base_index = BooleanField("Calcular índice base")
     base_index_start = DateField("Fecha inicial", format="%Y-%m-%d",
@@ -180,7 +182,8 @@ class SubmitForm(FlaskForm):
                                    validators=[
                                        RequiredIf(base_index=True,
                                                   message="Campo requerido.")
-                                   ], render_kw={"style": "width: 80px"})
+                                   ], render_kw={"style": "width: 80px",
+                                                 "placeholder": 100})
     chg_diff = BooleanField("Calcular variaciones o diferencias")
     chg_diff_type = SelectField("Tipo", choices=chg_type, default="chg")
     chg_diff_period = SelectField("Períodos", choices=chg_period,
