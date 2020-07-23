@@ -18,7 +18,7 @@ decorator==4.4.2
 defusedxml==0.6.0
 docutils==0.16
 dominate==2.5.1
--e git+https://github.com/rxavier/uy-econ.git@75eac81a62183cda833c3af3f538175a8fe88548#egg=econuy
+-e git+https://github.com/rxavier/uy-econ.git@fa971a37d961e7e660ea891ccfe4e400fe9461f4#egg=econuy
 entrypoints==0.3
 et-xmlfile==1.0.1
 flake8==3.8.3
