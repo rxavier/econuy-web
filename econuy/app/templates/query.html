@@ -87,7 +87,10 @@ thead tr:not(:first-child) th { background: #292b2c;}
 
 <div style="margin-bottom: 10px">
 <button type="button" class="btn btn-dark" style="font-size: 13px;"
-        onclick="location.href='{{ url_for('export') }}'">
+        onclick="location.href='{{ url_for('export', method='excel') }}'">
+    Descargar Excel</button>
+<button type="button" class="btn btn-dark" style="font-size: 13px;"
+        onclick="location.href='{{ url_for('export', method='csv') }}'">
     Descargar CSV</button>
 <button type="button" class="btn btn-dark" id="mobilehide" style="font-size: 13px;"
         onclick="selectElementContents( document.getElementById('copy-table') );"

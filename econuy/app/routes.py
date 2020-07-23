@@ -1,3 +1,4 @@
+from io import BytesIO
 from random import sample
 from string import ascii_letters
 from datetime import datetime
@@ -7,7 +8,7 @@ import numpy as np
 from sqlalchemy import inspect
 from sqlalchemy.exc import ProgrammingError
 from flask import (render_template, redirect, url_for,
-                   session, make_response, flash)
+                   session, make_response, flash, send_file)
 
 from econuy import transform
 from econuy.app import app, db
@@ -242,8 +243,8 @@ def query():
                                sources=sources)
 
 
-@app.route("/exportar", methods=["GET"])
-def export():
+@app.route("/exportar/<method>", methods=["GET"])
+def export(method):
     try:
         data = sqlutil.read(con=db.get_engine(bind="queries"),
                             table_name=session["table"])
@@ -255,11 +256,23 @@ def export():
                      "Intente la consulta nuevamente.")
     db.engine.execute(f'DROP TABLE IF EXISTS "{session["table"]}"')
     db.engine.execute(f'DROP TABLE IF EXISTS "{session["table"]}_metadata"')
-    response = make_response(output.to_csv())
-    response.headers["Content-Type"] = "text/csv"
-    response.headers[
-        "content-disposition"] = "attachment; filename=econuy-export.csv"
-    return response
+    if method == "excel":
+        bio = BytesIO()
+        writer = pd.ExcelWriter(bio, engine="xlsxwriter")
+        output.to_excel(writer, sheet_name="Sheet1")
+        writer.save()
+        excel_data = bio.getvalue()
+        bio.seek(0)
+        return send_file(bio, mimetype='application/vnd.openxmlformats-'
+                                       'officedocument.spreadsheetml.sheet',
+                         attachment_filename="econuy-data.xlsx",
+                         as_attachment=True, cache_timeout=0)
+    elif method == "csv":
+        response = make_response(output.to_csv())
+        response.headers["Content-Type"] = "text/csv"
+        response.headers[
+            "content-disposition"] = "attachment; filename=econuy-export.csv"
+        return response
 
 
 def empty_to_none(choice):
