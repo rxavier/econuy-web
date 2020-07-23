@@ -64,7 +64,7 @@ class SubmitForm(FlaskForm):
         ("tfm_fiscal_gps_uyu_fssadj", "Cuentas fiscales: Sector público consolidado, ajustado FSS (ene-99, M)"),
         ("tfm_fiscal_nfps_uyu_fssadj", "Cuentas fiscales: Sector público no financiero, ajustado FSS (ene-99, M)"),
         ("tfm_fiscal_gc_uyu_fssadj", "Cuentas fiscales: Gobierno central-BPS, ajustado FSS (ene-99, M)"),
-        ("tfm_pubdebt", "Deuda neta del sector público global neta de encajes (dic-99, Q)"),
+        ("tfm_pubdebt", "Deuda neta del sector público global excl. encajes (dic-99, Q)"),
         ("tfm_labor_extended_nsa", "Mercado laboral: tasas y personas (ene-91, M)"),
         ("tfm_wages_nsa", "Mercado laboral: salarios nominales y reales (ene-68, M)"),
         ("tfm_tb", "Comercio internacional: balanza comercial por país (ene-00, M)"),
