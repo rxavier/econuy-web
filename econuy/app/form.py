@@ -59,11 +59,13 @@ class NoneOfMultiple(object):
 class SubmitForm(FlaskForm):
     indicators = [
         ("frequent_sep", "----- Tablas especiales -----"),
+        ("tfm_industrial", "Producción industrial: total, sin refinería y núcleo (ene-02, M)"),
         ("tfm_prices", "Indicadores seleccionados de precios (mar-97, M)"),
         ("tfm_fiscal_gps_uyu_fssadj", "Cuentas fiscales: Sector público consolidado, ajustado FSS (ene-99, M)"),
         ("tfm_fiscal_nfps_uyu_fssadj", "Cuentas fiscales: Sector público no financiero, ajustado FSS (ene-99, M)"),
         ("tfm_fiscal_gc_uyu_fssadj", "Cuentas fiscales: Gobierno central-BPS, ajustado FSS (ene-99, M)"),
-        ("tfm_labor_nsa", "Mercado laboral: tasas y personas (ene-06, M)"),
+        ("tfm_public_debt", "Deuda neta del sector público global neta de encajes (dic-99, Q)"),
+        ("tfm_labor_extended_nsa", "Mercado laboral: tasas y personas (ene-06, M)"),
         ("tfm_wages_nsa", "Mercado laboral: salarios nominales y reales (ene-68, M)"),
         ("tfm_tb", "Comercio internacional: balanza comercial por país (ene-00, M)"),
         ("tfm_tot", "Comercio internacional: términos de intercambio (ene-05, M)"),
@@ -76,6 +78,7 @@ class SubmitForm(FlaskForm):
         ("naccounts_ind_con_idx_sa", "Cuentas nacionales: Oferta, índice real, series desestacionalizadas (mar-97, T)"),
         ("naccounts_ind_cur_nsa", "Cuentas nacionales: Oferta, precios corrientes, series armonizadas (mar-05, T)"),
         ("naccounts_gdp_cur_nsa", "Cuentas nacionales: PBI, precios corrientes (mar-97, T)"),
+        ("industrial_production", "Producción industrial: por división, agrupaciones y clases (ene-02, M)"),
         ("prices_sep", "----- Precios -----"),
         ("cpi", "Índice de precios al consumidor (ene-37, M)"),
         ("nxr_monthly", "Tipo de cambio, interbancario, mensual (abr-72, M)"),
@@ -88,6 +91,9 @@ class SubmitForm(FlaskForm):
         ("fiscal_antel", "Cuentas fiscales: ANTEL (ene-99, M)"),
         ("fiscal_ose", "Cuentas fiscales: OSE (ene-99, M)"),
         ("fiscal_ute", "Cuentas fiscales: UTE (ene-99, M)"),
+        ("public_debt_gps", "Deuda del sector público global: por plazo contractual, plazo residual, moneda y residencia (dic-99, Q)"),
+        ("public_debt_nfps", "Deuda del sector público no monetario: por plazo contractual, plazo residual, moneda y residencia (dic-99, Q)"),
+        ("public_debt_cb", "Deuda del Banco Central: por plazo contractual, plazo residual, moneda y residencia (dic-99, Q)"),
         ("labor_sep", "----- Mercado laboral -----"),
         ("labor", "Mercado laboral: tasas de actividad, empleo y desempleo (ene-06, M)"),
         ("wages", "Mercado laboral: salarios (ene-68, M)"),
@@ -106,6 +112,7 @@ class SubmitForm(FlaskForm):
         ("tb_m_orig_pri", "Comercio internacional: Importaciones por origen, precio (ene-05, M)"),
         ("rxr_official", "Tipos de cambio reales, BCU (ene-00, M)"),
         ("money_sep", "----- Moneda y banca -----"),
+        ("reserves", "Reservas internacionales (26-jun-02, D)"),
         ("reserves_chg", "Variación en las reservas del BCU (2-ene-13, D)")]
     operations = [("average", "Promedio"), ("sum", "Suma")]
     operations_res = [("average", "Reducir frecuencia: promedio"),
