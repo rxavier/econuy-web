@@ -232,7 +232,7 @@ def query():
                          session["transformations"].values()]
     sources = metadata._get_sources(dataset=indicator, html_urls=True)
     if session["request"]["only_dl"]["data"] is True:
-        return redirect(url_for("export"))
+        return redirect(url_for("export", method="excel"))
     else:
         return render_template("query.html", indicator_label=indicator_label,
                                tables=[output.to_html(header="true",
