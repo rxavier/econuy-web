@@ -9,9 +9,10 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import ProgrammingError
 from flask import (render_template, redirect, url_for,
                    session, make_response, flash, send_file)
+from flask import current_app as app
 
 from econuy import transform
-from econuy.app import app, db
+from econuy.app import db
 from econuy.app.form import SubmitForm, OrderForm, ColumnForm
 from econuy.utils import sqlutil, metadata
 
@@ -237,7 +238,7 @@ def query():
         return render_template("query.html", indicator_label=indicator_label,
                                tables=[output.to_html(header="true",
                                                       float_format=lambda x:
-                                                      '{:,.1f}'.format(x),
+                                                      '{:,.2f}'.format(x),
                                                       table_id="copy-table")],
                                transformations=transf_parameters,
                                sources=sources)

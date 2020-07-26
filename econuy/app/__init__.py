@@ -1,21 +1,22 @@
-import os
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from dotenv import load_dotenv
 
-app = Flask(__name__)
-load_dotenv("../.env")
+from econuy.config import Config
 
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_BINDS"] = {"queries":
-                                      os.environ.get("QUERY_DATABASE_URL")}
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy()
+bootstrap = Bootstrap()
 
-db = SQLAlchemy(app)
 
-bootstrap = Bootstrap(app)
+def create_app():
+    """Initialize the core application."""
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-from econuy.app import routes, errors
+    db.init_app(app)
+    bootstrap.init_app(app)
+
+    with app.app_context():
+        from econuy.app import routes, errors, form, tasks, update, clear
+
+        return app

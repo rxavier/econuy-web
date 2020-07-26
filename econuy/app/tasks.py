@@ -5,17 +5,23 @@ from sqlalchemy import inspect
 
 
 def full_update(con: Union[Connection, Engine],
-                functions: List, **kwargs) -> List:
+                functions: List) -> List:
     output = []
     for f in functions:
         try:
-            print(f"Running {f.__name__} in {f.__module__}...")
-            output.append(f(update_loc=con, save_loc=con, **kwargs))
+            name = f.__name__
+            module = f.__module__
+        except AttributeError:
+            name = f.func.__name__
+            module = f.func.__module__
+        try:
+            print(f"Running {name} in {module}...")
+            output.append(f(update_loc=con, save_loc=con))
             print("Success.")
         except:
             # This exception is intentionally broad.
             # If any function fails, carry on with the next one.
-            print(f"{f.__name__} in {f.__module__} failed.")
+            print(f"{name} in {module} FAILED.")
             continue
     return output
 
