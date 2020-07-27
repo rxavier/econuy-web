@@ -66,7 +66,7 @@ def read(con: sqla.engine.base.Connection,
                 cols_sql = [column(x) for x in cols]
                 cols_sql.append(column("index"))
             elif isinstance(cols, str) and cols != "*":
-                cols_sql = column(cols)
+                cols_sql = [column(cols)]
                 cols_sql.append(column("index"))
             else:
                 cols_sql = "*"
@@ -86,7 +86,9 @@ def read(con: sqla.engine.base.Connection,
                                  parse_dates=index_label, **kwargs)
         metadata = pd.read_sql(sql=f"{table_name}_metadata", con=con,
                                index_col="index")
-        if isinstance(cols, Iterable) and not isinstance(cols, str):
+        if isinstance(cols, Iterable) and cols != "*":
+            if isinstance(cols, str):
+                cols = [cols]
             metadata = metadata.loc[metadata["Indicador"].isin(cols)]
             metadata = metadata.set_index("Indicador").loc[cols].reset_index()
 
