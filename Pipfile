@@ -42,6 +42,7 @@ gunicorn = "==20.0.4"
 html5lib = "==1.0.1"
 scipy = "==1.5.0"
 xlsxwriter = "==1.2.9"
+dash = "==1.13.4"
 
 [requires]
 python_version = "3.7"

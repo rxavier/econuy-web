@@ -12,7 +12,7 @@ from flask import (render_template, redirect, url_for,
 from flask import current_app as app
 
 from econuy import transform
-from econuy.app import db
+from econuy.app import db, dashapp
 from econuy.app.form import SubmitForm, OrderForm, ColumnForm
 from econuy.utils import sqlutil, metadata
 
@@ -274,6 +274,11 @@ def export(method):
         response.headers[
             "content-disposition"] = "attachment; filename=econuy-export.csv"
         return response
+
+
+@app.route("/visualizador", methods=["GET", "POST"])
+def graph():
+    return render_template('graph.html', dash_url=dashapp.url_base)
 
 
 def empty_to_none(choice):
