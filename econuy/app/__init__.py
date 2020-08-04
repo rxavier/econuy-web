@@ -46,6 +46,6 @@ def get_all_indicators(con: Union[Connection, Engine]):
     for k in all_cols.keys():
         for col in all_cols[k]:
             output.append({"label": f"{table_options[k]} - {col}",
-                           "value": f"{k}${col}"})
+                           "value": f"{k}>{col}"})
 
     return output
