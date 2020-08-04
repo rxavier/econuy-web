@@ -27,6 +27,7 @@ def add_dash(server, options):
                            html.Br(), html.Br(),
                            html.Div(id="indicator-container",
                                     children=[]),
+                           html.Br(),
                            html.Div(
                                id="chart-type-container",
                                style={"display": "none"},
@@ -43,6 +44,13 @@ def add_dash(server, options):
                                        value="line",
                                        labelStyle={'display': 'inline-block'},
                                        style={"display": "inline-block"})]),
+                           html.Div(style={"height": "5px"}),
+                           html.Div(id="date-range-container",
+                                    style={"display": "none"},
+                                    children=["Filtrar fechas",
+                                              dcc.DatePickerRange(id="date-picker",
+                                                  start_date_placeholder_text="Fecha inicial",
+                                                  end_date_placeholder_text="Fecha final")]),
                            dcc.Graph(id="chart", style={"display": "none"})])
 
     register_callbacks(app, options=options)
@@ -56,7 +64,8 @@ def register_callbacks(app, options):
     @app.callback(
         [Output('chart', 'figure'),
          Output("chart", "style"),
-         Output("chart-type-container", "style")],
+         Output("chart-type-container", "style"),
+         Output("date-range-container", "style")],
         [Input("chart-type", "value"),
          Input({"type": 'indicator-dropdown', "index": ALL}, 'value'),
          Input({"type": 'usd-check', "index": ALL}, 'value'),
@@ -87,7 +96,9 @@ def register_callbacks(app, options):
          Input({"type": "order-5", "index": ALL}, "value"),
          Input({"type": "order-6", "index": ALL}, "value"),
          Input({"type": "order-7", "index": ALL}, "value"),
-         Input({"type": "order-8", "index": ALL}, "value")])
+         Input({"type": "order-8", "index": ALL}, "value"),
+         Input("date-picker", "start_date"),
+         Input("date-picker", "end_date")])
     def update_df(chart_type, indicator_s, usd_s, real_s, real_start_s,
                   real_end_s, gdp_s, resample_s, resample_frequency_s,
                   resample_operation_s, rolling_s, rolling_period_s,
@@ -95,7 +106,8 @@ def register_callbacks(app, options):
                   base_end_s, base_base_s, chg_diff_s, chg_diff_operation_s,
                   chg_diff_period_s, seas_s, seas_method_s,
                   seas_type_s, orders_1_s, order_2_s, order_3_s,
-                  order_4_s, order_5_s, order_6_s, order_7_s, order_8_s):
+                  order_4_s, order_5_s, order_6_s, order_7_s, order_8_s,
+                  start_date, end_date):
         dataframes = []
         labels = []
         for (indicator,
@@ -224,6 +236,13 @@ def register_callbacks(app, options):
             return [], {"display": "none"}, {"display": "none"}
         df = match_freqs(dataframes)
         df = df.dropna(how="all", axis=0)
+        if start_date is not None:
+            if end_date is not None:
+                df = df.loc[(df.index >= start_date) & (df.index <= end_date)]
+            else:
+                df = df.loc[df.index >= start_date]
+        if end_date is not None:
+            df = df.loc[df.index <= end_date]
 
         if chart_type == "bar":
             fig = px.bar(df, x=df.index, height=600,
@@ -259,7 +278,7 @@ def register_callbacks(app, options):
                                   sizex=0.1, sizey=0.1, xanchor="right",
                                   yanchor="bottom", xref="paper", yref="paper",
                                   x=1, y=1.01))
-        return fig, {"display": "block"}, {"display": "block"}
+        return fig, {"display": "block"}, {"display": "block"}, {"display": "block"}
 
     @app.callback(
         Output('indicator-container', 'children'),
@@ -460,8 +479,7 @@ def register_callbacks(app, options):
                                           short_br, real, short_br, gdp,
                                           short_br, res, short_br, roll,
                                           short_br, base_index, short_br,
-                                          chg_diff, short_br, seas,
-                                          html.Br()], id={
+                                          chg_diff, short_br, seas], id={
             'type': 'complete-div',
             'index': n_clicks})
         hide_button = html.Button("Colapsar", id={
