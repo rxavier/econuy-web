@@ -8,6 +8,7 @@ import plotly.express as px
 from dash import Dash
 from dash.dependencies import Input, Output, State, ALL, MATCH
 from flask import url_for
+from sqlalchemy import MetaData, Table
 
 from econuy import transform
 from econuy.app.app_strings import table_options
@@ -18,7 +19,7 @@ external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 url_base = "/dash/viz/"
 
 
-def add_dash(server, options):
+def add_dash(server):
     app = Dash(server=server, url_base_pathname=url_base,
                external_stylesheets=external_stylesheets)
     app.layout = html.Div([html.H1("Visualizador econuy"),
@@ -59,12 +60,12 @@ def add_dash(server, options):
                                                   display_format="DD-MM-YYYY")]),
                            dcc.Graph(id="chart", style={"display": "none"})])
 
-    register_callbacks(app, options=options)
+    register_callbacks(app)
 
     return app.server
 
 
-def register_callbacks(app, options):
+def register_callbacks(app):
     from econuy.app import db
 
     @app.callback(
@@ -73,6 +74,7 @@ def register_callbacks(app, options):
          Output("chart-type-container", "style"),
          Output("date-range-container", "style")],
         [Input("chart-type", "value"),
+         Input({"type": "table-dropdown", "index": ALL}, "value"),
          Input({"type": "indicator-dropdown", "index": ALL}, "value"),
          Input({"type": "usd-check", "index": ALL}, "value"),
          Input({"type": "real-check", "index": ALL}, "value"),
@@ -105,7 +107,7 @@ def register_callbacks(app, options):
          Input({"type": "order-8", "index": ALL}, "value"),
          Input("date-picker", "start_date"),
          Input("date-picker", "end_date")])
-    def update_df(chart_type, indicator_s, usd_s, real_s, real_start_s,
+    def update_df(chart_type, table_s, indicator_s, usd_s, real_s, real_start_s,
                   real_end_s, gdp_s, resample_s, resample_frequency_s,
                   resample_operation_s, rolling_s, rolling_period_s,
                   rolling_operation_s, base_index_s, base_start_s,
@@ -116,7 +118,8 @@ def register_callbacks(app, options):
                   start_date, end_date):
         dataframes = []
         labels = []
-        for (indicator,
+        for (table,
+             indicator,
              usd,
              real,
              real_start,
@@ -145,7 +148,8 @@ def register_callbacks(app, options):
              order_5,
              order_6,
              order_7,
-             order_8) in zip(indicator_s,
+             order_8) in zip(table_s,
+                             indicator_s,
                              usd_s,
                              real_s,
                              real_start_s,
@@ -175,19 +179,14 @@ def register_callbacks(app, options):
                              order_6_s,
                              order_7_s,
                              order_8_s):
-            if indicator is None:
+            if indicator is None or table is None:
                 continue
-            try:
-                split = indicator.split(">")
-                table = split[0]
-                column = split[1]
-                trimmed_table = re.sub(r" \(([^)]+)\)$", "",
-                                       table_options[table])
-                labels.append(f"{trimmed_table}_{column}")
-            except AttributeError:
-                pass
-            df_aux = sqlutil.read(con=db.engine, table_name=table, cols=column)
-            column_names = [f"{table_options[table]} | {column}"]
+            df_aux = sqlutil.read(con=db.engine, table_name=table,
+                                  cols=indicator)
+            trimmed_table = re.sub(r" \(([^)]+)\)$", "",
+                                   table_options[table])
+            column_names = [f"{trimmed_table}_{indicator}"]
+            labels.append(f"{trimmed_table}_{indicator}")
             df_aux.columns.set_levels(
                 column_names,
                 level=0, inplace=True)
@@ -305,15 +304,23 @@ def register_callbacks(app, options):
         Output("indicator-container", "children"),
         [Input("add-indicator", "n_clicks")],
         [State("indicator-container", "children")])
-    def display_dropdowns(n_clicks, children, opts=options):
+    def display_dropdowns(n_clicks, children):
         short_br = html.Div(style={"height": "5px"})
+
+        table_dropdown = dcc.Dropdown(id={
+            "type": "table-dropdown",
+            "index": n_clicks
+        },
+            options=[{"label": v, "value": k} for k, v in
+                     table_options.items() if "-----" not in v],
+            placeholder="Seleccionar cuadro"
+        )
 
         indicator_dropdown = dcc.Dropdown(
             id={
                 "type": "indicator-dropdown",
                 "index": n_clicks
-            },
-            options=opts, placeholder="Seleccionar indicador",
+            }, placeholder="Seleccionar indicador",
             optionHeight=50
         )
 
@@ -517,7 +524,8 @@ def register_callbacks(app, options):
                     "seleccionada. En algunos casos la consulta puede ser "
                     "terminada.")])
 
-        complete_div = html.Div(children=[indicator_dropdown, html.Br(), usd,
+        complete_div = html.Div(children=[table_dropdown, short_br,
+                                          indicator_dropdown, html.Br(), usd,
                                           short_br, real, short_br, gdp,
                                           short_br, res, short_br, roll,
                                           short_br, base_index, short_br,
@@ -529,6 +537,17 @@ def register_callbacks(app, options):
             "index": n_clicks}, style={"display": "block"})
         children.extend([hide_button, complete_div])
         return children
+
+    @app.callback(
+        Output({"type": "indicator-dropdown", "index": MATCH}, "options"),
+        [Input({"type": "table-dropdown", "index": MATCH}, "value")])
+    def indicator_dropdowns(table):
+        meta = MetaData()
+        meta.reflect(bind=db.engine)
+        sql_table = Table(table, meta)
+        columns = [col.key.__str__() for col in sql_table.columns
+                   if col.key != "index"]
+        return [{"label": v, "value": v} for v in columns]
 
     @app.callback(
         [Output({"type": "complete-div", "index": MATCH}, "style"),
