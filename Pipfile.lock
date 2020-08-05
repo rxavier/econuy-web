@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e735349be52f7d52207ed1266454d1ca576968b034897fab958ec3f7fefe8b42"
+            "sha256": "08f7262f1c7d24566d505615bd19cf94dcac8aefbbfd5e0f0543eb0c77a2efca"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -133,7 +133,6 @@
             "hashes": [
                 "sha256:acb46541590c3d378aea804bc1f43d582821dc8294b89bc186fc535b657655c0"
             ],
-            "index": "pypi",
             "version": "==0.10.3"
         },
         "dash-core-components": {
@@ -1180,11 +1179,11 @@
         },
         "notebook": {
             "hashes": [
-                "sha256:0f44d22092896f68f7589bfdbfc912885993ddb1fd7d5779ddbbf0d8c6b73eef",
-                "sha256:d3b58a0106abbb7287fe680654665d29020a8203cb167c27ac0c37e940442836"
+                "sha256:42391d8f3b88676e774316527599e49c11f3a7e51c41035e9e44c1b58e1398d5",
+                "sha256:4cc4e44a43a83a7c2f5e85bfdbbfe1c68bed91b857741df9e593d213a6fc2d27"
             ],
             "index": "pypi",
-            "version": "==6.1.0"
+            "version": "==6.1.1"
         },
         "packaging": {
             "hashes": [
