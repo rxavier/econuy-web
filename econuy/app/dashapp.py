@@ -40,7 +40,11 @@ def add_dash(server, options):
                                                 {"label": "Barras",
                                                  "value": "bar"},
                                                 {"label": "Barras apiladas",
-                                                 "value": "stackbar"}],
+                                                 "value": "stackbar"},
+                                                {"label": "Áreas",
+                                                 "value": "area"},
+                                                {"label": "Áreas normalizadas",
+                                                 "value": "normarea"}],
                                        value="line",
                                        labelStyle={"display": "inline-block"},
                                        style={"display": "inline-block"})]),
@@ -252,18 +256,31 @@ def register_callbacks(app, options):
                          y=list(df.columns.get_level_values(level=0)),
                          title="econuy.VIZ",
                          color_discrete_sequence=px.colors.qualitative.Vivid,
-                         barmode="group")
+                         barmode="group", template="plotly_white")
         elif chart_type == "stackbar":
             fig = px.bar(df, x=df.index, height=600,
                          y=list(df.columns.get_level_values(level=0)),
                          title="econuy.VIZ",
                          color_discrete_sequence=px.colors.qualitative.Vivid,
-                         barmode="stack")
+                         barmode="stack", template="plotly_white")
+        elif chart_type == "area":
+            fig = px.area(df, x=df.index, height=600,
+                          y=list(df.columns.get_level_values(level=0)),
+                          title="econuy.VIZ",
+                          color_discrete_sequence=px.colors.qualitative.Vivid,
+                          template="plotly_white")
+        elif chart_type == "normarea":
+            fig = px.area(df, x=df.index, height=600,
+                          y=list(df.columns.get_level_values(level=0)),
+                          title="econuy.VIZ",
+                          color_discrete_sequence=px.colors.qualitative.Vivid,
+                          template="plotly_white", groupnorm="fraction")
         else:
             fig = px.line(df, x=df.index, height=600,
                           y=list(df.columns.get_level_values(level=0)),
                           title="econuy.VIZ",
-                          color_discrete_sequence=px.colors.qualitative.Vivid)
+                          color_discrete_sequence=px.colors.qualitative.Vivid,
+                          template="plotly_white")
         for label, trace in zip(labels, fig.select_traces()):
             trace.update(name=label)
         fig.update_layout({"margin": {"l": 0, "r": 15},
