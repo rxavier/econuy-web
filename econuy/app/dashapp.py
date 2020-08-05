@@ -15,7 +15,7 @@ from econuy.utils import sqlutil
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
-url_base = '/dash/app/'
+url_base = "/dash/viz/"
 
 
 def add_dash(server, options):
@@ -42,15 +42,17 @@ def add_dash(server, options):
                                                 {"label": "Barras apiladas",
                                                  "value": "stackbar"}],
                                        value="line",
-                                       labelStyle={'display': 'inline-block'},
+                                       labelStyle={"display": "inline-block"},
                                        style={"display": "inline-block"})]),
                            html.Div(style={"height": "5px"}),
                            html.Div(id="date-range-container",
                                     style={"display": "none"},
                                     children=["Filtrar fechas",
-                                              dcc.DatePickerRange(id="date-picker",
+                                              dcc.DatePickerRange(
+                                                  id="date-picker",
                                                   start_date_placeholder_text="Fecha inicial",
-                                                  end_date_placeholder_text="Fecha final")]),
+                                                  end_date_placeholder_text="Fecha final",
+                                                  display_format="DD-MM-YYYY")]),
                            dcc.Graph(id="chart", style={"display": "none"})])
 
     register_callbacks(app, options=options)
@@ -62,17 +64,17 @@ def register_callbacks(app, options):
     from econuy.app import db
 
     @app.callback(
-        [Output('chart', 'figure'),
+        [Output("chart", "figure"),
          Output("chart", "style"),
          Output("chart-type-container", "style"),
          Output("date-range-container", "style")],
         [Input("chart-type", "value"),
-         Input({"type": 'indicator-dropdown', "index": ALL}, 'value'),
-         Input({"type": 'usd-check', "index": ALL}, 'value'),
-         Input({"type": 'real-check', "index": ALL}, 'value'),
-         Input({"type": 'real-range', "index": ALL}, 'start_date'),
-         Input({"type": 'real-range', "index": ALL}, 'end_date'),
-         Input({"type": 'gdp-check', "index": ALL}, 'value'),
+         Input({"type": "indicator-dropdown", "index": ALL}, "value"),
+         Input({"type": "usd-check", "index": ALL}, "value"),
+         Input({"type": "real-check", "index": ALL}, "value"),
+         Input({"type": "real-range", "index": ALL}, "start_date"),
+         Input({"type": "real-range", "index": ALL}, "end_date"),
+         Input({"type": "gdp-check", "index": ALL}, "value"),
          Input({"type": "resample-check", "index": ALL}, "value"),
          Input({"type": "resample-frequency", "index": ALL}, "value"),
          Input({"type": "resample-operation", "index": ALL}, "value"),
@@ -233,7 +235,8 @@ def register_callbacks(app, options):
             dataframes.append(df_aux)
 
         if len(dataframes) == 0:
-            return [], {"display": "none"}, {"display": "none"}
+            return [], {"display": "none"}, {"display": "none"}, {
+                "display": "none"}
         df = match_freqs(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
@@ -271,66 +274,78 @@ def register_callbacks(app, options):
                            "yaxis_title": "",
                            "legend_title": "",
                            "title": {"y": 0.9,
-                                     'yanchor': 'top',
+                                     "yanchor": "top",
                                      "font": {"size": 30}}})
         fig.add_layout_image(dict(source=url_for("static",
                                                  filename="logo.png"),
                                   sizex=0.1, sizey=0.1, xanchor="right",
                                   yanchor="bottom", xref="paper", yref="paper",
                                   x=1, y=1.01))
-        return fig, {"display": "block"}, {"display": "block"}, {"display": "block"}
+        return fig, {"display": "block"}, {"display": "block"}, {
+            "display": "block"}
 
     @app.callback(
-        Output('indicator-container', 'children'),
-        [Input('add-indicator', 'n_clicks')],
-        [State('indicator-container', 'children')])
+        Output("indicator-container", "children"),
+        [Input("add-indicator", "n_clicks")],
+        [State("indicator-container", "children")])
     def display_dropdowns(n_clicks, children, opts=options):
         short_br = html.Div(style={"height": "5px"})
 
         indicator_dropdown = dcc.Dropdown(
             id={
-                'type': 'indicator-dropdown',
-                'index': n_clicks
+                "type": "indicator-dropdown",
+                "index": n_clicks
             },
-            options=opts, placeholder="Seleccionar indicador"
+            options=opts, placeholder="Seleccionar indicador",
+            optionHeight=50
         )
 
         usd = html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
-                    'type': 'usd-check',
-                    'index': n_clicks},
+                    "type": "usd-check",
+                    "index": n_clicks},
                     options=[
                         {"label": "Convertir a dólares",
                          "value": True}], value=[])]),
-            order_dropdown(number="1", n_clicks=n_clicks)])
+            order_dropdown(number="1", n_clicks=n_clicks),
+            details("Las selecciones de *orden* definen qué "
+                    "transformación se aplica en qué orden, siendo "
+                    "*orden=1* la primera")])
 
         real = html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
-                    'type': 'real-check',
-                    'index': n_clicks
+                    "type": "real-check",
+                    "index": n_clicks
                 }, options=[{"label": "Deflactar",
                              "value": True}], value=[])]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.DatePickerRange(id={
-                         'type': 'real-range',
-                         'index': n_clicks},
+                         "type": "real-range",
+                         "index": n_clicks},
                          start_date_placeholder_text="Fecha inicial",
-                         end_date_placeholder_text="Fecha final")]),
-            order_dropdown(number="2", n_clicks=n_clicks)])
+                         end_date_placeholder_text="Fecha final",
+                         display_format="DD-MM-YYYY")]),
+            order_dropdown(number="2", n_clicks=n_clicks),
+            details(
+                "Es posible deflactar a) definiendo solo la fecha de inicio "
+                "para que los datos queden expresados a precios de ese mes, b)"
+                " definiendo ambas para que los datos queden expresados a "
+                "precios promedio de ese rango de meses, c) sin definir "
+                "fechas.")])
 
         gdp = html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
-                    'type': 'gdp-check',
-                    'index': n_clicks},
+                    "type": "gdp-check",
+                    "index": n_clicks},
                     options=[
-                        {"label": "Calcular % PBI",
+                        {"label": "Convertir a % del PBI",
                          "value": True}], value=[])]),
             order_dropdown(number="3", n_clicks=n_clicks)])
 
@@ -338,26 +353,26 @@ def register_callbacks(app, options):
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
-                    'type': 'resample-check',
-                    'index': n_clicks
+                    "type": "resample-check",
+                    "index": n_clicks
                 }, options=[{"label": "Cambiar frecuencia",
                              "value": True}], value=[])]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
-                         'type': 'resample-frequency',
-                         'index': n_clicks
+                         "type": "resample-frequency",
+                         "index": n_clicks
                      }, options=[{"label": "Anual", "value": "A-DEC"},
                                  {"label": "Trimestral", "value": "Q-DEC"},
                                  {"label": "Mensual", "value": "M"},
                                  {"label": "14 días", "value": "2W"},
                                  {"label": "Semanal", "value": "W"}],
                          placeholder="Frecuencia", style={"width": "150px"})]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
-                         'type': 'resample-operation',
-                         'index': n_clicks
+                         "type": "resample-operation",
+                         "index": n_clicks
                      }, options=[{"label": "Reducir frecuencia: promedio",
                                   "value": "average"},
                                  {"label": "Reducir frecuencia: suma",
@@ -374,22 +389,22 @@ def register_callbacks(app, options):
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
-                    'type': 'rolling-check',
-                    'index': n_clicks
+                    "type": "rolling-check",
+                    "index": n_clicks
                 }, options=[{"label": "Acumular",
                              "value": True}], value=[])]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Input(id={
-                         'type': 'rolling-periods',
-                         'index': n_clicks
+                         "type": "rolling-periods",
+                         "index": n_clicks
                      }, type="number", placeholder="Períodos",
                          style={"width": "100px"})]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
-                         'type': 'rolling-operation',
-                         'index': n_clicks
+                         "type": "rolling-operation",
+                         "index": n_clicks
                      }, options=[{"label": "Suma", "value": "sum"},
                                  {"label": "Promedio", "value": "average"}],
                          placeholder="Operación", style={"width": "120px"})]),
@@ -399,48 +414,54 @@ def register_callbacks(app, options):
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
-                    'type': 'base-check',
-                    'index': n_clicks
+                    "type": "base-check",
+                    "index": n_clicks
                 }, options=[{"label": "Calcular índice base",
                              "value": True}], value=[])]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.DatePickerRange(id={
-                         'type': 'base-range',
-                         'index': n_clicks},
+                         "type": "base-range",
+                         "index": n_clicks},
                          start_date_placeholder_text="Fecha inicial",
-                         end_date_placeholder_text="Fecha final")]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+                         end_date_placeholder_text="Fecha final",
+                         display_format="DD-MM-YYYY")]),
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Input(id={
-                         'type': 'base-base',
-                         'index': n_clicks
+                         "type": "base-base",
+                         "index": n_clicks
                      }, type="number", placeholder="Valor base",
                          style={"width": "150px"})]),
-            order_dropdown(number="6", n_clicks=n_clicks)])
+            order_dropdown(number="6", n_clicks=n_clicks),
+            details(
+                "La fecha final es opcional, en cuyo caso el índice será "
+                "*valor de fecha inicial=valor base*. Si se define fecha "
+                "final, el índice será *promedio de valores entre fecha "
+                "inicial y fecha final=valor base*.")])
 
         chg_diff = html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
-                    'type': 'chg-diff-check',
-                    'index': n_clicks
+                    "type": "chg-diff-check",
+                    "index": n_clicks
                 }, options=[{"label": "Calcular variaciones o diferencias",
                              "value": True}], value=[])]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
-                         'type': 'chg-diff-operation',
-                         'index': n_clicks
+                         "type": "chg-diff-operation",
+                         "index": n_clicks
                      }, options=[
                          {"label": "Variación porcentual", "value": "chg"},
                          {"label": "Cambio", "value": "diff"}],
                          placeholder="Tipo", style={"width": "200px"})]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
-                         'type': 'chg-diff-period',
-                         'index': n_clicks
+                         "type": "chg-diff-period",
+                         "index": n_clicks
                      }, options=[{"label": "Último período", "value": "last"},
                                  {"label": "Interanual", "value": "inter"},
                                  {"label": "Anual", "value": "annual"}],
@@ -451,69 +472,83 @@ def register_callbacks(app, options):
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
-                    'type': 'seas-check',
-                    'index': n_clicks
+                    "type": "seas-check",
+                    "index": n_clicks
                 }, options=[{"label": "Desestacionalizar",
                              "value": True}], value=[])]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
-                         'type': 'seas-method',
-                         'index': n_clicks
+                         "type": "seas-method",
+                         "index": n_clicks
                      }, options=[{"label": "Loess", "value": "loess"},
                                  {"label": "Medias móviles", "value": "ma"},
                                  {"label": "X13 ARIMA", "value": "x13"}],
                          placeholder="Método", style={"width": "200px"})]),
-            html.Div(style={'display': 'inline-block', 'margin-left': "10px",
+            html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
-                         'type': 'seas-type',
-                         'index': n_clicks
+                         "type": "seas-type",
+                         "index": n_clicks
                      }, options=[
                          {"label": "Desestacionalizado", "value": "seas"},
                          {"label": "Tendencia-ciclo", "value": "trend"}],
                          placeholder="Componente", style={"width": "150px"})]),
-            order_dropdown(number="8", n_clicks=n_clicks)])
+            order_dropdown(number="8", n_clicks=n_clicks),
+            details("El procesamiento con el método X13 ARIMA puede demorar "
+                    "dependiendo del tipo y largo de series en la tabla "
+                    "seleccionada. En algunos casos la consulta puede ser "
+                    "terminada.")])
 
         complete_div = html.Div(children=[indicator_dropdown, html.Br(), usd,
                                           short_br, real, short_br, gdp,
                                           short_br, res, short_br, roll,
                                           short_br, base_index, short_br,
                                           chg_diff, short_br, seas], id={
-            'type': 'complete-div',
-            'index': n_clicks})
+            "type": "complete-div",
+            "index": n_clicks})
         hide_button = html.Button("Colapsar", id={
-            'type': 'hide-button',
-            'index': n_clicks}, style={"display": "block"})
+            "type": "hide-button",
+            "index": n_clicks}, style={"display": "block"})
         children.extend([hide_button, complete_div])
         return children
 
     @app.callback(
-        [Output({"type": 'complete-div', "index": MATCH}, 'style'),
-         Output({"type": 'hide-button', "index": MATCH}, 'children')],
-        [Input({"type": 'hide-button', "index": MATCH}, 'n_clicks')])
+        [Output({"type": "complete-div", "index": MATCH}, "style"),
+         Output({"type": "hide-button", "index": MATCH}, "children")],
+        [Input({"type": "hide-button", "index": MATCH}, "n_clicks")])
     def toggle_hide(n_clicks):
         if n_clicks is None:
-            return {'display': 'block'}, "Colapsar indicador"
+            return {"display": "block"}, "Colapsar indicador"
         elif n_clicks % 2 != 0:
-            return {'display': 'none'}, "Mostrar indicador"
+            return {"display": "none"}, "Mostrar indicador"
         else:
-            return {'display': 'block'}, "Colapsar indicador"
+            return {"display": "block"}, "Colapsar indicador"
 
 
 def order_dropdown(number: str, n_clicks):
     return html.Div(
-        style={'display': 'inline-block', 'margin-left': "10px",
+        style={"display": "inline-block", "margin-left": "10px",
                "vertical-align": "middle"},
         children=[
             html.Div(children=dcc.Dropdown(
-                id={'type': f'order-{number}',
-                    'index': n_clicks},
+                id={"type": f"order-{number}",
+                    "index": n_clicks},
                 options=[{"label": i, "value": i} for i in range(1, 9)],
                 placeholder="Orden", clearable=False,
                 style={"width": "100px"}),
-                style={'display': 'inline-block',
+                style={"display": "inline-block",
                        "vertical-align": "middle"})])
+
+
+def details(text: str):
+    return html.Div(html.Details([
+        html.Summary(html.Img(src=url_for("static", filename="info.png"),
+                              width=22)),
+        dcc.Markdown(f'''{text}''', style={"color": "gray",
+                                           "font-size": "13px"})]),
+        style={"display": "inline-block", "margin-left": "10px",
+               "vertical-align": "middle"})
 
 
 def define_order(submit_order, all_transforms):
