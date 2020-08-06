@@ -617,10 +617,13 @@ def match_freqs(dfs: List[pd.DataFrame]) -> pd.DataFrame:
                         df_match = df.copy()
                     else:
                         type_df = df.columns.get_level_values("Tipo")[0]
+                        unit_df = df.columns.get_level_values("Unidad")[0]
                         if type_df == "Stock":
                             df_match = transform.resample(df, target=freq_opt,
                                                           operation="end")
-                        elif type_df == "Flujo":
+                        elif (type_df == "Flujo" and
+                              not any(x in unit_df for
+                                      x in ["%", "=", "Cambio"])):
                             df_match = transform.resample(df, target=freq_opt,
                                                           operation="sum")
                         else:
