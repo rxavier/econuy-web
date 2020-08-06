@@ -185,8 +185,14 @@ def register_callbacks(app):
                                   cols=indicator)
             trimmed_table = re.sub(r" \(([^)]+)\)$", "",
                                    table_options[table])
-            column_names = [f"{trimmed_table}_{indicator}"]
-            labels.append(f"{trimmed_table}_{indicator}")
+            if isinstance(indicator, list):
+                column_names = []
+                for i in indicator:
+                    column_names.append(f"{trimmed_table}_{i}")
+                    labels.append(f"{trimmed_table}_{i}")
+            else:
+                column_names = [f"{trimmed_table}_{indicator}"]
+                labels.append(f"{trimmed_table}_{indicator}")
             df_aux.columns.set_levels(
                 column_names,
                 level=0, inplace=True)
@@ -321,7 +327,7 @@ def register_callbacks(app):
                 "type": "indicator-dropdown",
                 "index": n_clicks
             }, placeholder="Seleccionar indicador",
-            optionHeight=50
+            optionHeight=50, multi=True
         )
 
         usd = html.Div(children=[
