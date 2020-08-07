@@ -53,15 +53,17 @@ def add_dash(server):
                            html.Div(style={"height": "5px"}),
                            html.Div(id="date-range-container",
                                     style={"display": "none"},
-                                    children=["Filtrar fechas",
-                                              html.Div(dcc.DatePickerRange(
-                                                  id="date-picker",
-                                                  start_date_placeholder_text="Fecha inicial",
-                                                  end_date_placeholder_text="Fecha final",
-                                                  display_format="DD-MM-YYYY"),
-                                                  style={
-                                                      "display": "inline-block",
-                                                      "margin-left": "10px"})]),
+                                    children=[
+                                        "Filtrar fechas",
+                                        html.Div(
+                                            dcc.DatePickerRange(
+                                                id="date-picker",
+                                                start_date_placeholder_text="Fecha inicial",
+                                                end_date_placeholder_text="Fecha final",
+                                                display_format="DD-MM-YYYY"),
+                                            style={
+                                                "display": "inline-block",
+                                                "margin-left": "10px"})]),
                            dcc.Graph(id="chart", style={"display": "none"}),
                            html.Br(),
                            html.Button("Desplegar metadatos",
@@ -230,12 +232,12 @@ def register_callbacks(app):
                     end_date=real_end),
                 "gdp": lambda x: transform.convert_gdp(x, update_loc=db.engine,
                                                        only_get=True),
-                "res": lambda x: transform.resample(x,
-                                                    target=resample_frequency,
-                                                    operation=resample_operation),
-                "roll": lambda x: transform.rolling(x,
-                                                    periods=rolling_periods,
-                                                    operation=rolling_operations),
+                "res": lambda x: transform.resample(
+                    x, target=resample_frequency, operation=resample_operation
+                ),
+                "roll": lambda x: transform.rolling(
+                    x, periods=rolling_periods, operation=rolling_operations
+                ),
                 "base_index": lambda x: transform.base_index(
                     x, start_date=base_start,
                     end_date=base_end,
@@ -299,9 +301,10 @@ def register_callbacks(app):
         for label, trace in zip(labels, fig.select_traces()):
             trace.update(name=label)
         ylabels = []
-        for currency, unit, inf in zip(list(df.columns.get_level_values("Moneda")),
-                                       list(df.columns.get_level_values("Unidad")),
-                                       list(df.columns.get_level_values("Inf. adj."))):
+        for currency, unit, inf in zip(
+                list(df.columns.get_level_values("Moneda")),
+                list(df.columns.get_level_values("Unidad")),
+                list(df.columns.get_level_values("Inf. adj."))):
             text = []
             if currency != "-":
                 text += [currency]
@@ -431,15 +434,15 @@ def register_callbacks(app):
                      children=[dcc.Dropdown(id={
                          "type": "resample-operation",
                          "index": n_clicks
-                     }, options=[{"label": "Reducir frecuencia: promedio",
-                                  "value": "average"},
-                                 {"label": "Reducir frecuencia: suma",
-                                  "value": "sum"},
-                                 {
-                                     "label": "Reducir frecuencia: último período",
-                                     "value": "end"},
-                                 {"label": "Aumentar frecuencia",
-                                  "value": "upsample"}],
+                     }, options=[
+                         {"label": "Reducir frecuencia: promedio",
+                          "value": "average"},
+                         {"label": "Reducir frecuencia: suma",
+                          "value": "sum"},
+                         {"label": "Reducir frecuencia: último período",
+                          "value": "end"},
+                         {"label": "Aumentar frecuencia",
+                          "value": "upsample"}],
                          placeholder="Método", style={"width": "300px"})]),
             order_dropdown(number="4", n_clicks=n_clicks)])
 
@@ -565,7 +568,7 @@ def register_callbacks(app):
                                           short_br, base_index, short_br,
                                           chg_diff, short_br, seas, html.Br()],
                                 id={"type": "complete-div", "index": n_clicks})
-        hide_button = html.Button("Colapsar", id={
+        hide_button = html.Button("Colapsar conjunto de indicadores", id={
             "type": "hide-button",
             "index": n_clicks}, style={"display": "block"})
         children.extend([hide_button, complete_div])
@@ -734,6 +737,6 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
         else:
             transformation_text = html.Div(", ".join(transformation_text))
         divs.extend([table_text, html.H6("Indicadores")] +
-                     metadata_text + [html.H6("Transformaciones"),
-                     transformation_text, html.Br()])
+                    metadata_text + [html.H6("Transformaciones"),
+                                     transformation_text, html.Br()])
     return divs

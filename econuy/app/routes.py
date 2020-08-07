@@ -277,7 +277,7 @@ def export(method):
 
 
 @app.route("/viz", methods=["GET", "POST"])
-def graph():
+def viz():
     return render_template('graph.html', dash_url=dashapp.url_base)
 
 
