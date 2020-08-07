@@ -1,5 +1,5 @@
 import re
-from typing import List
+from typing import List, Dict
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -23,7 +23,8 @@ def add_dash(server):
     app = Dash(server=server, url_base_pathname=url_base,
                external_stylesheets=external_stylesheets)
     app.layout = html.Div([html.H1("Visualizador econuy"),
-                           html.Button("Agregar indicador", id="add-indicator",
+                           html.Button("Agregar conjunto de indicadores",
+                                       id="add-indicator",
                                        n_clicks=0),
                            html.Br(), html.Br(),
                            html.Div(id="indicator-container",
@@ -53,12 +54,21 @@ def add_dash(server):
                            html.Div(id="date-range-container",
                                     style={"display": "none"},
                                     children=["Filtrar fechas",
-                                              dcc.DatePickerRange(
+                                              html.Div(dcc.DatePickerRange(
                                                   id="date-picker",
                                                   start_date_placeholder_text="Fecha inicial",
                                                   end_date_placeholder_text="Fecha final",
-                                                  display_format="DD-MM-YYYY")]),
-                           dcc.Graph(id="chart", style={"display": "none"})])
+                                                  display_format="DD-MM-YYYY"),
+                                                  style={
+                                                      "display": "inline-block",
+                                                      "margin-left": "10px"})]),
+                           dcc.Graph(id="chart", style={"display": "none"}),
+                           html.Br(),
+                           html.Button("Desplegar metadatos",
+                                       id="metadata-button",
+                                       style={"display": "none"}),
+                           html.Br(),
+                           html.Div(id="metadata", children=[])])
 
     register_callbacks(app)
 
@@ -72,7 +82,10 @@ def register_callbacks(app):
         [Output("chart", "figure"),
          Output("chart", "style"),
          Output("chart-type-container", "style"),
-         Output("date-range-container", "style")],
+         Output("date-range-container", "style"),
+         Output("metadata-button", "style"),
+         Output("metadata", "children")
+         ],
         [Input("chart-type", "value"),
          Input({"type": "table-dropdown", "index": ALL}, "value"),
          Input({"type": "indicator-dropdown", "index": ALL}, "value"),
@@ -107,7 +120,8 @@ def register_callbacks(app):
          Input({"type": "order-8", "index": ALL}, "value"),
          Input("date-picker", "start_date"),
          Input("date-picker", "end_date")])
-    def update_df(chart_type, table_s, indicator_s, usd_s, real_s, real_start_s,
+    def update_df(chart_type, table_s, indicator_s, usd_s, real_s,
+                  real_start_s,
                   real_end_s, gdp_s, resample_s, resample_frequency_s,
                   resample_operation_s, rolling_s, rolling_period_s,
                   rolling_operation_s, base_index_s, base_start_s,
@@ -118,6 +132,7 @@ def register_callbacks(app):
                   start_date, end_date):
         dataframes = []
         labels = []
+        arr_orders_s = []
         for (table,
              indicator,
              usd,
@@ -179,23 +194,17 @@ def register_callbacks(app):
                              order_6_s,
                              order_7_s,
                              order_8_s):
-            if indicator is None or table is None:
+            if indicator is None or indicator == [] or table is None:
                 continue
+            if "*" in indicator:
+                indicator = "*"
             df_aux = sqlutil.read(con=db.engine, table_name=table,
                                   cols=indicator)
             trimmed_table = re.sub(r" \(([^)]+)\)$", "",
                                    table_options[table])
-            if isinstance(indicator, list):
-                column_names = []
-                for i in indicator:
-                    column_names.append(f"{trimmed_table}_{i}")
-                    labels.append(f"{trimmed_table}_{i}")
-            else:
-                column_names = [f"{trimmed_table}_{indicator}"]
-                labels.append(f"{trimmed_table}_{indicator}")
-            df_aux.columns.set_levels(
-                column_names,
-                level=0, inplace=True)
+            df_aux.columns.set_levels([f"{trimmed_table}_"]
+                                      + df_aux.columns.levels[0],
+                                      level=0, inplace=True)
             orders = [order_1, order_2, order_3, order_4, order_5,
                       order_6, order_7, order_8]
             for i in range(len(orders)):
@@ -211,6 +220,7 @@ def register_callbacks(app):
                                "base_index": base_index, "chg_diff": chg_diff,
                                "seas": seas}.items()}
             arr_orders = define_order(submit_order, all_transforms)
+            arr_orders_s.append(arr_orders)
             function_dict = {
                 "usd": lambda x: transform.convert_usd(x, update_loc=db.engine,
                                                        only_get=True),
@@ -245,7 +255,7 @@ def register_callbacks(app):
 
         if len(dataframes) == 0:
             return [], {"display": "none"}, {"display": "none"}, {
-                "display": "none"}
+                "display": "none"}, {"display": "none"}, []
         df = match_freqs(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
@@ -288,12 +298,27 @@ def register_callbacks(app):
                           template="plotly_white")
         for label, trace in zip(labels, fig.select_traces()):
             trace.update(name=label)
+        ylabels = []
+        for currency, unit, inf in zip(list(df.columns.get_level_values("Moneda")),
+                                       list(df.columns.get_level_values("Unidad")),
+                                       list(df.columns.get_level_values("Inf. adj."))):
+            text = []
+            if currency != "-":
+                text += [currency]
+            text += [unit]
+            if inf != "No":
+                text += [inf]
+            ylabels.append(" | ".join(text))
+        if all(x == ylabels[0] for x in ylabels):
+            ylabels = ylabels[0]
+        else:
+            ylabels = ""
         fig.update_layout({"margin": {"l": 0, "r": 15},
                            "legend": {"orientation": "h", "yanchor": "top",
                                       "y": -0.1, "xanchor": "left", "x": 0},
                            "legend_orientation": "h",
                            "xaxis_title": "",
-                           "yaxis_title": "",
+                           "yaxis_title": ylabels,
                            "legend_title": "",
                            "title": {"y": 0.9,
                                      "yanchor": "top",
@@ -303,8 +328,11 @@ def register_callbacks(app):
                                   sizex=0.1, sizey=0.1, xanchor="right",
                                   yanchor="bottom", xref="paper", yref="paper",
                                   x=1, y=1.01))
-        return fig, {"display": "block"}, {"display": "block"}, {
-            "display": "block"}
+
+        notes = build_metadata(tables=table_s, dfs=dataframes,
+                               transformations=arr_orders_s)
+        return (fig, {"display": "block"}, {"display": "block"},
+                {"display": "block"}, {"display": "block"}, notes)
 
     @app.callback(
         Output("indicator-container", "children"),
@@ -319,16 +347,16 @@ def register_callbacks(app):
         },
             options=[{"label": v, "value": k} for k, v in
                      table_options.items() if "-----" not in v],
-            placeholder="Seleccionar cuadro"
+            placeholder="Seleccionar cuadro", optionHeight=50
         )
 
-        indicator_dropdown = dcc.Dropdown(
-            id={
-                "type": "indicator-dropdown",
-                "index": n_clicks
-            }, placeholder="Seleccionar indicador",
-            optionHeight=50, multi=True
-        )
+        indicator_dropdown = dcc.Loading(
+            id="indicator-loading",
+            children=[dcc.Dropdown(id={"type": "indicator-dropdown",
+                                       "index": n_clicks},
+                                   placeholder="Seleccionar indicador",
+                                   optionHeight=50, multi=True)],
+            type="default")
 
         usd = html.Div(children=[
             html.Div(
@@ -412,7 +440,7 @@ def register_callbacks(app):
                                      "value": "end"},
                                  {"label": "Aumentar frecuencia",
                                   "value": "upsample"}],
-                         placeholder="Método", style={"width": "250px"})]),
+                         placeholder="Método", style={"width": "300px"})]),
             order_dropdown(number="4", n_clicks=n_clicks)])
 
         roll = html.Div(children=[
@@ -485,7 +513,7 @@ def register_callbacks(app):
                          "index": n_clicks
                      }, options=[
                          {"label": "Variación porcentual", "value": "chg"},
-                         {"label": "Cambio", "value": "diff"}],
+                         {"label": "Diferencia", "value": "diff"}],
                          placeholder="Tipo", style={"width": "200px"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
@@ -523,7 +551,7 @@ def register_callbacks(app):
                      }, options=[
                          {"label": "Desestacionalizado", "value": "seas"},
                          {"label": "Tendencia-ciclo", "value": "trend"}],
-                         placeholder="Componente", style={"width": "150px"})]),
+                         placeholder="Componente", style={"width": "200px"})]),
             order_dropdown(number="8", n_clicks=n_clicks),
             details("El procesamiento con el método X13 ARIMA puede demorar "
                     "dependiendo del tipo y largo de series en la tabla "
@@ -535,9 +563,8 @@ def register_callbacks(app):
                                           short_br, real, short_br, gdp,
                                           short_br, res, short_br, roll,
                                           short_br, base_index, short_br,
-                                          chg_diff, short_br, seas], id={
-            "type": "complete-div",
-            "index": n_clicks})
+                                          chg_diff, short_br, seas, html.Br()],
+                                id={"type": "complete-div", "index": n_clicks})
         hide_button = html.Button("Colapsar", id={
             "type": "hide-button",
             "index": n_clicks}, style={"display": "block"})
@@ -548,24 +575,39 @@ def register_callbacks(app):
         Output({"type": "indicator-dropdown", "index": MATCH}, "options"),
         [Input({"type": "table-dropdown", "index": MATCH}, "value")])
     def indicator_dropdowns(table):
+        if table is None:
+            return []
         meta = MetaData()
         meta.reflect(bind=db.engine)
         sql_table = Table(table, meta)
         columns = [col.key.__str__() for col in sql_table.columns
                    if col.key != "index"]
-        return [{"label": v, "value": v} for v in columns]
+        return ([{"label": "Todos los indicadores", "value": "*"}]
+                + [{"label": v, "value": v} for v in columns])
 
     @app.callback(
         [Output({"type": "complete-div", "index": MATCH}, "style"),
          Output({"type": "hide-button", "index": MATCH}, "children")],
         [Input({"type": "hide-button", "index": MATCH}, "n_clicks")])
-    def toggle_hide(n_clicks):
+    def toggle_hide_indicators(n_clicks):
         if n_clicks is None:
-            return {"display": "block"}, "Colapsar indicador"
+            return {"display": "block"}, "Colapsar conjunto de indicadores"
         elif n_clicks % 2 != 0:
-            return {"display": "none"}, "Mostrar indicador"
+            return {"display": "none"}, "Mostrar conjunto de indicadores"
         else:
-            return {"display": "block"}, "Colapsar indicador"
+            return {"display": "block"}, "Colapsar conjunto de indicadores"
+
+    @app.callback(
+        [Output("metadata", "style"),
+         Output("metadata-button", "children")],
+        [Input("metadata-button", "n_clicks")])
+    def toggle_hide_metadata(n_clicks):
+        if n_clicks is None:
+            return {"display": "none"}, "Desplegar metadatos"
+        elif n_clicks % 2 != 0:
+            return {"display": "block"}, "Colapsar metadatos"
+        else:
+            return {"display": "none"}, "Desplegar metadatos"
 
 
 def order_dropdown(number: str, n_clicks):
@@ -653,3 +695,45 @@ def unique_names(dfs: List[pd.DataFrame]) -> List[pd.DataFrame]:
         df.columns.set_levels(df_names, level=0, inplace=True)
         new_dfs.append(df)
     return new_dfs
+
+
+def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
+                   transformations: List[Dict]):
+    transformation_labels = {"usd": "Convertir a dólares",
+                             "real": "Deflactar",
+                             "gdp": "Convertir a % del PBI",
+                             "res": "Cambiar frecuencia",
+                             "roll": "Acumular",
+                             "base_index": "Calcular índice base",
+                             "chg_diff": "Calcular variaciones o diferencias",
+                             "seas": "Desestacionalizar"}
+    divs = []
+    for table, df, transformation in zip(tables, dfs, transformations):
+        table_text = html.H5(table_options[table])
+        metadata = []
+        for i in range(9):
+            metadata.append(list(df.columns.get_level_values(i)))
+        metadata_text = []
+        for counter, indicator in enumerate(metadata[0]):
+            indicator = indicator.split("_")[1]
+            metadata_text.append(
+                html.Div([dcc.Markdown(f'''**{indicator}**'''),
+                          f"Frecuencia: {metadata[2][counter]}", html.Br(),
+                          f"Moneda: {metadata[3][counter]}", html.Br(),
+                          f"Ajuste precios: {metadata[4][counter]}", html.Br(),
+                          f"Unidad: {metadata[5][counter]}", html.Br(),
+                          f"Descomposición: {metadata[6][counter]}", html.Br(),
+                          f"Tipo: {metadata[7][counter]}", html.Br(),
+                          f"Períodos acumulados: {metadata[8][counter]}",
+                          html.Br(), html.Br()]))
+        transformation_text = []
+        for t in transformation.values():
+            transformation_text.append(transformation_labels[t])
+        if len(transformation_text) == 0:
+            transformation_text = html.Div("Ninguna transformación aplicada")
+        else:
+            transformation_text = html.Div(", ".join(transformation_text))
+        divs.extend([table_text, html.H6("Indicadores")] +
+                     metadata_text + [html.H6("Transformaciones"),
+                     transformation_text, html.Br()])
+    return divs
