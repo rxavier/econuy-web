@@ -254,6 +254,7 @@ def register_callbacks(app):
             for t in arr_orders.values():
                 df_aux = function_dict[t](df_aux)
             dataframes.append(df_aux)
+            labels.extend(list(df_aux.columns.get_level_values(0)))
 
         if len(dataframes) == 0:
             return [], {"display": "none"}, {"display": "none"}, {
@@ -646,13 +647,14 @@ def define_order(submit_order, all_transforms):
 
 
 def match_freqs(dfs: List[pd.DataFrame]) -> pd.DataFrame:
-    dfs = unique_names(dfs=dfs)
+
     freqs = []
     for df in dfs:
         freqs.append(pd.infer_freq(df.index))
     if all(freq == freqs[0] for freq in freqs):
         return pd.concat(dfs, axis=1)
     else:
+        dfs = unique_names(dfs=dfs)
         for freq_opt in ["A-DEC", "A", "Q-DEC", "Q", "M", "2W-SUN", "W-SUN"]:
             if freq_opt in freqs:
                 output = []
