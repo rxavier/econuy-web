@@ -259,7 +259,7 @@ def register_callbacks(app):
         if len(dataframes) == 0:
             return [], {"display": "none"}, {"display": "none"}, {
                 "display": "none"}, {"display": "none"}, []
-        df = match_freqs(dataframes)
+        df = fix_freqs_and_names(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
             if end_date is not None:
@@ -646,15 +646,15 @@ def define_order(submit_order, all_transforms):
     return dict(zip(list(range(len(aux))), aux))
 
 
-def match_freqs(dfs: List[pd.DataFrame]) -> pd.DataFrame:
+def fix_freqs_and_names(dfs: List[pd.DataFrame]) -> pd.DataFrame:
 
     freqs = []
+    dfs = unique_names(dfs=dfs)
     for df in dfs:
         freqs.append(pd.infer_freq(df.index))
     if all(freq == freqs[0] for freq in freqs):
         return pd.concat(dfs, axis=1)
     else:
-        dfs = unique_names(dfs=dfs)
         for freq_opt in ["A-DEC", "A", "Q-DEC", "Q", "M", "2W-SUN", "W-SUN"]:
             if freq_opt in freqs:
                 output = []
