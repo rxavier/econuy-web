@@ -3,6 +3,8 @@ from typing import List, Dict
 
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table as dt
+from dash_table.Format import Format, Scheme, Group
 import pandas as pd
 import plotly.express as px
 from dash import Dash
@@ -34,7 +36,7 @@ def add_dash(server):
                                id="chart-type-container",
                                style={"display": "none"},
                                children=[
-                                   "Tipo de gráfico",
+                                   "Tipo de visualización",
                                    dcc.RadioItems(
                                        id="chart-type",
                                        options=[{"label": "Líneas",
@@ -46,7 +48,9 @@ def add_dash(server):
                                                 {"label": "Áreas",
                                                  "value": "area"},
                                                 {"label": "Áreas normalizadas",
-                                                 "value": "normarea"}],
+                                                 "value": "normarea"},
+                                                {"label": "Tabla",
+                                                 "value": "table"}],
                                        value="line",
                                        labelStyle={"display": "inline-block"},
                                        style={"display": "inline-block"})]),
@@ -64,7 +68,7 @@ def add_dash(server):
                                             style={
                                                 "display": "inline-block",
                                                 "margin-left": "10px"})]),
-                           dcc.Graph(id="chart", style={"display": "none"}),
+                           html.Div(id="viz-container", children=[]),
                            html.Br(),
                            html.Button("Desplegar metadatos",
                                        id="metadata-button",
@@ -81,8 +85,7 @@ def register_callbacks(app):
     from econuy.app import db
 
     @app.callback(
-        [Output("chart", "figure"),
-         Output("chart", "style"),
+        [Output("viz-container", "children"),
          Output("chart-type-container", "style"),
          Output("date-range-container", "style"),
          Output("metadata-button", "style"),
@@ -258,7 +261,7 @@ def register_callbacks(app):
 
         if len(dataframes) == 0:
             return [], {"display": "none"}, {"display": "none"}, {
-                "display": "none"}, {"display": "none"}, []
+                "display": "none"}, []
         df = fix_freqs_and_names(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
@@ -269,74 +272,105 @@ def register_callbacks(app):
         if end_date is not None:
             df = df.loc[df.index <= end_date]
 
-        if chart_type == "bar":
-            fig = px.bar(df, x=df.index, height=600,
-                         y=list(df.columns.get_level_values(level=0)),
-                         title="econuy.VIZ",
-                         color_discrete_sequence=px.colors.qualitative.Vivid,
-                         barmode="group", template="plotly_white")
-        elif chart_type == "stackbar":
-            fig = px.bar(df, x=df.index, height=600,
-                         y=list(df.columns.get_level_values(level=0)),
-                         title="econuy.VIZ",
-                         color_discrete_sequence=px.colors.qualitative.Vivid,
-                         barmode="stack", template="plotly_white")
-        elif chart_type == "area":
-            fig = px.area(df, x=df.index, height=600,
-                          y=list(df.columns.get_level_values(level=0)),
-                          title="econuy.VIZ",
-                          color_discrete_sequence=px.colors.qualitative.Vivid,
-                          template="plotly_white")
-        elif chart_type == "normarea":
-            fig = px.area(df, x=df.index, height=600,
-                          y=list(df.columns.get_level_values(level=0)),
-                          title="econuy.VIZ",
-                          color_discrete_sequence=px.colors.qualitative.Vivid,
-                          template="plotly_white", groupnorm="fraction")
+        if chart_type != "table":
+            if chart_type == "bar":
+                fig = px.bar(df, x=df.index, height=600,
+                             y=list(df.columns.get_level_values(level=0)),
+                             title="econuy.VIZ",
+                             color_discrete_sequence=px.colors.qualitative.Vivid,
+                             barmode="group", template="plotly_white")
+            elif chart_type == "stackbar":
+                fig = px.bar(df, x=df.index, height=600,
+                             y=list(df.columns.get_level_values(level=0)),
+                             title="econuy.VIZ",
+                             color_discrete_sequence=px.colors.qualitative.Vivid,
+                             barmode="stack", template="plotly_white")
+            elif chart_type == "area":
+                fig = px.area(df, x=df.index, height=600,
+                              y=list(df.columns.get_level_values(level=0)),
+                              title="econuy.VIZ",
+                              color_discrete_sequence=px.colors.qualitative.Vivid,
+                              template="plotly_white")
+            elif chart_type == "normarea":
+                fig = px.area(df, x=df.index, height=600,
+                              y=list(df.columns.get_level_values(level=0)),
+                              title="econuy.VIZ",
+                              color_discrete_sequence=px.colors.qualitative.Vivid,
+                              template="plotly_white", groupnorm="fraction")
+            else:
+                fig = px.line(df, x=df.index, height=600,
+                              y=list(df.columns.get_level_values(level=0)),
+                              title="econuy.VIZ",
+                              color_discrete_sequence=px.colors.qualitative.Vivid,
+                              template="plotly_white")
+            for label, trace in zip(labels, fig.select_traces()):
+                trace.update(name=label)
+            ylabels = []
+            for currency, unit, inf in zip(
+                    list(df.columns.get_level_values("Moneda")),
+                    list(df.columns.get_level_values("Unidad")),
+                    list(df.columns.get_level_values("Inf. adj."))):
+                text = []
+                if currency != "-":
+                    text += [currency]
+                text += [unit]
+                if inf != "No":
+                    text += [inf]
+                ylabels.append(" | ".join(text))
+            if all(x == ylabels[0] for x in ylabels):
+                ylabels = ylabels[0]
+            else:
+                ylabels = ""
+            fig.update_layout({"margin": {"l": 0, "r": 15},
+                               "legend": {"orientation": "h", "yanchor": "top",
+                                          "y": -0.1, "xanchor": "left",
+                                          "x": 0},
+                               "legend_orientation": "h",
+                               "xaxis_title": "",
+                               "yaxis_title": ylabels,
+                               "legend_title": "",
+                               "title": {"y": 0.9,
+                                         "yanchor": "top",
+                                         "font": {"size": 30}}})
+            fig.add_layout_image(dict(source=url_for("static",
+                                                     filename="logo.png"),
+                                      sizex=0.1, sizey=0.1, xanchor="right",
+                                      yanchor="bottom", xref="paper",
+                                      yref="paper",
+                                      x=1, y=1.01))
+            viz = dcc.Graph(figure=fig)
         else:
-            fig = px.line(df, x=df.index, height=600,
-                          y=list(df.columns.get_level_values(level=0)),
-                          title="econuy.VIZ",
-                          color_discrete_sequence=px.colors.qualitative.Vivid,
-                          template="plotly_white")
-        for label, trace in zip(labels, fig.select_traces()):
-            trace.update(name=label)
-        ylabels = []
-        for currency, unit, inf in zip(
-                list(df.columns.get_level_values("Moneda")),
-                list(df.columns.get_level_values("Unidad")),
-                list(df.columns.get_level_values("Inf. adj."))):
-            text = []
-            if currency != "-":
-                text += [currency]
-            text += [unit]
-            if inf != "No":
-                text += [inf]
-            ylabels.append(" | ".join(text))
-        if all(x == ylabels[0] for x in ylabels):
-            ylabels = ylabels[0]
-        else:
-            ylabels = ""
-        fig.update_layout({"margin": {"l": 0, "r": 15},
-                           "legend": {"orientation": "h", "yanchor": "top",
-                                      "y": -0.1, "xanchor": "left", "x": 0},
-                           "legend_orientation": "h",
-                           "xaxis_title": "",
-                           "yaxis_title": ylabels,
-                           "legend_title": "",
-                           "title": {"y": 0.9,
-                                     "yanchor": "top",
-                                     "font": {"size": 30}}})
-        fig.add_layout_image(dict(source=url_for("static",
-                                                 filename="logo.png"),
-                                  sizex=0.1, sizey=0.1, xanchor="right",
-                                  yanchor="bottom", xref="paper", yref="paper",
-                                  x=1, y=1.01))
-
+            df.columns = df.columns.get_level_values(0)
+            df.reset_index(inplace=True)
+            df.rename(columns={"index": "Fecha"}, inplace=True)
+            df["Fecha"] = df["Fecha"].dt.strftime("%d-%m-%Y")
+            viz = html.Div([html.Br(),
+                            dt.DataTable(id="table",
+                                         columns=[{"name": "Fecha",
+                                                   "id": "Fecha",
+                                                   "type": "datetime"}] +
+                                                 [{"name": i, "id": i,
+                                                   "type": "numeric",
+                                                   "format":
+                                                       Format(precision=2,
+                                                              scheme=Scheme.fixed,
+                                                              group=Group.yes,
+                                                              groups=3,
+                                                              group_delimiter=",",
+                                                              decimal_delimiter=".")}
+                                                  for i in df.columns[1:]],
+                                         data=df.to_dict("records"),
+                                         style_cell={"textAlign": "center"},
+                                         style_header={
+                                             "whiteSpace": "normal",
+                                             "height": "auto",
+                                             "textAlign": "center"},
+                                         page_action="none",
+                                         fixed_rows={"headers": True})])
         notes = build_metadata(tables=table_s, dfs=dataframes,
                                transformations=arr_orders_s)
-        return (fig, {"display": "block"}, {"display": "block"},
-                {"display": "block"}, {"display": "block"}, notes)
+        return viz, {"display": "block"}, {"display": "block"}, {
+            "display": "block"}, notes
 
     @app.callback(
         Output("indicator-container", "children"),
@@ -647,7 +681,6 @@ def define_order(submit_order, all_transforms):
 
 
 def fix_freqs_and_names(dfs: List[pd.DataFrame]) -> pd.DataFrame:
-
     freqs = []
     dfs = unique_names(dfs=dfs)
     for df in dfs:
