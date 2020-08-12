@@ -205,9 +205,14 @@ def register_callbacks(app):
                 indicator = "*"
             df_aux = sqlutil.read(con=db.engine, table_name=table,
                                   cols=indicator)
-            trimmed_table = re.sub(r" \(([^)]+)\)$", "",
-                                   table_options[table])
-            df_aux.columns.set_levels([f"{trimmed_table}_"]
+            valid_tables = [x for x in table_s if x is not None]
+            if len(valid_tables) > 1:
+                trimmed_table = re.sub(r" \(([^)]+)\)$", "",
+                                       table_options[table])
+                table_text = f"{trimmed_table}_"
+            else:
+                table_text = ""
+            df_aux.columns.set_levels(table_text
                                       + df_aux.columns.levels[0],
                                       level=0, inplace=True)
             orders = [order_1, order_2, order_3, order_4, order_5,
@@ -753,7 +758,9 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
             metadata.append(list(df.columns.get_level_values(i)))
         metadata_text = []
         for counter, indicator in enumerate(metadata[0]):
-            indicator = indicator.split("_")[1]
+            valid_tables = [x for x in tables if x is not None]
+            if len(valid_tables) > 1:
+                indicator = indicator.split("_")[1]
             metadata_text.append(
                 html.Div([dcc.Markdown(f'''**{indicator}**'''),
                           f"Frecuencia: {metadata[2][counter]}", html.Br(),
