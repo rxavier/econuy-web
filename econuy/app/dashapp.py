@@ -688,7 +688,7 @@ def unique_names(dfs: List[pd.DataFrame]) -> List[pd.DataFrame]:
     i = 0
     for df in dfs:
         df_names = []
-        new_names = list(df.columns.get_level_values(0))
+        new_names = df.columns.levels[0]
         for name in new_names:
             if name in names:
                 i += 1
