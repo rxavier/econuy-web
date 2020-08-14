@@ -1,16 +1,20 @@
 import re
+import uuid
 from typing import List, Dict
+from io import BytesIO
 
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
 from dash_table.Format import Format, Scheme, Group
 import pandas as pd
+import numpy as np
 import plotly.express as px
 from dash import Dash
 from dash.dependencies import Input, Output, State, ALL, MATCH
-from flask import url_for
+from flask import url_for, send_file, request, flash
 from sqlalchemy import MetaData, Table
+from sqlalchemy.exc import ProgrammingError
 
 from econuy import transform
 from econuy.app.app_strings import table_options
@@ -68,6 +72,11 @@ def add_dash(server):
                                             style={
                                                 "display": "inline-block",
                                                 "margin-left": "10px"})]),
+                           html.Br(),
+                           html.A(html.Button("Exportar datos a Excel",
+                                              id="download-button"),
+                                  id="download-link",
+                                  style={"display": "none"}),
                            html.Div(id="viz-container", children=[]),
                            html.Br(),
                            html.Button("Desplegar metadatos",
@@ -89,7 +98,9 @@ def register_callbacks(app):
          Output("chart-type-container", "style"),
          Output("date-range-container", "style"),
          Output("metadata-button", "style"),
-         Output("metadata", "children")
+         Output("metadata", "children"),
+         Output("download-link", "href"),
+         Output("download-link", "style")
          ],
         [Input("chart-type", "value"),
          Input({"type": "table-dropdown", "index": ALL}, "value"),
@@ -266,7 +277,7 @@ def register_callbacks(app):
 
         if len(dataframes) == 0:
             return [], {"display": "none"}, {"display": "none"}, {
-                "display": "none"}, []
+                "display": "none"}, [], "", {"display": "none"}
         df = fix_freqs_and_names(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
@@ -374,8 +385,12 @@ def register_callbacks(app):
                                          fixed_rows={"headers": True})])
         notes = build_metadata(tables=table_s, dfs=dataframes,
                                transformations=arr_orders_s)
+        export_name = "export_" + uuid.uuid4().hex
+        href = f"/viz/dl?name={export_name}"
+        sqlutil.df_to_sql(df, name=export_name,
+                          con=db.get_engine(bind="queries"))
         return viz, {"display": "block"}, {"display": "block"}, {
-            "display": "block"}, notes
+            "display": "block"}, notes, href, {"display": "block"}
 
     @app.callback(
         Output("indicator-container", "children"),
@@ -651,6 +666,30 @@ def register_callbacks(app):
             return {"display": "block"}, "Colapsar metadatos"
         else:
             return {"display": "none"}, "Desplegar metadatos"
+
+    @app.server.route("/viz/dl")
+    def export_data():
+        name = request.args.get("name")
+        try:
+            data = sqlutil.read(con=db.get_engine(bind="queries"),
+                                table_name=name)
+            credit = pd.DataFrame(columns=data.columns, index=[np.nan] * 2)
+            credit.iloc[1, 0] = "https://econ.uy"
+            output = data.append(credit)
+        except ProgrammingError:
+            return flash("La tabla ya no está disponible para descargar. "
+                         "Intente la consulta nuevamente.")
+        db.engine.execute(f'DROP TABLE IF EXISTS "{name}"')
+        db.engine.execute(f'DROP TABLE IF EXISTS "{name}_metadata"')
+        bio = BytesIO()
+        writer = pd.ExcelWriter(bio, engine="xlsxwriter")
+        output.to_excel(writer, sheet_name="Sheet1")
+        writer.save()
+        bio.seek(0)
+        return send_file(bio, mimetype='application/vnd.openxmlformats-'
+                                       'officedocument.spreadsheetml.sheet',
+                         attachment_filename="econuy-data.xlsx",
+                         as_attachment=True, cache_timeout=0)
 
 
 def order_dropdown(number: str, n_clicks):
