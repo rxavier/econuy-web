@@ -149,6 +149,7 @@ def register_callbacks(app):
         dataframes = []
         labels = []
         arr_orders_s = []
+        valid_tables = [x for x in table_s if x is not None]
         for (table,
              indicator,
              usd,
@@ -216,7 +217,6 @@ def register_callbacks(app):
                 indicator = "*"
             df_aux = sqlutil.read(con=db.engine, table_name=table,
                                   cols=indicator)
-            valid_tables = [x for x in table_s if x is not None]
             if len(valid_tables) > 1:
                 trimmed_table = re.sub(r" \(([^)]+)\)$", "",
                                        table_options[table])
@@ -385,10 +385,20 @@ def register_callbacks(app):
                                          fixed_rows={"headers": True})])
         notes = build_metadata(tables=table_s, dfs=dataframes,
                                transformations=arr_orders_s)
-        export_name = "export_" + uuid.uuid4().hex
+        export_name = f"export_{uuid.uuid4().hex}"
         href = f"/viz/dl?name={export_name}"
-        sqlutil.df_to_sql(df, name=export_name,
-                          con=db.get_engine(bind="queries"))
+        if len(valid_tables) > 1:
+            metadata = df.columns.to_frame(index=False)
+            metadata.to_sql(name=f"{export_name}_metadata",
+                            con=db.get_engine(bind="queries"))
+            columns = df.columns.get_level_values(0)
+            new_columns = ["_".join(x.split("_")[1:]) for x in columns]
+            df.columns = new_columns
+            df.to_sql(name=f"{export_name}",
+                      con=db.get_engine(bind="queries"))
+        else:
+            sqlutil.df_to_sql(df, name=export_name,
+                              con=db.get_engine(bind="queries"))
         return viz, {"display": "block"}, {"display": "block"}, {
             "display": "block"}, notes, href, {"display": "block"}
 
