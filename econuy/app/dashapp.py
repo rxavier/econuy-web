@@ -77,7 +77,12 @@ def add_dash(server):
                                               id="download-button"),
                                   id="download-link",
                                   style={"display": "none"}),
-                           html.Div(id="viz-container", children=[]),
+                           html.Div(
+                               id="loader-wrapper",
+                               children=[dcc.Loading(
+                                   html.Div(id="viz-container", children=[])
+                               )]
+                           ),
                            html.Br(),
                            html.Button("Desplegar metadatos",
                                        id="metadata-button",
