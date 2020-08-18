@@ -361,10 +361,11 @@ def register_callbacks(app):
                                       x=1, y=1.01))
             viz = dcc.Graph(figure=fig)
         else:
-            df.columns = df.columns.get_level_values(0)
-            df.reset_index(inplace=True)
-            df.rename(columns={"index": "Fecha"}, inplace=True)
-            df["Fecha"] = df["Fecha"].dt.strftime("%d-%m-%Y")
+            table_df = df.copy()
+            table_df.columns = table_df.columns.get_level_values(0)
+            table_df.reset_index(inplace=True)
+            table_df.rename(columns={"index": "Fecha"}, inplace=True)
+            table_df["Fecha"] = table_df["Fecha"].dt.strftime("%d-%m-%Y")
             viz = html.Div([html.Br(),
                             dt.DataTable(id="table",
                                          columns=[{"name": "Fecha",
@@ -379,8 +380,9 @@ def register_callbacks(app):
                                                               groups=3,
                                                               group_delimiter=",",
                                                               decimal_delimiter=".")}
-                                                  for i in df.columns[1:]],
-                                         data=df.to_dict("records"),
+                                                  for i in
+                                                  table_df.columns[1:]],
+                                         data=table_df.to_dict("records"),
                                          style_cell={"textAlign": "center"},
                                          style_header={
                                              "whiteSpace": "normal",
