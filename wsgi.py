@@ -1,4 +1,4 @@
-from econuy.app import create_app
+from econuy_web import create_app
 
 app = create_app()
 

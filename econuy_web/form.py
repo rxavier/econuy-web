@@ -4,7 +4,7 @@ from wtforms import (SelectField, SelectMultipleField, BooleanField,
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, NoneOf, Optional, ValidationError
 
-from econuy.app.app_strings import table_options
+from econuy_web.app_strings import table_options
 
 class RequiredIf(DataRequired):
     """Validator which makes a field required if another field is set
