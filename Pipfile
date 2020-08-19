@@ -43,6 +43,7 @@ html5lib = "==1.0.1"
 scipy = "==1.5.0"
 xlsxwriter = "==1.2.9"
 dash = "==1.13.4"
+dash-bootstrap-components = "==0.10.3"
 
 [requires]
 python_version = "3.7"

@@ -1,17 +1,18 @@
 import re
 import uuid
-from typing import List, Dict
 from io import BytesIO
+from typing import List, Dict
 
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
-from dash_table.Format import Format, Scheme, Group
-import pandas as pd
 import numpy as np
+import pandas as pd
 import plotly.express as px
 from dash import Dash
 from dash.dependencies import Input, Output, State, ALL, MATCH
+from dash_table.Format import Format, Scheme, Group
 from flask import url_for, send_file, request, flash
 from sqlalchemy import MetaData, Table
 from sqlalchemy.exc import ProgrammingError
@@ -20,7 +21,7 @@ from econuy import transform
 from econuy.app.app_strings import table_options
 from econuy.utils import sqlutil
 
-external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
+external_stylesheets = [dbc.themes.FLATLY]
 
 url_base = "/dash/viz/"
 
@@ -29,9 +30,10 @@ def add_dash(server):
     app = Dash(server=server, url_base_pathname=url_base,
                external_stylesheets=external_stylesheets)
     app.layout = html.Div([html.H1("Visualizador econuy"),
-                           html.Button("Agregar conjunto de indicadores",
-                                       id="add-indicator",
-                                       n_clicks=0),
+                           dbc.Button("Agregar conjunto de indicadores",
+                                      id="add-indicator",
+                                      n_clicks=0,
+                                      color="primary"),
                            html.Br(), html.Br(),
                            html.Div(id="indicator-container",
                                     children=[]),
@@ -40,8 +42,9 @@ def add_dash(server):
                                id="chart-type-container",
                                style={"display": "none"},
                                children=[
-                                   "Tipo de visualización",
-                                   dcc.RadioItems(
+                                   html.P("Tipo de visualización",
+                                          style={"display": "inline-block"}),
+                                   dbc.RadioItems(
                                        id="chart-type",
                                        options=[{"label": "Líneas",
                                                  "value": "line"},
@@ -56,8 +59,9 @@ def add_dash(server):
                                                 {"label": "Tabla",
                                                  "value": "table"}],
                                        value="line",
-                                       labelStyle={"display": "inline-block"},
-                                       style={"display": "inline-block"})]),
+                                       inline=True,
+                                       style={"display": "inline-block",
+                                              "margin-left": "10px"})]),
                            html.Div(style={"height": "5px"}),
                            html.Div(id="date-range-container",
                                     style={"display": "none"},
@@ -73,8 +77,9 @@ def add_dash(server):
                                                 "display": "inline-block",
                                                 "margin-left": "10px"})]),
                            html.Br(),
-                           html.A(html.Button("Exportar datos a Excel",
-                                              id="download-button"),
+                           html.A(dbc.Button("Exportar datos a Excel",
+                                             id="download-button",
+                                             color="dark"),
                                   id="download-link",
                                   style={"display": "none"}),
                            html.Div(
@@ -84,11 +89,18 @@ def add_dash(server):
                                )]
                            ),
                            html.Br(),
-                           html.Button("Desplegar metadatos",
-                                       id="metadata-button",
-                                       style={"display": "none"}),
+                           dbc.Button("Desplegar metadatos",
+                                      id="metadata-button",
+                                      style={"display": "none"},
+                                      color="dark"),
                            html.Br(),
-                           html.Div(id="metadata", children=[])])
+                           html.Div(id="metadata", children=[]),
+                           dbc.Toast(children=[], id="update-toast",
+                                     is_open=False, header="Información",
+                                     style={"position": "fixed", "top": 5,
+                                            "right": 5},
+                                     duration=5000, icon="success",
+                                     fade=True)])
 
     register_callbacks(app)
 
@@ -105,7 +117,10 @@ def register_callbacks(app):
          Output("metadata-button", "style"),
          Output("metadata", "children"),
          Output("download-link", "href"),
-         Output("download-link", "style")
+         Output("download-link", "style"),
+         Output("update-toast", "is_open"),
+         Output("update-toast", "icon"),
+         Output("update-toast", "children")
          ],
         [Input("chart-type", "value"),
          Input({"type": "table-dropdown", "index": ALL}, "value"),
@@ -140,7 +155,15 @@ def register_callbacks(app):
          Input({"type": "order-7", "index": ALL}, "value"),
          Input({"type": "order-8", "index": ALL}, "value"),
          Input("date-picker", "start_date"),
-         Input("date-picker", "end_date")])
+         Input("date-picker", "end_date")],
+        [State("viz-container", "children"),
+         State("chart-type-container", "style"),
+         State("date-range-container", "style"),
+         State("metadata-button", "style"),
+         State("metadata", "children"),
+         State("download-link", "href"),
+         State("download-link", "style")
+         ])
     def update_df(chart_type, table_s, indicator_s, usd_s, real_s,
                   real_start_s,
                   real_end_s, gdp_s, resample_s, resample_frequency_s,
@@ -150,7 +173,9 @@ def register_callbacks(app):
                   chg_diff_period_s, seas_s, seas_method_s,
                   seas_type_s, orders_1_s, order_2_s, order_3_s,
                   order_4_s, order_5_s, order_6_s, order_7_s, order_8_s,
-                  start_date, end_date):
+                  start_date, end_date,
+                  state_viz, state_type, state_dates, state_metadata_btn,
+                  state_metadata, state_href, state_link_style):
         dataframes = []
         labels = []
         arr_orders_s = []
@@ -216,6 +241,25 @@ def register_callbacks(app):
                              order_6_s,
                              order_7_s,
                              order_8_s):
+            if ((True in resample and
+                 (resample_frequency is None or resample_operation is None))
+                    or (True in rolling and
+                        (rolling_periods is None or
+                         rolling_operations is None))
+                    or (True in base_index
+                        and (base_start is None or
+                             base_base is None))
+                    or (True in chg_diff and
+                        (chg_diff_period is None or
+                         chg_diff_operation is None))
+                    or (True in seas and
+                        (seas_method is None or
+                         seas_type is None))):
+                return (state_viz, state_type, state_dates, state_metadata_btn,
+                        state_metadata, state_href, state_link_style, True,
+                        "warning", html.P("Algunos parámetros obligatorios no "
+                                          "establecidos. Visualización no "
+                                          "actualizada", className="mb-0"))
             if indicator is None or indicator == [] or table is None:
                 continue
             if "*" in indicator:
@@ -282,7 +326,8 @@ def register_callbacks(app):
 
         if len(dataframes) == 0:
             return [], {"display": "none"}, {"display": "none"}, {
-                "display": "none"}, [], "", {"display": "none"}
+                "display": "none"}, [], "", {
+                       "display": "none"}, False, "primary", ""
         df = fix_freqs_and_names(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
@@ -406,8 +451,10 @@ def register_callbacks(app):
         else:
             sqlutil.df_to_sql(df, name=export_name,
                               con=db.get_engine(bind="queries"))
-        return viz, {"display": "block"}, {"display": "block"}, {
-            "display": "block"}, notes, href, {"display": "block"}
+        return (viz, {"display": "block"}, {"display": "block"},
+                {"display": "block"}, notes, href, {"display": "block"},
+                True, "success", html.P("Visualización actualizada👇",
+                                        className="mb-0"))
 
     @app.callback(
         Output("indicator-container", "children"),
@@ -441,7 +488,8 @@ def register_callbacks(app):
                     "index": n_clicks},
                     options=[
                         {"label": "Convertir a dólares",
-                         "value": True}], value=[])]),
+                         "value": True}], value=[],
+                    inputStyle={"margin-right": "10px"})]),
             order_dropdown(number="1", n_clicks=n_clicks),
             details("Las selecciones de *orden* definen qué "
                     "transformación se aplica en qué orden, siendo "
@@ -454,7 +502,8 @@ def register_callbacks(app):
                     "type": "real-check",
                     "index": n_clicks
                 }, options=[{"label": "Deflactar",
-                             "value": True}], value=[])]),
+                             "value": True}], value=[],
+                    inputStyle={"margin-right": "10px"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.DatePickerRange(id={
@@ -479,7 +528,8 @@ def register_callbacks(app):
                     "index": n_clicks},
                     options=[
                         {"label": "Convertir a % del PBI",
-                         "value": True}], value=[])]),
+                         "value": True}], value=[],
+                    inputStyle={"margin-right": "10px"})]),
             order_dropdown(number="3", n_clicks=n_clicks)])
 
         res = html.Div(children=[
@@ -489,7 +539,8 @@ def register_callbacks(app):
                     "type": "resample-check",
                     "index": n_clicks
                 }, options=[{"label": "Cambiar frecuencia",
-                             "value": True}], value=[])]),
+                             "value": True}], value=[],
+                    inputStyle={"margin-right": "10px"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -525,10 +576,11 @@ def register_callbacks(app):
                     "type": "rolling-check",
                     "index": n_clicks
                 }, options=[{"label": "Acumular",
-                             "value": True}], value=[])]),
+                             "value": True}], value=[],
+                    inputStyle={"margin-right": "10px"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.Input(id={
+                     children=[dbc.Input(id={
                          "type": "rolling-periods",
                          "index": n_clicks
                      }, type="number", placeholder="Períodos",
@@ -550,7 +602,8 @@ def register_callbacks(app):
                     "type": "base-check",
                     "index": n_clicks
                 }, options=[{"label": "Calcular índice base",
-                             "value": True}], value=[])]),
+                             "value": True}], value=[],
+                    inputStyle={"margin-right": "10px"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.DatePickerRange(id={
@@ -561,7 +614,7 @@ def register_callbacks(app):
                          display_format="DD-MM-YYYY")]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.Input(id={
+                     children=[dbc.Input(id={
                          "type": "base-base",
                          "index": n_clicks
                      }, type="number", placeholder="Valor base",
@@ -580,7 +633,8 @@ def register_callbacks(app):
                     "type": "chg-diff-check",
                     "index": n_clicks
                 }, options=[{"label": "Calcular variaciones o diferencias",
-                             "value": True}], value=[])]),
+                             "value": True}], value=[],
+                    inputStyle={"margin-right": "10px"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -608,7 +662,8 @@ def register_callbacks(app):
                     "type": "seas-check",
                     "index": n_clicks
                 }, options=[{"label": "Desestacionalizar",
-                             "value": True}], value=[])]),
+                             "value": True}], value=[],
+                    inputStyle={"margin-right": "10px"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -640,9 +695,9 @@ def register_callbacks(app):
                                           short_br, base_index, short_br,
                                           chg_diff, short_br, seas, html.Br()],
                                 id={"type": "complete-div", "index": n_clicks})
-        hide_button = html.Button("Colapsar conjunto de indicadores", id={
+        hide_button = dbc.Button("Colapsar conjunto de indicadores", id={
             "type": "hide-button",
-            "index": n_clicks}, style={"display": "block"})
+            "index": n_clicks}, style={"display": "block"}, color="dark")
         children.extend([hide_button, complete_div])
         return children
 
@@ -730,8 +785,8 @@ def details(text: str):
                               width=22)),
         dcc.Markdown(f'''{text}''', style={"color": "gray",
                                            "font-size": "13px"})]),
-        style={"display": "inline-block", "margin-left": "10px",
-               "vertical-align": "middle"})
+                    style={"display": "inline-block", "margin-left": "10px",
+                           "vertical-align": "middle"})
 
 
 def define_order(submit_order, all_transforms):
