@@ -864,7 +864,7 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
                              "seas": "Desestacionalizar"}
     divs = []
     for table, df, transformation in zip(tables, dfs, transformations):
-        table_text = html.H5(table_options[table])
+        table_text = html.H4(table_options[table])
         metadata = []
         for i in range(9):
             metadata.append(list(df.columns.get_level_values(i)))
@@ -874,7 +874,7 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
             if len(valid_tables) > 1:
                 indicator = indicator.split("_")[1]
             metadata_text.append(
-                html.Div([dcc.Markdown(f'''**{indicator}**'''),
+                html.Div([html.H5(indicator),
                           f"Frecuencia: {metadata[2][counter]}", html.Br(),
                           f"Moneda: {metadata[3][counter]}", html.Br(),
                           f"Ajuste precios: {metadata[4][counter]}", html.Br(),
@@ -889,8 +889,11 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
         if len(transformation_text) == 0:
             transformation_text = html.Div("Ninguna transformación aplicada")
         else:
-            transformation_text = html.Div(", ".join(transformation_text))
-        divs.extend([table_text, html.H6("Indicadores")] +
-                    metadata_text + [html.H6("Transformaciones"),
-                                     transformation_text, html.Br()])
-    return divs
+            items = []
+            for text in transformation_text:
+                items.append(html.Li(text))
+            transformation_text = html.Ul(items)
+        divs.extend([table_text] + [html.Br()] +
+                    metadata_text + [html.H5("Transformaciones"),
+                                     transformation_text] + [html.Hr()])
+    return divs[:-1]
