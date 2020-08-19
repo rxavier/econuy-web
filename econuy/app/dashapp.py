@@ -12,6 +12,7 @@ import pandas as pd
 import plotly.express as px
 from dash import Dash
 from dash.dependencies import Input, Output, State, ALL, MATCH
+from dash.exceptions import PreventUpdate
 from dash_table.Format import Format, Scheme, Group
 from flask import url_for, send_file, request, flash
 from sqlalchemy import MetaData, Table
@@ -705,8 +706,8 @@ def register_callbacks(app):
         Output({"type": "indicator-dropdown", "index": MATCH}, "options"),
         [Input({"type": "table-dropdown", "index": MATCH}, "value")])
     def indicator_dropdowns(table):
-        if table is None:
-            return []
+        if not table:
+            raise PreventUpdate
         meta = MetaData()
         meta.reflect(bind=db.engine)
         sql_table = Table(table, meta)
