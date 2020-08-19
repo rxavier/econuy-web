@@ -1,5 +1,5 @@
-from econuy.app import db, create_app
-from econuy.app.tasks import clear_tables
+from econuy_web import db, create_app
+from econuy_web.tasks import clear_tables
 
 
 if __name__ == "__main__":

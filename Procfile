@@ -1,1 +1,1 @@
-web: gunicorn econuy.wsgi:app
+web: gunicorn wsgi:app

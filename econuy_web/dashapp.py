@@ -19,7 +19,7 @@ from sqlalchemy import MetaData, Table
 from sqlalchemy.exc import ProgrammingError
 
 from econuy import transform
-from econuy.app.app_strings import table_options
+from econuy_web.app_strings import table_options
 from econuy.utils import sqlutil
 
 external_stylesheets = [dbc.themes.FLATLY]
@@ -109,7 +109,7 @@ def add_dash(server):
 
 
 def register_callbacks(app):
-    from econuy.app import db
+    from econuy_web import db
 
     @app.callback(
         [Output("viz-container", "children"),

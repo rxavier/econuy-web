@@ -12,8 +12,8 @@ from flask import (render_template, redirect, url_for,
 from flask import current_app as app
 
 from econuy import transform
-from econuy.app import db, dashapp
-from econuy.app.form import SubmitForm, OrderForm, ColumnForm
+from econuy_web import db, dashapp
+from econuy_web.form import SubmitForm, OrderForm, ColumnForm
 from econuy.utils import sqlutil, metadata
 
 

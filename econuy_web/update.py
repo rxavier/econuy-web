@@ -6,8 +6,8 @@ from econuy.retrieval import (cpi, fiscal_accounts, commodity_index, trade,
 from econuy.frequent import (labor_rate_people, cpi_measures, fiscal,
                              labor_real_wages, trade_balance, terms_of_trade,
                              core_industrial, net_public_debt)
-from econuy.app import db, create_app
-from econuy.app.tasks import full_update
+from econuy_web import db, create_app
+from econuy_web.tasks import full_update
 
 if __name__ == "__main__":
     app = create_app()

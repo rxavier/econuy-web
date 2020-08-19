@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv("../.env")
+load_dotenv("econuy_web/.env")
 
 
 class Config(object):
