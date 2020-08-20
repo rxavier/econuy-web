@@ -30,7 +30,7 @@ url_base = "/dash/viz/"
 def add_dash(server):
     app = Dash(server=server, url_base_pathname=url_base,
                external_stylesheets=external_stylesheets)
-    app.layout = html.Div([html.H1("Visualizador econuy"),
+    app.layout = html.Div([html.H1("econuy.VIZ"),
                            dbc.Button("Agregar conjunto de indicadores",
                                       id="add-indicator",
                                       n_clicks=0,
@@ -262,7 +262,11 @@ def register_callbacks(app):
                         "warning", html.P("Algunos parámetros obligatorios no "
                                           "establecidos. Visualización no "
                                           "actualizada", className="mb-0"))
-            if indicator is None or indicator == [] or table is None:
+            if table is not None and indicator is None:
+                return (state_viz, state_type, state_dates, state_metadata_btn,
+                        state_metadata, state_href, state_link_style, False,
+                        "warning", html.P(""))
+            if table is None:
                 continue
             if "*" in indicator:
                 indicator = "*"
@@ -339,36 +343,41 @@ def register_callbacks(app):
                 df = df.loc[df.index >= start_date]
         if end_date is not None:
             df = df.loc[df.index <= end_date]
+        if all(x == trimmed_tables[0] for x in trimmed_tables):
+            title = trimmed_tables[0]
+        else:
+            title = "<br>".join(trimmed_tables)
+        height = 600 + 20 * len(set(trimmed_tables))
 
         if chart_type != "table":
             if chart_type == "bar":
-                fig = px.bar(df, x=df.index, height=600,
+                fig = px.bar(df, x=df.index, height=height,
                              y=list(df.columns.get_level_values(level=0)),
-                             title="econuy.VIZ",
+                             title=title,
                              color_discrete_sequence=px.colors.qualitative.Vivid,
                              barmode="group", template="plotly_white")
             elif chart_type == "stackbar":
-                fig = px.bar(df, x=df.index, height=600,
+                fig = px.bar(df, x=df.index, height=height,
                              y=list(df.columns.get_level_values(level=0)),
-                             title="econuy.VIZ",
+                             title=title,
                              color_discrete_sequence=px.colors.qualitative.Vivid,
                              barmode="stack", template="plotly_white")
             elif chart_type == "area":
-                fig = px.area(df, x=df.index, height=600,
+                fig = px.area(df, x=df.index, height=height,
                               y=list(df.columns.get_level_values(level=0)),
-                              title="econuy.VIZ",
+                              title=title,
                               color_discrete_sequence=px.colors.qualitative.Vivid,
                               template="plotly_white")
             elif chart_type == "normarea":
-                fig = px.area(df, x=df.index, height=600,
+                fig = px.area(df, x=df.index, height=height,
                               y=list(df.columns.get_level_values(level=0)),
-                              title="econuy.VIZ",
+                              title=title,
                               color_discrete_sequence=px.colors.qualitative.Vivid,
                               template="plotly_white", groupnorm="fraction")
             else:
-                fig = px.line(df, x=df.index, height=600,
+                fig = px.line(df, x=df.index, height=height,
                               y=list(df.columns.get_level_values(level=0)),
-                              title="econuy.VIZ",
+                              title=title,
                               color_discrete_sequence=px.colors.qualitative.Vivid,
                               template="plotly_white")
             for label, trace in zip(labels, fig.select_traces()):
@@ -399,7 +408,7 @@ def register_callbacks(app):
                                "legend_title": "",
                                "title": {"y": 0.9,
                                          "yanchor": "top",
-                                         "font": {"size": 30}}})
+                                         "font": {"size": 20}}})
             fig.add_layout_image(dict(source=url_for("static",
                                                      filename="logo.png"),
                                       sizex=0.1, sizey=0.1, xanchor="right",
