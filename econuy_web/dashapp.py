@@ -917,7 +917,7 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
                         * {providers}
                         ''')]
         divs.extend([table_text] + [html.Br()] +
-                    metadata_text  + [html.H5("Transformaciones"),
+                    metadata_text + [html.H5("Transformaciones"),
                                      transformation_text] +
                     [html.Br()] + sources_text + [html.Hr()])
     return divs[:-1]
