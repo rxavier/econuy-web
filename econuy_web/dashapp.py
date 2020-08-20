@@ -88,20 +88,20 @@ def add_dash(server):
                                children=[dcc.Loading(
                                    html.Div(id="viz-container", children=[])
                                )]
-                           ),
-                           html.Br(),
-                           dbc.Button("Desplegar metadatos",
-                                      id="metadata-button",
-                                      style={"display": "none"},
-                                      color="dark"),
-                           html.Br(),
-                           html.Div(id="metadata", children=[]),
-                           dbc.Toast(children=[], id="update-toast",
-                                     is_open=False, header="Información",
-                                     style={"position": "fixed", "top": 5,
-                                            "right": 5},
-                                     duration=5000, icon="success",
-                                     fade=True)])
+    ),
+        html.Br(),
+        dbc.Button("Desplegar metadatos",
+                   id="metadata-button",
+                   style={"display": "none"},
+                   color="dark"),
+        html.Br(),
+        html.Div(id="metadata", children=[]),
+        dbc.Toast(children=[], id="update-toast",
+                  is_open=False, header="Información",
+                  style={"position": "fixed", "top": 5,
+                         "right": 5},
+                  duration=5000, icon="success",
+                  fade=True)])
 
     register_callbacks(app)
 
@@ -166,17 +166,16 @@ def register_callbacks(app):
          State("download-link", "style")
          ])
     def update_df(chart_type, table_s, indicator_s, usd_s, real_s,
-                  real_start_s,
-                  real_end_s, gdp_s, resample_s, resample_frequency_s,
-                  resample_operation_s, rolling_s, rolling_period_s,
-                  rolling_operation_s, base_index_s, base_start_s,
-                  base_end_s, base_base_s, chg_diff_s, chg_diff_operation_s,
-                  chg_diff_period_s, seas_s, seas_method_s,
-                  seas_type_s, orders_1_s, order_2_s, order_3_s,
+                  real_start_s, real_end_s, gdp_s, resample_s, 
+                  resample_frequency_s, resample_operation_s, rolling_s, 
+                  rolling_period_s, rolling_operation_s, base_index_s, 
+                  base_start_s, base_end_s, base_base_s, chg_diff_s, 
+                  chg_diff_operation_s, chg_diff_period_s, seas_s, 
+                  seas_method_s, seas_type_s, orders_1_s, order_2_s, order_3_s,
                   order_4_s, order_5_s, order_6_s, order_7_s, order_8_s,
-                  start_date, end_date,
-                  state_viz, state_type, state_dates, state_metadata_btn,
-                  state_metadata, state_href, state_link_style):
+                  start_date, end_date, state_viz, state_type, state_dates, 
+                  state_metadata_btn, state_metadata, state_href, 
+                  state_link_style):
         dataframes = []
         labels = []
         arr_orders_s = []
@@ -333,7 +332,7 @@ def register_callbacks(app):
         if len(dataframes) == 0:
             return [], {"display": "none"}, {"display": "none"}, {
                 "display": "none"}, [], "", {
-                       "display": "none"}, False, "primary", ""
+                "display": "none"}, False, "primary", ""
         df = fix_freqs_and_names(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
@@ -427,8 +426,8 @@ def register_callbacks(app):
                                          columns=[{"name": "Fecha",
                                                    "id": "Fecha",
                                                    "type": "datetime"}] +
-                                                 [{"name": i, "id": i,
-                                                   "type": "numeric",
+                                         [{"name": i, "id": i,
+                                           "type": "numeric",
                                                    "format":
                                                        Format(precision=2,
                                                               scheme=Scheme.fixed,
@@ -436,8 +435,8 @@ def register_callbacks(app):
                                                               groups=3,
                                                               group_delimiter=",",
                                                               decimal_delimiter=".")}
-                                                  for i in
-                                                  table_df.columns[1:]],
+                                          for i in
+                                          table_df.columns[1:]],
                                          data=table_df.to_dict("records"),
                                          style_cell={"textAlign": "center"},
                                          style_header={
