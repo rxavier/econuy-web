@@ -20,7 +20,7 @@ from sqlalchemy.exc import ProgrammingError
 
 from econuy import transform
 from econuy_web.app_strings import table_options
-from econuy.utils import sqlutil
+from econuy.utils import sqlutil, metadata
 
 external_stylesheets = [dbc.themes.FLATLY]
 
@@ -874,23 +874,23 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
     divs = []
     for table, df, transformation in zip(tables, dfs, transformations):
         table_text = html.H4(table_options[table])
-        metadata = []
+        meta = []
         for i in range(9):
-            metadata.append(list(df.columns.get_level_values(i)))
+            meta.append(list(df.columns.get_level_values(i)))
         metadata_text = []
-        for counter, indicator in enumerate(metadata[0]):
+        for counter, indicator in enumerate(meta[0]):
             valid_tables = [x for x in tables if x is not None]
             if len(set(valid_tables)) > 1:
                 indicator = indicator.split("_")[1]
             metadata_text.append(
                 html.Div([html.H5(indicator),
-                          f"Frecuencia: {metadata[2][counter]}", html.Br(),
-                          f"Moneda: {metadata[3][counter]}", html.Br(),
-                          f"Ajuste precios: {metadata[4][counter]}", html.Br(),
-                          f"Unidad: {metadata[5][counter]}", html.Br(),
-                          f"Descomposición: {metadata[6][counter]}", html.Br(),
-                          f"Tipo: {metadata[7][counter]}", html.Br(),
-                          f"Períodos acumulados: {metadata[8][counter]}",
+                          f"Frecuencia: {meta[2][counter]}", html.Br(),
+                          f"Moneda: {meta[3][counter]}", html.Br(),
+                          f"Ajuste precios: {meta[4][counter]}", html.Br(),
+                          f"Unidad: {meta[5][counter]}", html.Br(),
+                          f"Descomposición: {meta[6][counter]}", html.Br(),
+                          f"Tipo: {meta[7][counter]}", html.Br(),
+                          f"Períodos acumulados: {meta[8][counter]}",
                           html.Br(), html.Br()]))
         transformation_text = []
         for t in transformation.values():
@@ -902,7 +902,22 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
             for text in transformation_text:
                 items.append(html.Li(text))
             transformation_text = html.Ul(items)
+        sources = metadata._get_sources(dataset=table, html_urls=False)
+        direct = ("Links directos: "
+                  + " | ".join([f'[{number + 1}]({url})'
+                                for number, url in enumerate(sources[0])]))
+        indirect = ("Links indirectos: "
+                    + " | ".join([f'[{number + 1}]({url})'
+                                  for number, url in enumerate(sources[1])]))
+        providers = "Proveedores: " + " | ".join(sources[2])
+        sources_text = [html.H5("Fuentes"), 
+                        dcc.Markdown(f'''
+                        * {direct}
+                        * {indirect}
+                        * {providers}
+                        ''')]
         divs.extend([table_text] + [html.Br()] +
-                    metadata_text + [html.H5("Transformaciones"),
-                                     transformation_text] + [html.Hr()])
+                    metadata_text  + [html.H5("Transformaciones"),
+                                     transformation_text] +
+                    [html.Br()] + sources_text + [html.Hr()])
     return divs[:-1]
