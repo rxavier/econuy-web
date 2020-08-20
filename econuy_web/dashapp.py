@@ -180,6 +180,7 @@ def register_callbacks(app):
         dataframes = []
         labels = []
         arr_orders_s = []
+        trimmed_tables = []
         valid_tables = [x for x in table_s if x is not None]
         for (table,
              indicator,
@@ -267,9 +268,9 @@ def register_callbacks(app):
                 indicator = "*"
             df_aux = sqlutil.read(con=db.engine, table_name=table,
                                   cols=indicator)
-            if len(valid_tables) > 1:
-                trimmed_table = re.sub(r" \(([^)]+)\)$", "",
-                                       table_options[table])
+            trimmed_table = re.sub(r" \(([^)]+)\)$", "", table_options[table])
+            trimmed_tables.append(trimmed_table)
+            if len(set(valid_tables)) > 1:
                 table_text = f"{trimmed_table}_"
             else:
                 table_text = ""
@@ -440,7 +441,7 @@ def register_callbacks(app):
                                transformations=arr_orders_s)
         export_name = f"export_{uuid.uuid4().hex}"
         href = f"/viz/dl?name={export_name}"
-        if len(valid_tables) > 1:
+        if len(set(valid_tables)) > 1:
             metadata = df.columns.to_frame(index=False)
             metadata.to_sql(name=f"{export_name}_metadata",
                             con=db.get_engine(bind="queries"))
@@ -871,7 +872,7 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
         metadata_text = []
         for counter, indicator in enumerate(metadata[0]):
             valid_tables = [x for x in tables if x is not None]
-            if len(valid_tables) > 1:
+            if len(set(valid_tables)) > 1:
                 indicator = indicator.split("_")[1]
             metadata_text.append(
                 html.Div([html.H5(indicator),
