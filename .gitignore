@@ -7,3 +7,4 @@ __pycache__/
 econuy_web/.env
 
 econuy_web/.flaskenv
+.vscode/settings.json
