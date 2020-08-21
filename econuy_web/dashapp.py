@@ -903,21 +903,29 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
                 items.append(html.Li(text))
             transformation_text = html.Ul(items)
         sources = metadata._get_sources(dataset=table, html_urls=False)
-        direct = ("Links directos: "
-                  + " | ".join([f'[{number + 1}]({url})'
-                                for number, url in enumerate(sources[0])]))
-        indirect = ("Links indirectos: "
-                    + " | ".join([f'[{number + 1}]({url})'
-                                  for number, url in enumerate(sources[1])]))
-        providers = "Proveedores: " + " | ".join(sources[2])
+        if len(sources[0]) > 1:
+            direct = [dcc.Link(number + 1, href=url, target="_parent")
+                      for number, url in enumerate(sources[0])]
+            separated_direct = []
+            for link in direct:
+                separated_direct.append(" | ")
+                separated_direct.append(link)
+            separated_direct = separated_direct[1:]
+        else:
+            separated_direct = ["no disponible"]
+        indirect = [dcc.Link(number + 1, href=url, target="_parent")
+                    for number, url in enumerate(sources[1])]
+        separated_indirect = []
+        for link in indirect:
+            separated_indirect.append(" | ")
+            separated_indirect.append(link)
+        separated_indirect = separated_indirect[1:]
         sources_text = [html.H5("Fuentes"), 
-                        dcc.Markdown(f'''
-                        * {direct}
-                        * {indirect}
-                        * {providers}
-                        ''')]
+                        html.Ul([html.Li(["Links directos: "] + separated_direct),
+                                 html.Li(["Links indirectos: "] + separated_indirect),
+                                 html.Li("Proveedores: " + " | ".join(sources[2]))])]
         divs.extend([table_text] + [html.Br()] +
                     metadata_text + [html.H5("Transformaciones"),
-                                     transformation_text] +
-                     [html.Hr()])
+                                     transformation_text]
+                    + [html.Br()] + sources_text + [html.Hr()])
     return divs[:-1]
