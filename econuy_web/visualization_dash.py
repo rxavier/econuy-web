@@ -954,12 +954,13 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
         for t in transformation.values():
             transformation_text.append(transformation_labels[t])
         if len(transformation_text) == 0:
-            transformation_text = html.Div("Ninguna transformación aplicada")
+            transformation_text = [html.Div("Ninguna transformación aplicada"),
+                                   html.Br()]
         else:
             items = []
             for text in transformation_text:
                 items.append(html.Li(text))
-            transformation_text = html.Ul(items)
+            transformation_text = [html.Ul(items)]
         sources = metadata._get_sources(dataset=table, html_urls=False)
         if len(sources[0]) > 1:
             direct = [dcc.Link(number + 1, href=url, target="_parent")
@@ -983,7 +984,6 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
                                  html.Li(["Links indirectos: "] + separated_indirect),
                                  html.Li("Proveedores: " + " | ".join(sources[2]))])]
         divs.extend([table_text] + [html.Br()] +
-                    metadata_text + [html.H5("Transformaciones"),
-                                     transformation_text]
-                    + [html.Br()] + sources_text + [html.Hr()])
+                    metadata_text + [html.H5("Transformaciones")]
+                    + transformation_text + sources_text + [html.Hr()])
     return divs[:-1]
