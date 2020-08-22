@@ -1,4 +1,4 @@
-#loader-wrapper > div {
+.loader-wrapper > div {
     visibility: visible !important;
 }
 

@@ -12,7 +12,7 @@ from flask import (render_template, redirect, url_for,
 from flask import current_app as app
 
 from econuy import transform
-from econuy_web import db, dashapp
+from econuy_web import db, visualization_dash
 from econuy_web.form import SubmitForm, OrderForm, ColumnForm
 from econuy.utils import sqlutil, metadata
 
@@ -277,8 +277,9 @@ def export(method):
 
 
 @app.route("/viz", methods=["GET", "POST"])
-def viz():
-    return render_template('graph.html', dash_url=dashapp.url_base)
+def visualization():
+    return render_template('visualization.html', dash_url=visualization_dash.url_base)
+
 
 
 def empty_to_none(choice):
