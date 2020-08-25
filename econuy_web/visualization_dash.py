@@ -473,12 +473,14 @@ def register_callbacks(app):
     def display_dropdowns(n_clicks, children):
         short_br = html.Div(style={"height": "5px"})
 
+        options = [{"label": v, "value": k} if "-----" not in v
+                   else {"label": v, "value": k, "disabled": True}
+                   for k, v in table_options.items()]
         table_dropdown = dcc.Dropdown(id={
             "type": "table-dropdown",
             "index": n_clicks
         },
-            options=[{"label": v, "value": k} for k, v in
-                     table_options.items() if "-----" not in v],
+            options=options,
             placeholder="Seleccionar cuadro", optionHeight=50
         )
 
