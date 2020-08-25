@@ -84,7 +84,7 @@ def add_dash(server):
                                   id="download-link",
                                   style={"display": "none"}),
                            html.Div(
-                               id="loader-wrapper",
+                               className="loader-wrapper",
                                children=[dcc.Loading(
                                    html.Div(id="viz-container", children=[])
                                )]
