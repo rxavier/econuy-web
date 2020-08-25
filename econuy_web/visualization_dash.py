@@ -776,11 +776,8 @@ def register_callbacks(app):
     def indicator_dropdowns(table):
         if not table:
             raise PreventUpdate
-        meta = MetaData()
-        meta.reflect(bind=db.engine)
-        sql_table = Table(table, meta)
-        columns = [col.key.__str__() for col in sql_table.columns
-                   if col.key != "index"]
+        df = sqlutil.read(con=db.engine, table_name=table)
+        columns = df.columns.get_level_values(0)
         return ([{"label": "Todos los indicadores", "value": "*"}]
                 + [{"label": v, "value": v} for v in columns]), False
 
