@@ -5,32 +5,46 @@
     Economía uruguaya para gente sin tiempo
 </h1>
     <br>
-<h2 style="width: 60%">
+<h2 style="width: 80%">
     Más de 800 indicadores económicos a algunos clicks de distancia.
 </h2>
-<h3 style="width: 60%">
+<h3 style="width: 80%">
     Convertí a dólares, a porcentaje del PBI o cambiale la frecuencia.
     Visualizalo en gráficos interactivos y descargá los datos.
 </h3>
 <br>
-<div style="margin: 0 auto; width: 70%; text-align: center">
+<div style="margin: 0 auto; width: 90%; text-align: center">
     <div style="display: inline-block; width: 20%">
         <a href="{{ url_for('overview') }}">
-            <img src="{{url_for('static', filename='over.png')}}" width=180>
-            <p>Economía uruguaya de un vistazo</p>
+            <img src="{{url_for('static', filename='over.png')}}" width=100%>
         </a>
     </div>
-    <div style="display: inline-block; margin-left: 5%; width: 20%">
+    <div style="display: inline-block; margin-left: 10%; width: 20%">
         <a href="{{ url_for('visualization') }}">
-            <img src="{{url_for('static', filename='viz.png')}}" width=180>
-            <p>Visualización interactiva y descarga</p>
+            <img src="{{url_for('static', filename='viz.png')}}" width=100%>
         </a>
     </div>
-    <div style="display: inline-block; margin-left: 5%; width: 20%">
+    <div style="display: inline-block; margin-left: 10%; width: 20%">
         <a href="{{ url_for('table_query') }}">
-            <img src="{{url_for('static', filename='table.png')}}" width=180>
-            <p>Descarga de cuadros (interfaz antigua)</p>
+            <img src="{{url_for('static', filename='table.png')}}" width=100%>
         </a>
     </div>
 </div>
+    <div style="margin: 0 auto; width: 90%; text-align: center">
+        <div style="display: inline-block; width: 20%; vertical-align: top;">
+            <a href="{{ url_for('overview') }}">
+                <p>Economía uruguaya de un vistazo</p>
+            </a>
+        </div>
+        <div style="display: inline-block; margin-left: 10%; width: 20%; vertical-align: top;">
+            <a href="{{ url_for('visualization') }}">
+                <p>Visualización interactiva y descarga</p>
+            </a>
+        </div>
+        <div style="display: inline-block; margin-left: 10%; width: 20%; vertical-align: top;">
+            <a href="{{ url_for('table_query') }}">
+                <p>Descarga de cuadros (interfaz antigua)</p>
+            </a>
+        </div>
+    </div>
 {% endblock %}
