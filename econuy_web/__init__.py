@@ -21,11 +21,12 @@ def create_app():
     with app.app_context():
         from econuy_web import form
         from econuy_web import update
-        from econuy_web import visualization_dash
+        from econuy_web import visualization_dash, overview_dash
         from econuy_web import tasks
         from econuy_web import clear
         from econuy_web import errors
         from econuy_web import routes
         app = visualization_dash.add_dash(app)
+        app = overview_dash.add_dash(app)
 
         return app

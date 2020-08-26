@@ -12,13 +12,18 @@ from flask import (render_template, redirect, url_for,
 from flask import current_app as app
 
 from econuy import transform
-from econuy_web import db, visualization_dash
+from econuy_web import db, visualization_dash, overview_dash
 from econuy_web.form import SubmitForm, OrderForm, ColumnForm
 from econuy.utils import sqlutil, metadata
 
 
 @app.route("/", methods=["GET", "POST"])
-def submit():
+def landing():
+    return render_template('landing.html')
+
+
+@app.route("/tablas", methods=["GET", "POST"])
+def table_query():
     # for key in ["request", "transformations"]:
     # session.pop(key, None)
 
@@ -280,6 +285,10 @@ def export(method):
 def visualization():
     return render_template('visualization.html', dash_url=visualization_dash.url_base)
 
+
+@app.route("/over", methods=["GET", "POST"])
+def overview():
+    return render_template('overview.html', dash_url=overview_dash.url_base)
 
 
 def empty_to_none(choice):

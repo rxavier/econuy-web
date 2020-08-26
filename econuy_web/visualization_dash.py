@@ -30,7 +30,7 @@ url_base = "/dash/viz/"
 def add_dash(server):
     app = Dash(server=server, url_base_pathname=url_base,
                external_stylesheets=external_stylesheets)
-    app.layout = html.Div([html.H1("econuy.VIZ"),
+    app.layout = html.Div([html.H1("Visualización interactiva"),
                            dbc.Button("Agregar conjunto de indicadores",
                                       id="add-indicator",
                                       n_clicks=0,
