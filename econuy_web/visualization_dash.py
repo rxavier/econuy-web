@@ -15,7 +15,6 @@ from dash.dependencies import Input, Output, State, ALL, MATCH
 from dash.exceptions import PreventUpdate
 from dash_table.Format import Format, Scheme, Group
 from flask import url_for, send_file, request, flash
-from sqlalchemy import MetaData, Table
 from sqlalchemy.exc import ProgrammingError
 
 from econuy import transform
