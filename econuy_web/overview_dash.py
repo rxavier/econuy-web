@@ -90,17 +90,27 @@ def register_callbacks(app):
     from econuy_web import db
 
     @app.callback(
-        [Output("gdp", "figure"),
-         Output("prices", "figure"),
-         Output("act-emp", "figure"),
-         Output("unemp", "figure"),
-         Output("deficit", "figure"),
-         Output("debt", "figure"),
-         Output("trade", "figure"),
-         Output("nxr", "figure")],
+        Output("gdp", "figure"),
         [Input("dates", "start_date"),
          Input("dates", "end_date")])
-    def build_dashboard(start_date, end_date):
+    def activity(start_date, end_date):
+        start_date = start_date or "2010-01-01"
+        end_date = end_date or "2100-01-01"
+
+        gdp = sqlutil.read(con=db.engine,
+                           table_name="naccounts_ind_con_idx_sa")
+        gdp = gdp.iloc[:, [-1]]
+        gdp = transform.chg_diff(gdp, operation="chg", period_op="last")
+        gdp = gdp.loc[(gdp.index >= start_date) & (gdp.index <= end_date)]
+
+        return generate_plot(df=gdp, chart_type=px.bar, title="Crecimiento",
+                             yaxis="% crecimiento trimestral")
+
+    @app.callback(
+        Output("prices", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def inflation(start_date, end_date):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
 
@@ -109,82 +119,135 @@ def register_callbacks(app):
         cpi = transform.chg_diff(cpi, operation="chg", period_op="inter")
         cpi.columns = cpi.columns.get_level_values(0).str.replace(
             "Índice de precios al consumo: ", "").str.capitalize()
+        cpi = cpi.loc[(cpi.index >= start_date) & (cpi.index <= end_date)]
 
-        gdp = sqlutil.read(con=db.engine,
-                           table_name="naccounts_ind_con_idx_sa")
-        gdp = gdp.iloc[:, [-1]]
-        gdp = transform.chg_diff(gdp, operation="chg", period_op="last")
+        return generate_plot(df=cpi, chart_type=px.line, title="Inflación",
+                             yaxis="% variación interanual")
 
-        labor = sqlutil.read(con=db.engine,
-                             table_name="tfm_labor_extended_nsa")
-        labor = labor.iloc[:, 0:3]
-        labor_decomp = transform.decompose(labor, flavor="trend",
-                                           method="loess")
-        act_emp = pd.concat([labor.iloc[:, [0]],
-                             labor_decomp.iloc[:, [0]]], axis=1)
-        act_emp.columns = ["Empleo", "Empleo desestacionalizado"]
-        unemp = pd.concat([labor.iloc[:, [2]],
-                           labor_decomp.iloc[:, [2]]], axis=1)
-        unemp.columns = ["Desempleo", "Desempleo desestacionalizado"]
+    @app.callback(
+        Output("deficit", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def fiscal(start_date, end_date):
+        start_date = start_date or "2010-01-01"
+        end_date = end_date or "2100-01-01"
 
         deficit = sqlutil.read(con=db.engine,
                                table_name="tfm_fiscal_gps_uyu_fssadj")
         deficit = deficit.iloc[:, [-1]]
         deficit = transform.convert_gdp(deficit, update_loc=db.engine,
                                         only_get=True)
+        deficit = deficit.loc[(deficit.index >= start_date) &
+                              (deficit.index <= end_date)]
 
-        debt = sqlutil.read(con=db.engine,
+        return generate_plot(df=deficit, chart_type=px.bar,
+                             title="Déficit fiscal", yaxis="% del PBI")
+
+    @app.callback(
+        Output("debt", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def debt(start_date, end_date):
+        start_date = start_date or "2010-01-01"
+        end_date = end_date or "2100-01-01"
+
+        net_debt = sqlutil.read(con=db.engine,
                             table_name="tfm_pubdebt")
-        debt = transform.convert_gdp(debt, update_loc=db.engine,
-                                     only_get=True)
+        net_debt = transform.convert_gdp(net_debt, update_loc=db.engine,
+                                         only_get=True)
+        net_debt = net_debt.loc[(net_debt.index >= start_date) &
+                                (net_debt.index <= end_date)]
+
+        return generate_plot(df=net_debt, chart_type=px.line,
+                             title="Deuda pública", yaxis="% del PBI")
+
+    @app.callback(
+        Output("trade", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def trade(start_date, end_date):
+        start_date = start_date or "2010-01-01"
+        end_date = end_date or "2100-01-01"
 
         exports = sqlutil.read(con=db.engine,
                                table_name="tb_x_dest_val")
         imports = sqlutil.read(con=db.engine,
                                table_name="tb_m_orig_val")
-        trade = pd.concat([exports.iloc[:, [0]], imports.iloc[:, [0]]], axis=1)
-        trade = transform.rolling(trade, periods=12, operation="sum")
-        trade.columns = ["Exportaciones", "Importaciones"]
+        x_m = pd.concat([exports.iloc[:, [0]], imports.iloc[:, [0]]], axis=1)
+        x_m = transform.rolling(x_m, periods=12, operation="sum")
+        x_m.columns = ["Exportaciones", "Importaciones"]
+        x_m = x_m.loc[(x_m.index >= start_date) & (x_m.index <= end_date)]
 
-        nxr = sqlutil.read(con=db.engine,
+        return generate_plot(df=x_m, chart_type=px.line, title="Comercio",
+                             yaxis="Mill. de dólares, acum. 12m")
+
+    @app.callback(
+        Output("nxr", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def nxr(start_date, end_date):
+        start_date = start_date or "2010-01-01"
+        end_date = end_date or "2100-01-01"
+
+        interbank = sqlutil.read(con=db.engine,
                            table_name="nxr_daily")
+        interbank = interbank.loc[(interbank.index >= start_date) &
+                                  (interbank.index <= end_date)]
 
-        yaxis_titles = ["% crecimiento trimestral", "% variación interanual",
-                        "Tasa", "Tasa", "% del PBI", "% del PBI",
-                        "Millones de dólares, acumulado 12 meses", "Pesos por dólar"]
-        plot_titles = ["Crecimiento económico", "Indicadores de inflación",
-                       "Empleo", "Desempleo", "Déficit fiscal",
-                       "Deuda pública", "Comercio internacional",
-                       "Tipo de cambio interbancario"]
-        figures = []
-        for df, yaxis, chart_type, title in zip(
-                [gdp, cpi, act_emp, unemp, deficit, debt, trade, nxr],
-                yaxis_titles,
-                [px.bar, px.line, px.line, px.line, px.bar, px.line, px.line,
-                 px.line],
-                plot_titles):
-            df = df.loc[(df.index >= start_date) & (df.index <= end_date)]
-            fig = chart_type(data_frame=df, x=df.index,
-                             y=df.columns.get_level_values(0),
-                             title=title,
-                             color_discrete_sequence=px.colors.qualitative.Vivid,
-                             template="plotly_white")
-            fig.update_layout({"margin": {"l": 0, "r": 15},
-                               "legend": {"orientation": "h", "yanchor": "top",
-                                          "y": -0.1, "xanchor": "left",
-                                          "x": 0},
-                               "legend_orientation": "h",
-                               "xaxis_title": "",
-                               "yaxis_title": yaxis,
-                               "legend_title": "",
-                               "title": {"y": 0.9,
-                                         "yanchor": "top",
-                                         "font": {"size": 20}}})
-            fig.add_layout_image(dict(source=url_for("static",
-                                                     filename="logo.png"),
-                                      sizex=0.1, sizey=0.1, xanchor="right",
-                                      yanchor="bottom", xref="paper",
-                                      yref="paper",
-                                      x=1, y=1.01))
-            figures.append(fig)
-        return figures
+        return generate_plot(df=interbank, chart_type=px.line,
+                             title="Tipo de cambio", yaxis="Pesos por dólar")
+
+    @app.callback(
+        [Output("unemp", "figure"),
+         Output("emp", "figure")],
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def emp_unemp(start_date, end_date):
+        start_date = start_date or "2010-01-01"
+        end_date = end_date or "2100-01-01"
+
+        labor = sqlutil.read(con=db.engine,
+                             table_name="tfm_labor_extended_nsa")
+        labor = labor.iloc[:, 0:3]
+        labor_decomp = transform.decompose(labor, flavor="trend",
+                                           method="x13")
+        emp = pd.concat([labor.iloc[:, [0]],
+                         labor_decomp.iloc[:, [0]]], axis=1)
+        emp.columns = ["Empleo", "Empleo tendencia-ciclo"]
+        unemp = pd.concat([labor.iloc[:, [2]],
+                           labor_decomp.iloc[:, [2]]], axis=1)
+        unemp.columns = ["Desempleo", "Desempleo tendencia-ciclo"]
+        emp = emp.loc[(emp.index >= start_date) & (emp.index <= end_date)]
+        unemp = unemp.loc[(unemp.index >= start_date) &
+                          (unemp.index <= end_date)]
+
+        return (generate_plot(df=unemp, chart_type=px.line, title="Desempleo",
+                              yaxis="Tasa"),
+                generate_plot(df=emp, chart_type=px.line, title="Empleo",
+                              yaxis="Tasa"))
+
+
+def generate_plot(df, chart_type, title, yaxis):
+    fig = chart_type(data_frame=df, x=df.index,
+                     y=df.columns.get_level_values(0),
+                     title=title,
+                     color_discrete_sequence=px.colors.qualitative.Vivid,
+                     template="plotly_white")
+    fig.update_layout({"margin": {"l": 0, "r": 15},
+                       "legend": {"orientation": "h", "yanchor": "top",
+                                  "y": -0.1, "xanchor": "left",
+                                  "x": 0},
+                       "legend_orientation": "h",
+                       "xaxis_title": "",
+                       "yaxis_title": yaxis,
+                       "legend_title": "",
+                       "title": {"y": 0.9,
+                                 "yanchor": "top",
+                                 "font": {"size": 20}}})
+    fig.add_layout_image(dict(source=url_for("static",
+                                             filename="logo.png"),
+                              sizex=0.1, sizey=0.1, xanchor="right",
+                              yanchor="bottom", xref="paper",
+                              yref="paper",
+                              x=1, y=1.01))
+    return fig
