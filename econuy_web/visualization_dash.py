@@ -76,6 +76,14 @@ def add_dash(server):
                                             style={
                                                 "display": "inline-block",
                                                 "margin-left": "10px"})]),
+                           html.Div([dbc.Input(placeholder="Título del gráfico",
+                                               type="text", id="title",
+                                               debounce=True),
+                                     dbc.Input(placeholder="Subtítulo del gráfico",
+                                               type="text", id="subtitle",
+                                               debounce=True)],
+                                    id="title-subtitle",
+                                    style={"display": "none"}),
                            html.Br(),
                            html.A(dbc.Button("Exportar datos a Excel",
                                              id="download-button",
@@ -120,9 +128,12 @@ def register_callbacks(app):
          Output("download-link", "style"),
          Output("update-toast", "is_open"),
          Output("update-toast", "icon"),
-         Output("update-toast", "children")
+         Output("update-toast", "children"),
+         Output("title-subtitle", "style")
          ],
         [Input("chart-type", "value"),
+         Input("title", "value"),
+         Input("subtitle", "value"),
          Input({"type": "table-dropdown", "index": ALL}, "value"),
          Input({"type": "indicator-dropdown", "index": ALL}, "value"),
          Input({"type": "usd-check", "index": ALL}, "value"),
@@ -162,10 +173,11 @@ def register_callbacks(app):
          State("metadata-button", "style"),
          State("metadata", "children"),
          State("download-link", "href"),
-         State("download-link", "style")
+         State("download-link", "style"),
+         State("title-subtitle", "style")
          ])
-    def update_df(chart_type, table_s, indicator_s, usd_s, real_s,
-                  real_start_s, real_end_s, gdp_s, resample_s, 
+    def update_df(chart_type, title, subtitle, table_s, indicator_s, usd_s,
+                  real_s, real_start_s, real_end_s, gdp_s, resample_s,
                   resample_frequency_s, resample_operation_s, rolling_s, 
                   rolling_period_s, rolling_operation_s, base_index_s, 
                   base_start_s, base_end_s, base_base_s, chg_diff_s, 
@@ -174,7 +186,7 @@ def register_callbacks(app):
                   order_4_s, order_5_s, order_6_s, order_7_s, order_8_s,
                   start_date, end_date, state_viz, state_type, state_dates, 
                   state_metadata_btn, state_metadata, state_href, 
-                  state_link_style):
+                  state_link_style, state_title_subtitle_style):
         dataframes = []
         labels = []
         arr_orders_s = []
@@ -259,7 +271,8 @@ def register_callbacks(app):
                         state_metadata, state_href, state_link_style, True,
                         "warning", html.P("Algunos parámetros obligatorios no "
                                           "establecidos. Visualización no "
-                                          "actualizada", className="mb-0"))
+                                          "actualizada", className="mb-0"),
+                        state_title_subtitle_style)
             if table is None or indicator is None or indicator == []:
                 continue
             if "*" in indicator:
@@ -327,7 +340,7 @@ def register_callbacks(app):
         if len(dataframes) == 0:
             return [], {"display": "none"}, {"display": "none"}, {
                 "display": "none"}, [], "", {
-                "display": "none"}, False, "primary", ""
+                "display": "none"}, False, "primary", "", {"display": "none"}
         df = fix_freqs_and_names(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
@@ -337,41 +350,46 @@ def register_callbacks(app):
                 df = df.loc[df.index >= start_date]
         if end_date is not None:
             df = df.loc[df.index <= end_date]
-        if all(x == trimmed_tables[0] for x in trimmed_tables):
-            title = trimmed_tables[0]
+        if title is None or title == "":
+            if all(x == trimmed_tables[0] for x in trimmed_tables):
+                title_text = trimmed_tables[0]
+            else:
+                title_text = "<br>".join(trimmed_tables)
         else:
-            title = "<br>".join(trimmed_tables)
+            title_text = title
+        if subtitle is not None and subtitle != "":
+            title_text = f"{title_text}<br><span style='font-size: 14px'>{subtitle}</span>"
         height = 600 + 20 * len(set(trimmed_tables))
 
         if chart_type != "table":
             if chart_type == "bar":
                 fig = px.bar(df, x=df.index, height=height,
                              y=list(df.columns.get_level_values(level=0)),
-                             title=title,
+                             title=title_text,
                              color_discrete_sequence=px.colors.qualitative.Vivid,
                              barmode="group", template="plotly_white")
             elif chart_type == "stackbar":
                 fig = px.bar(df, x=df.index, height=height,
                              y=list(df.columns.get_level_values(level=0)),
-                             title=title,
+                             title=title_text,
                              color_discrete_sequence=px.colors.qualitative.Vivid,
                              barmode="stack", template="plotly_white")
             elif chart_type == "area":
                 fig = px.area(df, x=df.index, height=height,
                               y=list(df.columns.get_level_values(level=0)),
-                              title=title,
+                              title=title_text,
                               color_discrete_sequence=px.colors.qualitative.Vivid,
                               template="plotly_white")
             elif chart_type == "normarea":
                 fig = px.area(df, x=df.index, height=height,
                               y=list(df.columns.get_level_values(level=0)),
-                              title=title,
+                              title=title_text,
                               color_discrete_sequence=px.colors.qualitative.Vivid,
                               template="plotly_white", groupnorm="fraction")
             else:
                 fig = px.line(df, x=df.index, height=height,
                               y=list(df.columns.get_level_values(level=0)),
-                              title=title,
+                              title=title_text,
                               color_discrete_sequence=px.colors.qualitative.Vivid,
                               template="plotly_white")
             for label, trace in zip(labels, fig.select_traces()):
@@ -404,7 +422,7 @@ def register_callbacks(app):
                                          "yanchor": "top",
                                          "font": {"size": 20}}})
             fig.add_layout_image(dict(source=url_for("static",
-                                                     filename="logo.png"),
+                                                     filename="cards.jpg"),
                                       sizex=0.1, sizey=0.1, xanchor="right",
                                       yanchor="bottom", xref="paper",
                                       yref="paper",
@@ -461,7 +479,7 @@ def register_callbacks(app):
         return (viz, {"display": "block"}, {"display": "block"},
                 {"display": "block"}, notes, href, {"display": "block"},
                 True, "success", html.P("Visualización actualizada👇",
-                                        className="mb-0"))
+                                        className="mb-0"), {"display": "block"})
 
     @app.callback(
         Output("indicator-container", "children"),
@@ -595,7 +613,8 @@ def register_callbacks(app):
                          "type": "rolling-periods",
                          "index": n_clicks
                      }, type="number", placeholder="Períodos",
-                         style={"width": "100px"}, disabled=True)]),
+                         style={"width": "100px"}, disabled=True,
+                         debounce=True)]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -630,7 +649,8 @@ def register_callbacks(app):
                          "type": "base-base",
                          "index": n_clicks
                      }, type="number", placeholder="Valor base",
-                         style={"width": "150px"}, disabled=True)]),
+                         style={"width": "150px"}, disabled=True,
+                         debounce=True)]),
             order_dropdown(number="6", n_clicks=n_clicks),
             details(
                 "La fecha final es opcional, en cuyo caso el índice será "
