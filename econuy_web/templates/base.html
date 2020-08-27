@@ -1,11 +1,12 @@
 {% extends "bootstrap/base.html" %}
 
 {% block head %}
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
       rel="stylesheet">
-<link rel="shortcut icon"
-      href="{{ url_for('static', filename='favicon.ico') }}">
+<link rel="icon" type="image/png"
+      href="{{ url_for('static', filename='custom-icon.png') }}">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.png') }}">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -13,9 +14,34 @@
 
 <title>
     {% block title %}
-    econuy | Estadísticas de la economía uruguaya para gente sin tiempo
+    econuy | Economía uruguaya para gente sin tiempo
     {% endblock %}
 </title>
+
+<meta name="description" content="econuy permite la visualización y descarga de estadísticas de la economía uruguaya.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://econ.uy/">
+<meta property="og:title" content="econuy | Economía uruguaya para gente sin tiempo">
+<meta property="og:image" content="{{ url_for('static', filename='cards.jpg') }}">
+<meta property="og:description" content="econuy permite la visualización y descarga de estadísticas de la economía uruguaya.">
+<meta property="og:site_name" content="econuy">
+<meta property="og:locale" content="es_US">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@econ_uy">
+<meta name="twitter:creator" content="@_rxavier_">
+<meta name="twitter:url" content="https://econ.uy">
+<meta name="twitter:title" content="econuy | Economía uruguaya para gente sin tiempo">
+<meta name="twitter:description" content="econuy permite la visualización y descarga de estadísticas de la economía uruguaya.">
+<meta name="twitter:image" content="{{ url_for('static', filename='cards.jpg') }}">
+
+    <link rel="dns-prefetch" href="https://twitter.com/econ_uy">
+    <link rel="dns-prefetch" href="https://github.com/rxavier/econuy">
 {% endblock %}
 
 {% block body %}
