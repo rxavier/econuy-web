@@ -29,31 +29,55 @@ def add_dash(server):
         html.Br(),
         html.Div([
             html.Div(className="loader-wrapper",
-                     children=dcc.Loading(dcc.Graph(id="gdp", figure=[])),
+                     children=dcc.Loading(dcc.Graph(id="gdp", figure=[],
+                                                    config={
+                                                        'displayModeBar': False
+                                                    })),
                      style={"display": "inline-block", "width": "46%"}),
             html.Div(className="loader-wrapper",
-                     children=dcc.Loading(dcc.Graph(id="prices", figure=[])),
+                     children=dcc.Loading(dcc.Graph(id="prices", figure=[],
+                                                    config={
+                                                        'displayModeBar': False
+                                                    })),
                      style={"display": "inline-block", "width": "46%"})]),
         html.Div([
             html.Div(className="loader-wrapper",
-                     children=dcc.Loading(dcc.Graph(id="act-emp", figure=[])),
+                     children=dcc.Loading(dcc.Graph(id="emp", figure=[],
+                                                    config={
+                                                        'displayModeBar': False
+                                                    })),
                      style={"display": "inline-block", "width": "46%"}),
             html.Div(className="loader-wrapper",
-                     children=dcc.Loading(dcc.Graph(id="unemp", figure=[])),
+                     children=dcc.Loading(dcc.Graph(id="unemp", figure=[],
+                                                    config={
+                                                        'displayModeBar': False
+                                                    })),
                      style={"display": "inline-block", "width": "46%"})]),
         html.Div([
             html.Div(className="loader-wrapper",
-                     children=dcc.Loading(dcc.Graph(id="deficit", figure=[])),
+                     children=dcc.Loading(dcc.Graph(id="deficit", figure=[],
+                                                    config={
+                                                        'displayModeBar': False
+                                                    })),
                      style={"display": "inline-block", "width": "46%"}),
             html.Div(className="loader-wrapper",
-                     children=dcc.Loading(dcc.Graph(id="debt", figure=[])),
+                     children=dcc.Loading(dcc.Graph(id="debt", figure=[],
+                                                    config={
+                                                        'displayModeBar': False
+                                                    })),
                      style={"display": "inline-block", "width": "46%"})]),
         html.Div([
             html.Div(className="loader-wrapper",
-                     children=dcc.Loading(dcc.Graph(id="trade", figure=[])),
+                     children=dcc.Loading(dcc.Graph(id="trade", figure=[],
+                                                    config={
+                                                        'displayModeBar': False
+                                                    })),
                      style={"display": "inline-block", "width": "46%"}),
             html.Div(className="loader-wrapper",
-                     children=dcc.Loading(dcc.Graph(id="nxr", figure=[])),
+                     children=dcc.Loading(dcc.Graph(id="nxr", figure=[],
+                                                    config={
+                                                        'displayModeBar': False
+                                                    })),
                      style={"display": "inline-block", "width": "46%"})])
     ])
 
