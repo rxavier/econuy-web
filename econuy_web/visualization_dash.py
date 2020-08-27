@@ -261,11 +261,7 @@ def register_callbacks(app):
                         "warning", html.P("Algunos parámetros obligatorios no "
                                           "establecidos. Visualización no "
                                           "actualizada", className="mb-0"))
-            if table is not None and indicator is None:
-                return (state_viz, state_type, state_dates, state_metadata_btn,
-                        state_metadata, state_href, state_link_style, False,
-                        "warning", html.P(""))
-            if table is None:
+            if table is None or indicator is None or indicator == []:
                 continue
             if "*" in indicator:
                 indicator = "*"
@@ -445,7 +441,9 @@ def register_callbacks(app):
                                              "textAlign": "center"},
                                          page_action="none",
                                          fixed_rows={"headers": True})])
-        notes = build_metadata(tables=table_s, dfs=dataframes,
+        notes_tables = [table for table, indicator in zip(table_s, indicator_s)
+                        if table is not None and indicator != []]
+        notes = build_metadata(tables=notes_tables, dfs=dataframes,
                                transformations=arr_orders_s)
         export_name = f"export_{uuid.uuid4().hex}"
         href = f"/viz/dl?name={export_name}"
