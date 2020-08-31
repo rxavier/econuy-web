@@ -54,5 +54,7 @@ table_options = {
     "rxr_official": "Tipos de cambio reales, BCU (ene-00, M)",
     "money_sep": "----- Moneda y banca -----",
     "reserves": "Reservas internacionales (26-jun-02, D)",
-    "reserves_chg": "Variación en las reservas del BCU (2-ene-13, D)"
+    "reserves_chg": "Variación en las reservas del BCU (2-ene-13, D)",
+    "financial_sep": "----- Mercado financiero -----",
+    "call": "Tasa call a 1 día (02-ene-02, D)"
 }

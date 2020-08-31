@@ -2,10 +2,10 @@ from functools import partial
 
 from econuy.retrieval import (cpi, fiscal_accounts, commodity_index, trade,
                               labor, national_accounts, nxr, rxr, reserves,
-                              public_debt, industrial_production)
-from econuy.frequent import (labor_rate_people, cpi_measures, fiscal,
-                             labor_real_wages, trade_balance, terms_of_trade,
-                             core_industrial, net_public_debt)
+                              public_debt, industrial_production, call)
+from econuy.custom import (labor_rate_people, cpi_measures, fiscal,
+                           labor_real_wages, trade_balance, terms_of_trade,
+                           core_industrial, net_public_debt)
 from econuy_web import db, create_app
 from econuy_web.tasks import full_update
 
@@ -14,7 +14,8 @@ if __name__ == "__main__":
     app.app_context().push()
     updates = full_update(
         con=db.engine,
-        functions=[cpi.get,
+        functions=[call.get,
+                   cpi.get,
                    public_debt.get,
                    fiscal_accounts.get,
                    commodity_index.get,
