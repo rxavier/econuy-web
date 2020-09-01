@@ -978,7 +978,7 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
                 items.append(html.Li(text))
             transformation_text = [html.Ul(items)]
         sources = metadata._get_sources(dataset=table, html_urls=False)
-        if len(sources[0]) > 1:
+        if len(sources[0]) > 0:
             direct = [dcc.Link(number + 1, href=url, target="_parent")
                       for number, url in enumerate(sources[0])]
             separated_direct = []
