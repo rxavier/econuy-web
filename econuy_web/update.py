@@ -5,7 +5,7 @@ from econuy.retrieval import (cpi, fiscal_accounts, commodity_index, trade,
                               public_debt, industrial_production, call)
 from econuy.custom import (labor_rate_people, cpi_measures, fiscal,
                            labor_real_wages, trade_balance, terms_of_trade,
-                           core_industrial, net_public_debt)
+                           core_industrial, net_public_debt, bonds)
 from econuy_web import db, create_app
 from econuy_web.tasks import full_update
 
@@ -15,6 +15,7 @@ if __name__ == "__main__":
     updates = full_update(
         con=db.engine,
         functions=[call.get,
+                   bonds,
                    cpi.get,
                    public_debt.get,
                    fiscal_accounts.get,

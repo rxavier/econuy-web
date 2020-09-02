@@ -56,5 +56,6 @@ table_options = {
     "reserves": "Reservas internacionales (26-jun-02, D)",
     "reserves_chg": "Variación en las reservas del BCU (2-ene-13, D)",
     "financial_sep": "----- Mercado financiero -----",
-    "call": "Tasa call a 1 día (02-ene-02, D)"
+    "call": "Tasa call a 1 día (02-ene-02, D)",
+    "bonds": "Rendimiento de bonos soberanos (02-jun-03)"
 }
