@@ -25,7 +25,7 @@ decorator==4.4.2
 defusedxml==0.6.0
 docutils==0.16
 dominate==2.5.2
-econuy==0.15.2
+econuy==0.15.3
 entrypoints==0.3
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1
