@@ -20,7 +20,7 @@ gunicorn = "==20.0.4"
 xlsxwriter = "==1.2.9"
 dash = "==1.13.4"
 dash-bootstrap-components = "==0.10.3"
-econuy = "==0.15.3"
+econuy = {editable = true, git = "https://github.com/rxavier/econuy"}
 
 [requires]
 python_version = "3.7"
