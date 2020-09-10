@@ -360,36 +360,32 @@ def register_callbacks(app):
         if subtitle is not None and subtitle != "":
             title_text = f"{title_text}<br><span style='font-size: 14px'>{subtitle}</span>"
         height = 600 + 20 * len(set(trimmed_tables))
-
+        df_chart = df.reset_index()
+        df_chart.columns = df_chart.columns.get_level_values(0)
         if chart_type != "table":
             if chart_type == "bar":
-                fig = px.bar(df, x=df.index, height=height,
-                             y=list(df.columns.get_level_values(level=0)),
-                             title=title_text,
+                fig = px.bar(df_chart, x="index", y=df_chart.columns,
+                             height=height, title=title_text,
                              color_discrete_sequence=px.colors.qualitative.Vivid,
                              barmode="group", template="plotly_white")
             elif chart_type == "stackbar":
-                fig = px.bar(df, x=df.index, height=height,
-                             y=list(df.columns.get_level_values(level=0)),
-                             title=title_text,
+                fig = px.bar(df_chart, x="index", y=df_chart.columns,
+                             height=height, title=title_text,
                              color_discrete_sequence=px.colors.qualitative.Vivid,
                              barmode="stack", template="plotly_white")
             elif chart_type == "area":
-                fig = px.area(df, x=df.index, height=height,
-                              y=list(df.columns.get_level_values(level=0)),
-                              title=title_text,
+                fig = px.area(df_chart, x="index", y=df_chart.columns,
+                              height=height, title=title_text,
                               color_discrete_sequence=px.colors.qualitative.Vivid,
                               template="plotly_white")
             elif chart_type == "normarea":
-                fig = px.area(df, x=df.index, height=height,
-                              y=list(df.columns.get_level_values(level=0)),
-                              title=title_text,
+                fig = px.area(df_chart, x="index", y=df_chart.columns,
+                              height=height, title=title_text,
                               color_discrete_sequence=px.colors.qualitative.Vivid,
                               template="plotly_white", groupnorm="fraction")
             else:
-                fig = px.line(df, x=df.index, height=height,
-                              y=list(df.columns.get_level_values(level=0)),
-                              title=title_text,
+                fig = px.line(df_chart, x="index", y=df_chart.columns,
+                              height=height, title=title_text,
                               color_discrete_sequence=px.colors.qualitative.Vivid,
                               template="plotly_white")
             for label, trace in zip(labels, fig.select_traces()):
