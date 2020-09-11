@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "be92badd58834a7afbcc8ee4cb754dd2c79f608a049592d295ae54817e68dd4a"
+            "sha256": "abe859d3b2c21ed714d3878c7a1eea9bc8e3595f75aa284fbf377149e63cff54"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -65,10 +65,14 @@
             "version": "==1.0.9"
         },
         "camelot-py": {
+            "extras": [
+                "cv"
+            ],
             "hashes": [
                 "sha256:0b2e612ad0e11190b84a29937bad5d487b540faea408863f01e410d2b976336e",
                 "sha256:8e1e2a8e59c2dbdce9a6790f7007cd091343b136e29d64a45c8fd09c11360057"
             ],
+            "index": "pypi",
             "version": "==0.8.2"
         },
         "certifi": {
