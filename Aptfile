@@ -1,8 +1,2 @@
 python3-tk
-cmake
-git
-libgtk2.0-dev
-pkg-config
-libavcodec-dev
-libavformat-dev
-libswscale-dev
+libgl1
