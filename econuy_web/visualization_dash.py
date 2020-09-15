@@ -423,6 +423,18 @@ def register_callbacks(app):
                                       yanchor="bottom", xref="paper",
                                       yref="paper",
                                       x=1, y=1.01))
+            fig.update_xaxes(
+                rangeselector=dict(yanchor="top", y=-0.1, xanchor="right", x=1,
+                    buttons=list([
+                        dict(count=1, label="1m", step="month", stepmode="backward"),
+                        dict(count=6, label="6m", step="month", stepmode="backward"),
+                        dict(count=1, label="YTD", step="year", stepmode="todate"),
+                        dict(count=1, label="1a", step="year", stepmode="backward"),
+                        dict(count=5, label="5a", step="year", stepmode="backward"),
+                        dict(label="todos", step="all")
+                    ])
+                )
+            )
             viz = dcc.Graph(figure=fig)
         else:
             table_df = df.copy()
