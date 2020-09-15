@@ -104,7 +104,7 @@ def register_callbacks(app):
         gdp = gdp.loc[(gdp.index >= start_date) & (gdp.index <= end_date)]
 
         return generate_plot(df=gdp, chart_type=px.bar, title="Crecimiento",
-                             yaxis="% crecimiento trimestral")
+                             y_axis_title="% crecimiento trimestral")
 
     @app.callback(
         Output("prices", "figure"),
@@ -122,7 +122,7 @@ def register_callbacks(app):
         cpi = cpi.loc[(cpi.index >= start_date) & (cpi.index <= end_date)]
 
         return generate_plot(df=cpi, chart_type=px.line, title="Inflación",
-                             yaxis="% variación interanual")
+                             y_axis_title="% variación interanual")
 
     @app.callback(
         Output("deficit", "figure"),
@@ -141,7 +141,7 @@ def register_callbacks(app):
                               (deficit.index <= end_date)]
 
         return generate_plot(df=deficit, chart_type=px.bar,
-                             title="Déficit fiscal", yaxis="% del PBI")
+                             title="Déficit fiscal", y_axis_title="% del PBI")
 
     @app.callback(
         Output("debt", "figure"),
@@ -159,7 +159,7 @@ def register_callbacks(app):
                                 (net_debt.index <= end_date)]
 
         return generate_plot(df=net_debt, chart_type=px.line,
-                             title="Deuda pública", yaxis="% del PBI")
+                             title="Deuda pública", y_axis_title="% del PBI")
 
     @app.callback(
         Output("trade", "figure"),
@@ -179,7 +179,7 @@ def register_callbacks(app):
         x_m = x_m.loc[(x_m.index >= start_date) & (x_m.index <= end_date)]
 
         return generate_plot(df=x_m, chart_type=px.line, title="Comercio",
-                             yaxis="Mill. de dólares, acum. 12m")
+                             y_axis_title="Mill. de dólares, acum. 12m")
 
     @app.callback(
         Output("nxr", "figure"),
@@ -195,7 +195,7 @@ def register_callbacks(app):
                                   (interbank.index <= end_date)]
 
         return generate_plot(df=interbank, chart_type=px.line,
-                             title="Tipo de cambio", yaxis="Pesos por dólar")
+                             title="Tipo de cambio", y_axis_title="Pesos por dólar")
 
     @app.callback(
         [Output("unemp", "figure"),
@@ -222,14 +222,16 @@ def register_callbacks(app):
                           (unemp.index <= end_date)]
 
         return (generate_plot(df=unemp, chart_type=px.line, title="Desempleo",
-                              yaxis="Tasa"),
+                              y_axis_title="Tasa"),
                 generate_plot(df=emp, chart_type=px.line, title="Empleo",
-                              yaxis="Tasa"))
+                              y_axis_title="Tasa"))
 
 
-def generate_plot(df, chart_type, title, yaxis):
-    fig = chart_type(data_frame=df, x=df.index,
-                     y=df.columns.get_level_values(0),
+def generate_plot(df, chart_type, title, y_axis_title):
+    df.reset_index(inplace=True)
+    df.columns = df.columns.get_level_values(0)
+    fig = chart_type(data_frame=df, x="index",
+                     y=df.columns,
                      title=title,
                      color_discrete_sequence=px.colors.qualitative.Vivid,
                      template="plotly_white")
@@ -239,7 +241,7 @@ def generate_plot(df, chart_type, title, yaxis):
                                   "x": 0},
                        "legend_orientation": "h",
                        "xaxis_title": "",
-                       "yaxis_title": yaxis,
+                       "yaxis_title": y_axis_title,
                        "legend_title": "",
                        "title": {"y": 0.9,
                                  "yanchor": "top",
