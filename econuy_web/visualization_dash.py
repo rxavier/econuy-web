@@ -76,39 +76,47 @@ def add_dash(server):
                                             style={
                                                 "display": "inline-block",
                                                 "margin-left": "10px"})]),
-                           html.Div([dbc.Input(placeholder="Título del gráfico",
-                                               type="text", id="title",
-                                               debounce=True),
-                                     dbc.Input(placeholder="Subtítulo del gráfico",
-                                               type="text", id="subtitle",
-                                               debounce=True)],
-                                    id="title-subtitle",
-                                    style={"display": "none"}),
+                           html.Div(
+                               [html.Br(),
+                                dbc.Input(placeholder="Título del gráfico",
+                                          type="text", id="title",
+                                          debounce=True),
+                                dbc.Input(placeholder="Subtítulo del gráfico",
+                                          type="text", id="subtitle",
+                                          debounce=True)],
+                               id="title-subtitle",
+                               style={"display": "none"}),
                            html.Br(),
-                           html.A(dbc.Button("Exportar datos a Excel",
-                                             id="download-button",
-                                             color="dark"),
-                                  id="download-link",
-                                  style={"display": "none"}),
+                           html.Div([dbc.Button("Actualizar consulta",
+                                                id="submit",
+                                                color="dark",
+                                                style={
+                                                    "display": "inline-block"}),
+                                     html.A(
+                                         dbc.Button("Exportar datos a Excel",
+                                                    id="download-button",
+                                                    color="dark"),
+                                         id="download-link",
+                                         style={"display": "none"})]),
                            html.Div(
                                className="loader-wrapper",
                                children=[dcc.Loading(
                                    html.Div(id="viz-container", children=[])
                                )]
-    ),
-        html.Br(),
-        dbc.Button("Desplegar metadatos",
-                   id="metadata-button",
-                   style={"display": "none"},
-                   color="dark"),
-        html.Br(),
-        html.Div(id="metadata", children=[]),
-        dbc.Toast(children=[], id="update-toast",
-                  is_open=False, header="Información",
-                  style={"position": "fixed", "top": 5,
-                         "right": 5},
-                  duration=5000, icon="success",
-                  fade=True)])
+                           ),
+                           html.Br(),
+                           dbc.Button("Desplegar metadatos",
+                                      id="metadata-button",
+                                      style={"display": "none"},
+                                      color="dark"),
+                           html.Br(),
+                           html.Div(id="metadata", children=[]),
+                           dbc.Toast(children=[], id="update-toast",
+                                     is_open=False, header="Información",
+                                     style={"position": "fixed", "top": 5,
+                                            "right": 5},
+                                     duration=5000, icon="success",
+                                     fade=True)])
 
     register_callbacks(app)
 
@@ -131,43 +139,44 @@ def register_callbacks(app):
          Output("update-toast", "children"),
          Output("title-subtitle", "style")
          ],
-        [Input("chart-type", "value"),
-         Input("title", "value"),
-         Input("subtitle", "value"),
-         Input({"type": "table-dropdown", "index": ALL}, "value"),
-         Input({"type": "indicator-dropdown", "index": ALL}, "value"),
-         Input({"type": "usd-check", "index": ALL}, "value"),
-         Input({"type": "real-check", "index": ALL}, "value"),
-         Input({"type": "real-range", "index": ALL}, "start_date"),
-         Input({"type": "real-range", "index": ALL}, "end_date"),
-         Input({"type": "gdp-check", "index": ALL}, "value"),
-         Input({"type": "resample-check", "index": ALL}, "value"),
-         Input({"type": "resample-frequency", "index": ALL}, "value"),
-         Input({"type": "resample-operation", "index": ALL}, "value"),
-         Input({"type": "rolling-check", "index": ALL}, "value"),
-         Input({"type": "rolling-periods", "index": ALL}, "value"),
-         Input({"type": "rolling-operation", "index": ALL}, "value"),
-         Input({"type": "base-check", "index": ALL}, "value"),
-         Input({"type": "base-range", "index": ALL}, "start_date"),
-         Input({"type": "base-range", "index": ALL}, "end_date"),
-         Input({"type": "base-base", "index": ALL}, "value"),
-         Input({"type": "chg-diff-check", "index": ALL}, "value"),
-         Input({"type": "chg-diff-operation", "index": ALL}, "value"),
-         Input({"type": "chg-diff-period", "index": ALL}, "value"),
-         Input({"type": "seas-check", "index": ALL}, "value"),
-         Input({"type": "seas-method", "index": ALL}, "value"),
-         Input({"type": "seas-type", "index": ALL}, "value"),
-         Input({"type": "order-1", "index": ALL}, "value"),
-         Input({"type": "order-2", "index": ALL}, "value"),
-         Input({"type": "order-3", "index": ALL}, "value"),
-         Input({"type": "order-4", "index": ALL}, "value"),
-         Input({"type": "order-5", "index": ALL}, "value"),
-         Input({"type": "order-6", "index": ALL}, "value"),
-         Input({"type": "order-7", "index": ALL}, "value"),
-         Input({"type": "order-8", "index": ALL}, "value"),
-         Input("date-picker", "start_date"),
-         Input("date-picker", "end_date")],
-        [State("viz-container", "children"),
+        [Input("submit", "n_clicks")],
+        [State("chart-type", "value"),
+         State("title", "value"),
+         State("subtitle", "value"),
+         State({"type": "table-dropdown", "index": ALL}, "value"),
+         State({"type": "indicator-dropdown", "index": ALL}, "value"),
+         State({"type": "usd-check", "index": ALL}, "value"),
+         State({"type": "real-check", "index": ALL}, "value"),
+         State({"type": "real-range", "index": ALL}, "start_date"),
+         State({"type": "real-range", "index": ALL}, "end_date"),
+         State({"type": "gdp-check", "index": ALL}, "value"),
+         State({"type": "resample-check", "index": ALL}, "value"),
+         State({"type": "resample-frequency", "index": ALL}, "value"),
+         State({"type": "resample-operation", "index": ALL}, "value"),
+         State({"type": "rolling-check", "index": ALL}, "value"),
+         State({"type": "rolling-periods", "index": ALL}, "value"),
+         State({"type": "rolling-operation", "index": ALL}, "value"),
+         State({"type": "base-check", "index": ALL}, "value"),
+         State({"type": "base-range", "index": ALL}, "start_date"),
+         State({"type": "base-range", "index": ALL}, "end_date"),
+         State({"type": "base-base", "index": ALL}, "value"),
+         State({"type": "chg-diff-check", "index": ALL}, "value"),
+         State({"type": "chg-diff-operation", "index": ALL}, "value"),
+         State({"type": "chg-diff-period", "index": ALL}, "value"),
+         State({"type": "seas-check", "index": ALL}, "value"),
+         State({"type": "seas-method", "index": ALL}, "value"),
+         State({"type": "seas-type", "index": ALL}, "value"),
+         State({"type": "order-1", "index": ALL}, "value"),
+         State({"type": "order-2", "index": ALL}, "value"),
+         State({"type": "order-3", "index": ALL}, "value"),
+         State({"type": "order-4", "index": ALL}, "value"),
+         State({"type": "order-5", "index": ALL}, "value"),
+         State({"type": "order-6", "index": ALL}, "value"),
+         State({"type": "order-7", "index": ALL}, "value"),
+         State({"type": "order-8", "index": ALL}, "value"),
+         State("date-picker", "start_date"),
+         State("date-picker", "end_date"),
+         State("viz-container", "children"),
          State("chart-type-container", "style"),
          State("date-range-container", "style"),
          State("metadata-button", "style"),
@@ -176,16 +185,17 @@ def register_callbacks(app):
          State("download-link", "style"),
          State("title-subtitle", "style")
          ])
-    def update_df(chart_type, title, subtitle, table_s, indicator_s, usd_s,
+    def update_df(submit,
+                  chart_type, title, subtitle, table_s, indicator_s, usd_s,
                   real_s, real_start_s, real_end_s, gdp_s, resample_s,
-                  resample_frequency_s, resample_operation_s, rolling_s, 
-                  rolling_period_s, rolling_operation_s, base_index_s, 
-                  base_start_s, base_end_s, base_base_s, chg_diff_s, 
-                  chg_diff_operation_s, chg_diff_period_s, seas_s, 
+                  resample_frequency_s, resample_operation_s, rolling_s,
+                  rolling_period_s, rolling_operation_s, base_index_s,
+                  base_start_s, base_end_s, base_base_s, chg_diff_s,
+                  chg_diff_operation_s, chg_diff_period_s, seas_s,
                   seas_method_s, seas_type_s, orders_1_s, order_2_s, order_3_s,
                   order_4_s, order_5_s, order_6_s, order_7_s, order_8_s,
-                  start_date, end_date, state_viz, state_type, state_dates, 
-                  state_metadata_btn, state_metadata, state_href, 
+                  start_date, end_date, state_viz, state_type, state_dates,
+                  state_metadata_btn, state_metadata, state_href,
                   state_link_style, state_title_subtitle_style):
         dataframes = []
         labels = []
@@ -340,7 +350,8 @@ def register_callbacks(app):
         if len(dataframes) == 0:
             return [], {"display": "none"}, {"display": "none"}, {
                 "display": "none"}, [], "", {
-                "display": "none"}, False, "primary", "", {"display": "none"}
+                       "display": "none"}, False, "primary", "", {
+                       "display": "none"}
         df = fix_freqs_and_names(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
@@ -424,16 +435,22 @@ def register_callbacks(app):
                                       yref="paper",
                                       x=1, y=1.01))
             fig.update_xaxes(
-                rangeselector=dict(yanchor="top", y=-0.1, xanchor="right", x=1,
-                    buttons=list([
-                        dict(count=1, label="1m", step="month", stepmode="backward"),
-                        dict(count=6, label="6m", step="month", stepmode="backward"),
-                        dict(count=1, label="YTD", step="year", stepmode="todate"),
-                        dict(count=1, label="1a", step="year", stepmode="backward"),
-                        dict(count=5, label="5a", step="year", stepmode="backward"),
-                        dict(label="todos", step="all")
-                    ])
-                )
+                rangeselector=dict(yanchor="bottom", y=1.01, xanchor="right",
+                                   x=0.9,
+                                   buttons=list([
+                                       dict(count=1, label="1m", step="month",
+                                            stepmode="backward"),
+                                       dict(count=6, label="6m", step="month",
+                                            stepmode="backward"),
+                                       dict(count=1, label="YTD", step="year",
+                                            stepmode="todate"),
+                                       dict(count=1, label="1a", step="year",
+                                            stepmode="backward"),
+                                       dict(count=5, label="5a", step="year",
+                                            stepmode="backward"),
+                                       dict(label="todos", step="all")
+                                   ])
+                                   )
             )
             viz = dcc.Graph(figure=fig)
         else:
@@ -447,8 +464,8 @@ def register_callbacks(app):
                                          columns=[{"name": "Fecha",
                                                    "id": "Fecha",
                                                    "type": "datetime"}] +
-                                         [{"name": i, "id": i,
-                                           "type": "numeric",
+                                                 [{"name": i, "id": i,
+                                                   "type": "numeric",
                                                    "format":
                                                        Format(precision=2,
                                                               scheme=Scheme.fixed,
@@ -456,8 +473,8 @@ def register_callbacks(app):
                                                               groups=3,
                                                               group_delimiter=",",
                                                               decimal_delimiter=".")}
-                                          for i in
-                                          table_df.columns[1:]],
+                                                  for i in
+                                                  table_df.columns[1:]],
                                          data=table_df.to_dict("records"),
                                          style_cell={"textAlign": "center"},
                                          style_header={
@@ -485,9 +502,11 @@ def register_callbacks(app):
             sqlutil.df_to_sql(df, name=export_name,
                               con=db.get_engine(bind="queries"))
         return (viz, {"display": "block"}, {"display": "block"},
-                {"display": "block"}, notes, href, {"display": "block"},
+                {"display": "block"}, notes, href, {"display": "inline-block",
+                                                    "margin-left": "10px"},
                 True, "success", html.P("Visualización actualizada👇",
-                                        className="mb-0"), {"display": "block"})
+                                        className="mb-0"),
+                {"display": "block"})
 
     @app.callback(
         Output("indicator-container", "children"),
@@ -512,7 +531,8 @@ def register_callbacks(app):
             children=[dcc.Dropdown(id={"type": "indicator-dropdown",
                                        "index": n_clicks},
                                    placeholder="Seleccionar indicador",
-                                   optionHeight=50, multi=True, disabled=True)],
+                                   optionHeight=50, multi=True,
+                                   disabled=True)],
             type="default")
 
         usd = html.Div(children=[
@@ -587,7 +607,7 @@ def register_callbacks(app):
                                  {"label": "14 días", "value": "2W"},
                                  {"label": "Semanal", "value": "W"}],
                          placeholder="Frecuencia", style={"width": "150px"},
-                     searchable=False, disabled=True)]),
+                         searchable=False, disabled=True)]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -603,7 +623,7 @@ def register_callbacks(app):
                          {"label": "Aumentar frecuencia",
                           "value": "upsample"}],
                          placeholder="Método", style={"width": "300px"},
-                     searchable=False, disabled=True)]),
+                         searchable=False, disabled=True)]),
             order_dropdown(number="4", n_clicks=n_clicks)])
 
         roll = html.Div(children=[
@@ -631,7 +651,7 @@ def register_callbacks(app):
                      }, options=[{"label": "Suma", "value": "sum"},
                                  {"label": "Promedio", "value": "average"}],
                          placeholder="Operación", style={"width": "120px"},
-                     searchable=False, disabled=True)]),
+                         searchable=False, disabled=True)]),
             order_dropdown(number="5", n_clicks=n_clicks)])
 
         base_index = html.Div(children=[
@@ -684,7 +704,7 @@ def register_callbacks(app):
                          {"label": "Variación porcentual", "value": "chg"},
                          {"label": "Diferencia", "value": "diff"}],
                          placeholder="Tipo", style={"width": "200px"},
-                     searchable=False, disabled=True)]),
+                         searchable=False, disabled=True)]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -694,7 +714,7 @@ def register_callbacks(app):
                                  {"label": "Interanual", "value": "inter"},
                                  {"label": "Anual", "value": "annual"}],
                          placeholder="Operación", style={"width": "150px"},
-                     searchable=False, disabled=True)]),
+                         searchable=False, disabled=True)]),
             order_dropdown(number="7", n_clicks=n_clicks)])
 
         seas = html.Div(children=[
@@ -715,7 +735,7 @@ def register_callbacks(app):
                                  {"label": "Medias móviles", "value": "ma"},
                                  {"label": "X13 ARIMA", "value": "x13"}],
                          placeholder="Método", style={"width": "200px"},
-                     searchable=False, disabled=True)]),
+                         searchable=False, disabled=True)]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -725,7 +745,7 @@ def register_callbacks(app):
                          {"label": "Desestacionalizado", "value": "seas"},
                          {"label": "Tendencia-ciclo", "value": "trend"}],
                          placeholder="Componente", style={"width": "200px"},
-                     searchable=False, disabled=True)]),
+                         searchable=False, disabled=True)]),
             order_dropdown(number="8", n_clicks=n_clicks),
             details("El procesamiento con el método X13 ARIMA puede demorar "
                     "dependiendo del tipo y largo de series en la tabla "
@@ -866,7 +886,7 @@ def order_dropdown(number: str, n_clicks):
                 options=[{"label": i, "value": i} for i in range(1, 9)],
                 placeholder="Orden", clearable=False,
                 style={"width": "100px"},
-            searchable=False, disabled=True),
+                searchable=False, disabled=True),
                 style={"display": "inline-block",
                        "vertical-align": "middle"})])
 
@@ -877,8 +897,8 @@ def details(text: str):
                               width=22)),
         dcc.Markdown(f'''{text}''', style={"color": "gray",
                                            "font-size": "13px"})]),
-                    style={"display": "inline-block", "margin-left": "10px",
-                           "vertical-align": "middle"})
+        style={"display": "inline-block", "margin-left": "10px",
+               "vertical-align": "middle"})
 
 
 def define_order(submit_order, all_transforms):
@@ -1003,10 +1023,13 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
             separated_indirect.append(" | ")
             separated_indirect.append(link)
         separated_indirect = separated_indirect[1:]
-        sources_text = [html.H5("Fuentes"), 
-                        html.Ul([html.Li(["Links directos: "] + separated_direct),
-                                 html.Li(["Links indirectos: "] + separated_indirect),
-                                 html.Li("Proveedores: " + " | ".join(sources[2]))])]
+        sources_text = [html.H5("Fuentes"),
+                        html.Ul(
+                            [html.Li(["Links directos: "] + separated_direct),
+                             html.Li(
+                                 ["Links indirectos: "] + separated_indirect),
+                             html.Li(
+                                 "Proveedores: " + " | ".join(sources[2]))])]
         divs.extend([table_text] + [html.Br()] +
                     metadata_text + [html.H5("Transformaciones")]
                     + transformation_text + sources_text + [html.Hr()])
