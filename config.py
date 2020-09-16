@@ -10,3 +10,4 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_BINDS = {"queries": os.environ.get("QUERY_DATABASE_URL")}
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    EXPORT_FOLDER = os.environ.get("EXPORT_FOLDER")
