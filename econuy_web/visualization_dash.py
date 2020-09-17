@@ -96,7 +96,7 @@ def add_dash(server):
                                                 style={
                                                     "display": "inline-block"}),
                                      html.A(
-                                         dbc.Button("Exportar datos a Excel",
+                                         dbc.Button("Exportar Excel",
                                                     id="download-button",
                                                     color="dark"),
                                          id="download-link",
@@ -910,7 +910,8 @@ def register_callbacks(app):
                               current_app.config["EXPORT_FOLDER"])
         return send_from_directory(filename=name, directory=directory,
                                    attachment_filename="econuy-plot.html",
-                                   as_attachment=True, cache_timeout=0)
+                                   as_attachment=True, cache_timeout=0,
+                                   mimetype="text/html")
 
 
 def order_dropdown(number: str, n_clicks):
