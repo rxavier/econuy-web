@@ -90,23 +90,24 @@ def add_dash(server):
                                id="title-subtitle",
                                style={"display": "none"}),
                            html.Br(),
-                           html.Div([dbc.Button("Actualizar consulta",
-                                                id="submit",
-                                                color="dark",
-                                                style={
-                                                    "display": "inline-block"}),
-                                     html.A(
-                                         dbc.Button("Exportar Excel",
-                                                    id="download-button",
-                                                    color="dark"),
-                                         id="download-link",
-                                         style={"display": "none"}),
-                                     html.A(
-                                         dbc.Button("Exportar HTML",
-                                                    id="download-html-button",
-                                                    color="dark"),
-                                         id="download-html-link",
-                                         style={"display": "none"})]),
+                           dbc.Button("Actualizar consulta",
+                                                   id="submit",
+                                                   color="dark",
+                                                   style={
+                                                       "display": "inline-block",
+                                                       "margin": "10px"}),
+                               html.Div([html.A(
+                                   dbc.Button("Exportar a Excel",
+                                              id="download-button",
+                                              color="dark"),
+                                   id="download-link",
+                                   style={"display": "none"}),
+                               html.A(
+                                   dbc.Button("Exportar a HTML",
+                                              id="download-html-button",
+                                              color="dark"),
+                                   id="download-html-link",
+                                   style={"display": "none"})]),
                            html.Div(
                                className="loader-wrapper",
                                children=[dcc.Loading(
@@ -478,7 +479,7 @@ def register_callbacks(app):
             fig.write_html(path.join(export_folder, html_name),
                            include_plotlyjs="cdn", full_html=False)
             html_href = f"/viz/dl_html?html_name={html_name}"
-            html_style = {"display": "inline-block", "margin-left": "10px"}
+            html_style = {"display": "inline-block", "margin": "10px"}
         else:
             html_href = ""
             html_style = {"display": "none"}
@@ -531,7 +532,7 @@ def register_callbacks(app):
                               con=db.get_engine(bind="queries"))
         return (viz, {"display": "block"}, {"display": "block"},
                 {"display": "block"}, notes, href, {"display": "inline-block",
-                                                    "margin-left": "10px"},
+                                                    "margin": "10px"},
                 html_href, html_style,
                 True, "success", html.P("Visualización actualizada👇",
                                         className="mb-0"),

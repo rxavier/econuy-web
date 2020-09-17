@@ -10,3 +10,4 @@ econuy_web/.flaskenv
 .vscode/settings.json
 
 econuy_web/x13as
+/econuy_web/export/
