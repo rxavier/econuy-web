@@ -102,12 +102,6 @@ def add_dash(server):
                                          id="download-link",
                                          style={"display": "none"}),
                                      html.A(
-                                         dbc.Button("Exportar imagen",
-                                                    id="download-img-button",
-                                                    color="dark"),
-                                         id="download-img-link",
-                                         style={"display": "none"}),
-                                     html.A(
                                          dbc.Button("Exportar HTML",
                                                     id="download-html-button",
                                                     color="dark"),
@@ -149,8 +143,6 @@ def register_callbacks(app):
          Output("metadata", "children"),
          Output("download-link", "href"),
          Output("download-link", "style"),
-         Output("download-img-link", "href"),
-         Output("download-img-link", "style"),
          Output("download-html-link", "href"),
          Output("download-html-link", "style"),
          Output("update-toast", "is_open"),
@@ -202,8 +194,6 @@ def register_callbacks(app):
          State("metadata", "children"),
          State("download-link", "href"),
          State("download-link", "style"),
-         State("download-img-link", "href"),
-         State("download-img-link", "style"),
          State("download-html-link", "href"),
          State("download-html-link", "style"),
          State("title-subtitle", "style")
@@ -219,8 +209,7 @@ def register_callbacks(app):
                   order_4_s, order_5_s, order_6_s, order_7_s, order_8_s,
                   start_date, end_date, state_viz, state_type, state_dates,
                   state_metadata_btn, state_metadata, state_href,
-                  state_link_style, state_img_href, state_img_link_style,
-                  state_html_href, state_html_link_style,
+                  state_link_style, state_html_href, state_html_link_style,
                   state_title_subtitle_style):
         dataframes = []
         labels = []
@@ -304,7 +293,6 @@ def register_callbacks(app):
                          seas_type is None))):
                 return (state_viz, state_type, state_dates, state_metadata_btn,
                         state_metadata, state_href, state_link_style,
-                        state_img_href, state_img_link_style,
                         state_html_href, state_html_link_style, True,
                         "warning", html.P("Algunos parámetros obligatorios no "
                                           "establecidos. Visualización no "
@@ -377,7 +365,7 @@ def register_callbacks(app):
         if len(dataframes) == 0:
             return ([], {"display": "none"}, {"display": "none"},
                     {"display": "none"}, [], "", {"display": "none"}, "",
-                    {"display": "none"}, "", {"display": "none"},
+                    {"display": "none"},
                     False, "primary", "", {"display": "none"})
         df = fix_freqs_and_names(dataframes)
         df = df.dropna(how="all", axis=0)
@@ -487,20 +475,13 @@ def register_callbacks(app):
             if not path.exists(export_folder):
                 mkdir(export_folder)
             html_name = f"{export_name}.html"
-            img_name = f"{export_name}.png"
             fig.write_html(path.join(export_folder, html_name),
                            include_plotlyjs="cdn", full_html=False)
-            fig.write_image(path.join(export_folder, img_name),
-                            scale=2, format="png", width=1200, height=675)
             html_href = f"/viz/dl_html?html_name={html_name}"
             html_style = {"display": "inline-block", "margin-left": "10px"}
-            img_href = f"/viz/dl_img?img_name={img_name}"
-            img_style = {"display": "inline-block", "margin-left": "10px"}
         else:
             html_href = ""
             html_style = {"display": "none"}
-            img_href = ""
-            img_style = {"display": "none"}
             table_df = df.copy()
             table_df.columns = table_df.columns.get_level_values(0)
             table_df.reset_index(inplace=True)
@@ -551,7 +532,7 @@ def register_callbacks(app):
         return (viz, {"display": "block"}, {"display": "block"},
                 {"display": "block"}, notes, href, {"display": "inline-block",
                                                     "margin-left": "10px"},
-                img_href, img_style, html_href, html_style,
+                html_href, html_style,
                 True, "success", html.P("Visualización actualizada👇",
                                         className="mb-0"),
                 {"display": "block"})
@@ -921,15 +902,6 @@ def register_callbacks(app):
                                        'officedocument.spreadsheetml.sheet',
                          attachment_filename="econuy-data.xlsx",
                          as_attachment=True, cache_timeout=0)
-
-    @app.server.route("/viz/dl_img")
-    def export_img():
-        name = request.args.get("img_name")
-        directory = path.join(current_app.root_path,
-                              current_app.config["EXPORT_FOLDER"])
-        return send_from_directory(filename=name, directory=directory,
-                                   attachment_filename="econuy-plot.png",
-                                   as_attachment=True, cache_timeout=0)
 
     @app.server.route("/viz/dl_html")
     def export_html():

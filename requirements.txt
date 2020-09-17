@@ -30,7 +30,6 @@ idna==2.10
 itsdangerous==1.1.0
 jdcal==1.4.1
 Jinja2==2.11.2
-kaleido==0.0.3.post1
 kiwisolver==1.2.0
 lxml==4.5.2
 MarkupSafe==1.1.1

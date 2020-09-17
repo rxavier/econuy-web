@@ -21,7 +21,6 @@ dash = "==1.13.4"
 dash-bootstrap-components = "==0.10.3"
 econuy = {editable = true, git = "https://github.com/rxavier/econuy.git"}
 camelot-py = {extras = ["cv"], version = "==0.8.2"}
-kaleido = "==0.0.3.post1"
 
 [requires]
 python_version = "3.7"
