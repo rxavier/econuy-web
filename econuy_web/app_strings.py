@@ -69,7 +69,7 @@ table_options = {
     "financial_sep": "----- Mercado financiero -----",
     "call": "Tasa call a 1 día (02-ene-02, D)",
     "bonds": "Rendimiento de bonos soberanos (02-jun-03, D)",
-    "bond_index": "Uruguay Bond Index - riesgo soberano (01-ene-1999, D)",
+    "ubi": "Uruguay Bond Index - riesgo soberano (01-ene-1999, D)",
     "income_sep": "----- Ingresos -----",
     "household_income": "Ingreso medio de los hogares sin VL ni aguinaldo (ene-06, M)",
     "capita_income": "Ingreso medio per cápita sin VL ni aguinaldo (ene-06, M)"

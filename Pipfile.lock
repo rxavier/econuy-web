@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "01b2573721f36b5147b04c0a8d0310dfbcf1b3cfa457cc84cba4295753491ec7"
+            "sha256": "3bc5a649f277b1c7e9771a01144be5cef4ce0c6a7b3d838ae53eaedc27464894"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -65,9 +65,7 @@
             "version": "==1.0.9"
         },
         "camelot-py": {
-            "extras": [
-                "cv"
-            ],
+            "extras": [],
             "hashes": [
                 "sha256:0b2e612ad0e11190b84a29937bad5d487b540faea408863f01e410d2b976336e",
                 "sha256:8e1e2a8e59c2dbdce9a6790f7007cd091343b136e29d64a45c8fd09c11360057"
@@ -231,7 +229,7 @@
         "econuy": {
             "editable": true,
             "git": "https://github.com/rxavier/econuy.git",
-            "ref": "0e0b0a97c50cde66e4204b50d946f957b3349080"
+            "ref": "a154290a8a748789e722bc97ab704e25b2b27021"
         },
         "et-xmlfile": {
             "hashes": [
