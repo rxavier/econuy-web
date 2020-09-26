@@ -58,7 +58,7 @@ table_options = {
     "rxr_official": "Tipos de cambio reales, BCU (ene-00, M)",
     "reserves": "Reservas internacionales (26-jun-02, D)",
     "reserves_chg": "Variación en las reservas del BCU (2-ene-13, D)",
-    "tfm_tb": "balanza comercial por país (ene-00, M)",
+    "tfm_tb": "Balanza comercial por país (ene-00, M)",
     "tfm_tot": "Términos de intercambio (ene-05, M)",
     "rxr_custom": "Tipos de cambio reales, cálculos econuy (dic-79, M)",
     "commodity_index": "Índice econuy de precios de materias primas (ene-02, M)",
