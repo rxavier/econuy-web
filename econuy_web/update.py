@@ -3,7 +3,8 @@ from functools import partial
 from econuy.retrieval import (cpi, fiscal_accounts, commodity_index, trade,
                               labor, national_accounts, nxr, rxr, reserves,
                               public_debt, industrial_production, call,
-                              deposits, credits, rates)
+                              deposits, credits, rates, sectors, energy,
+                              confidence, risk, income)
 from econuy.custom import (labor_rate_people, cpi_measures, fiscal,
                            labor_real_wages, trade_balance, terms_of_trade,
                            core_industrial, net_public_debt, bonds)
@@ -15,7 +16,19 @@ if __name__ == "__main__":
     app.app_context().push()
     updates = full_update(
         con=db.engine,
-        functions=[call.get,
+        functions=[labor.get_hours,
+                   trade.get_containers,
+                   sectors.get_cement,
+                   sectors.get_milk,
+                   sectors.get_cattle,
+                   energy.get_electricity,
+                   energy.get_gasoline,
+                   energy.get_diesel,
+                   confidence.get_consumer,
+                   risk.get_bond_index,
+                   income.get_household,
+                   income.get_capita,
+                   call.get,
                    deposits.get,
                    credits.get,
                    fiscal_accounts.get_taxes,

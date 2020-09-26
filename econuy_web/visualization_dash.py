@@ -91,17 +91,17 @@ def add_dash(server):
                                style={"display": "none"}),
                            html.Br(),
                            dbc.Button("Actualizar consulta",
-                                                   id="submit",
-                                                   color="dark",
-                                                   style={
-                                                       "display": "inline-block",
-                                                       "margin": "10px"}),
-                               html.Div([html.A(
-                                   dbc.Button("Exportar a Excel",
-                                              id="download-button",
-                                              color="dark"),
-                                   id="download-link",
-                                   style={"display": "none"}),
+                                      id="submit",
+                                      color="dark",
+                                      style={
+                                          "display": "inline-block",
+                                          "margin": "10px"}),
+                           html.Div([html.A(
+                               dbc.Button("Exportar a Excel",
+                                          id="download-button",
+                                          color="dark"),
+                               id="download-link",
+                               style={"display": "none"}),
                                html.A(
                                    dbc.Button("Exportar a HTML",
                                               id="download-html-button",
