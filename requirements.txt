@@ -1,13 +1,13 @@
 beautifulsoup4==4.9.1
-bleach==3.2.0
+bleach==3.2.1
 Brotli==1.0.9
 camelot-py==0.8.2
 certifi==2020.6.20
-cffi==1.14.2
+cffi==1.14.3
 chardet==3.0.4
 chromedriver-autoinstaller==0.2.2
 click==7.1.2
-cryptography==3.1
+cryptography==3.1.1
 cycler==0.10.0
 dash==1.13.4
 dash-bootstrap-components==0.10.3
@@ -16,7 +16,7 @@ dash-html-components==1.0.3
 dash-renderer==1.5.1
 dash-table==4.8.1
 dominate==2.5.2
--e git+https://github.com/rxavier/econuy.git@391f43d8e250f965dd12bf185b3e6151b4966d68#egg=econuy
+-e git+https://github.com/rxavier/econuy.git@0e0b0a97c50cde66e4204b50d946f957b3349080#egg=econuy
 et-xmlfile==1.0.1
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1
@@ -35,11 +35,12 @@ lxml==4.5.2
 MarkupSafe==1.1.1
 matplotlib==3.3.2
 numpy==1.17.4
-opencv-python==4.4.0.42
+opencv-python==4.4.0.44
 openpyxl==3.0.5
 opnieuw==1.1.0
 packaging==20.4
 pandas==0.25.3
+patool==1.12
 patsy==0.5.1
 pdfminer.six==20200726
 Pillow==7.2.0
