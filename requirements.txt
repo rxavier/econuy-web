@@ -1,4 +1,4 @@
-beautifulsoup4==4.9.1
+beautifulsoup4==4.9.2
 bleach==3.2.1
 Brotli==1.0.9
 camelot-py==0.8.2
@@ -16,7 +16,7 @@ dash-html-components==1.0.3
 dash-renderer==1.5.1
 dash-table==4.8.1
 dominate==2.5.2
--e git+https://github.com/rxavier/econuy.git@a154290a8a748789e722bc97ab704e25b2b27021#egg=econuy
+-e git+https://github.com/rxavier/econuy.git@6329d3c4b2735c13be20b90ce02754606a3638d5#egg=econuy
 et-xmlfile==1.0.1
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1
@@ -44,7 +44,7 @@ patool==1.12
 patsy==0.5.1
 pdfminer.six==20200726
 Pillow==7.2.0
-plotly==4.10.0
+plotly==4.11.0
 psycopg2==2.8.5
 pycparser==2.20
 pyparsing==2.4.7
