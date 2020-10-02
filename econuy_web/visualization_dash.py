@@ -43,7 +43,6 @@ def add_dash(server):
                            html.Br(),
                            html.Div(
                                id="chart-type-container",
-                               style={"display": "none"},
                                children=[
                                    html.P("Tipo de visualización",
                                           style={"display": "inline-block"}),
@@ -63,11 +62,9 @@ def add_dash(server):
                                                  "value": "table"}],
                                        value="line",
                                        inline=True,
-                                       style={"display": "inline-block",
-                                              "margin-left": "10px"})]),
+                                       style={"margin-left": "10px"})]),
                            html.Div(style={"height": "5px"}),
                            html.Div(id="date-range-container",
-                                    style={"display": "none"},
                                     children=[
                                         "Filtrar fechas",
                                         html.Div(
@@ -87,8 +84,7 @@ def add_dash(server):
                                 dbc.Input(placeholder="Subtítulo del gráfico",
                                           type="text", id="subtitle",
                                           debounce=True)],
-                               id="title-subtitle",
-                               style={"display": "none"}),
+                               id="title-subtitle"),
                            html.Br(),
                            dbc.Button("Actualizar consulta",
                                       id="submit",
@@ -138,8 +134,6 @@ def register_callbacks(app):
 
     @app.callback(
         [Output("viz-container", "children"),
-         Output("chart-type-container", "style"),
-         Output("date-range-container", "style"),
          Output("metadata-button", "style"),
          Output("metadata", "children"),
          Output("download-link", "href"),
@@ -149,7 +143,6 @@ def register_callbacks(app):
          Output("update-toast", "is_open"),
          Output("update-toast", "icon"),
          Output("update-toast", "children"),
-         Output("title-subtitle", "style")
          ],
         [Input("submit", "n_clicks")],
         [State("chart-type", "value"),
@@ -189,15 +182,12 @@ def register_callbacks(app):
          State("date-picker", "start_date"),
          State("date-picker", "end_date"),
          State("viz-container", "children"),
-         State("chart-type-container", "style"),
-         State("date-range-container", "style"),
          State("metadata-button", "style"),
          State("metadata", "children"),
          State("download-link", "href"),
          State("download-link", "style"),
          State("download-html-link", "href"),
          State("download-html-link", "style"),
-         State("title-subtitle", "style")
          ])
     def update_df(submit,
                   chart_type, title, subtitle, table_s, indicator_s, usd_s,
@@ -208,10 +198,9 @@ def register_callbacks(app):
                   chg_diff_operation_s, chg_diff_period_s, seas_s,
                   seas_method_s, seas_type_s, orders_1_s, order_2_s, order_3_s,
                   order_4_s, order_5_s, order_6_s, order_7_s, order_8_s,
-                  start_date, end_date, state_viz, state_type, state_dates,
+                  start_date, end_date, state_viz,
                   state_metadata_btn, state_metadata, state_href,
-                  state_link_style, state_html_href, state_html_link_style,
-                  state_title_subtitle_style):
+                  state_link_style, state_html_href, state_html_link_style):
         dataframes = []
         labels = []
         arr_orders_s = []
@@ -292,13 +281,12 @@ def register_callbacks(app):
                     or (True in seas and
                         (seas_method is None or
                          seas_type is None))):
-                return (state_viz, state_type, state_dates, state_metadata_btn,
+                return (state_viz, state_metadata_btn,
                         state_metadata, state_href, state_link_style,
                         state_html_href, state_html_link_style, True,
                         "warning", html.P("Algunos parámetros obligatorios no "
                                           "establecidos. Visualización no "
-                                          "actualizada", className="mb-0"),
-                        state_title_subtitle_style)
+                                          "actualizada", className="mb-0"))
             if table is None or indicator is None or indicator == []:
                 continue
             if "*" in indicator:
@@ -364,10 +352,10 @@ def register_callbacks(app):
             labels.extend(list(df_aux.columns.get_level_values(0)))
 
         if len(dataframes) == 0:
-            return ([], {"display": "none"}, {"display": "none"},
+            return ([],
                     {"display": "none"}, [], "", {"display": "none"}, "",
                     {"display": "none"},
-                    False, "primary", "", {"display": "none"})
+                    False, "primary", "")
         df = fix_freqs_and_names(dataframes)
         df = df.dropna(how="all", axis=0)
         if start_date is not None:
@@ -530,13 +518,12 @@ def register_callbacks(app):
         else:
             sqlutil.df_to_sql(df, name=export_name,
                               con=db.get_engine(bind="queries"))
-        return (viz, {"display": "block"}, {"display": "block"},
+        return (viz,
                 {"display": "block"}, notes, href, {"display": "inline-block",
                                                     "margin": "10px"},
                 html_href, html_style,
                 True, "success", html.P("Visualización actualizada👇",
-                                        className="mb-0"),
-                {"display": "block"})
+                                        className="mb-0"))
 
     @app.callback(
         Output("indicator-container", "children"),
