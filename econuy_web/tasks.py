@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Union, List
 
 from sqlalchemy.engine.base import Connection, Engine
@@ -32,3 +33,7 @@ def clear_tables(con: Union[Connection, Engine]):
             con.engine.execute(f'DROP TABLE IF EXISTS "{table}"')
 
     return
+
+
+def get_project_root() -> Path:
+    return Path(__file__).parent

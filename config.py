@@ -1,8 +1,11 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv("econuy_web/.env")
+from econuy_web.tasks import get_project_root
+
+load_dotenv(Path(get_project_root(), ".env"))
 
 
 class Config(object):
