@@ -114,7 +114,7 @@ def register_callbacks(app):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
 
-        cpi = sqlutil.read(con=db.engine, table_name="tfm_prices")
+        cpi = sqlutil.read(con=db.engine, table_name="cpi_measures")
         cpi = cpi.iloc[:, 0:4]
         cpi = transform.chg_diff(cpi, operation="chg", period_op="inter")
         cpi.columns = cpi.columns.get_level_values(0).str.replace(
@@ -133,7 +133,7 @@ def register_callbacks(app):
         end_date = end_date or "2100-01-01"
 
         deficit = sqlutil.read(con=db.engine,
-                               table_name="tfm_fiscal_gps_uyu_fssadj")
+                               table_name="balance_fss_gps_fssadj")
         deficit = deficit.iloc[:, [-1]]
         deficit = transform.convert_gdp(deficit, update_loc=db.engine,
                                         only_get=True)
@@ -152,7 +152,7 @@ def register_callbacks(app):
         end_date = end_date or "2100-01-01"
 
         net_debt = sqlutil.read(con=db.engine,
-                            table_name="tfm_pubdebt")
+                            table_name="net_public_debt")
         net_debt = transform.convert_gdp(net_debt, update_loc=db.engine,
                                          only_get=True)
         net_debt = net_debt.loc[(net_debt.index >= start_date) &
@@ -170,9 +170,9 @@ def register_callbacks(app):
         end_date = end_date or "2100-01-01"
 
         exports = sqlutil.read(con=db.engine,
-                               table_name="tb_x_dest_val")
+                               table_name="trade_x_dest_val")
         imports = sqlutil.read(con=db.engine,
-                               table_name="tb_m_orig_val")
+                               table_name="trade_m_orig_val")
         x_m = pd.concat([exports.iloc[:, [0]], imports.iloc[:, [0]]], axis=1)
         x_m = transform.rolling(x_m, periods=12, operation="sum")
         x_m.columns = ["Exportaciones", "Importaciones"]
@@ -207,7 +207,7 @@ def register_callbacks(app):
         end_date = end_date or "2100-01-01"
 
         labor = sqlutil.read(con=db.engine,
-                             table_name="tfm_labor_extended_nsa")
+                             table_name="rates_people")
         labor = labor.iloc[:, 0:3]
         labor_decomp = transform.decompose(labor, flavor="trend",
                                            method="x13")
