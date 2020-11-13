@@ -40,8 +40,18 @@
 <meta name="twitter:description" content="econuy permite la visualización y descarga de estadísticas de la economía uruguaya.">
 <meta name="twitter:image" content="{{ url_for('static', filename='cards.jpg') }}">
 
-    <link rel="dns-prefetch" href="https://twitter.com/econ_uy">
-    <link rel="dns-prefetch" href="https://github.com/rxavier/econuy">
+<link rel="dns-prefetch" href="https://twitter.com/econ_uy">
+<link rel="dns-prefetch" href="https://github.com/rxavier/econuy">
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CYNBM12GS9"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-CYNBM12GS9');
+</script>
 {% endblock %}
 
 {% block body %}
