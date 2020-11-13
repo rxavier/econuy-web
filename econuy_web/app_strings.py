@@ -57,7 +57,6 @@ table_options = {
     "net_trade": "Balanza comercial por país (ene-00, M [e])",
     "terms_of_trade": "Términos de intercambio (ene-05, M [e])",
     "commodity_index": "Índice econuy de precios de materias primas (ene-02, M [e])",
-    "containers": "Movimiento de contenedores en el Puerto de Montevideo (ene-07, M)",
     "rxr_official": "Tipos de cambio reales, BCU (ene-00, M)",
     "rxr_custom": "Tipos de cambio reales, cálculos econuy (dic-79, M [e])",
     "reserves": "Reservas internacionales (26-jun-02, D)",

@@ -15,7 +15,6 @@ if __name__ == "__main__":
                    economic_activity.electricity,
                    economic_activity.gasoline,
                    economic_activity.diesel,
-                   external_sector.containers,
                    economic_activity.cement,
                    economic_activity.milk,
                    economic_activity.cattle,
