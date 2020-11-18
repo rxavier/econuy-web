@@ -19,7 +19,7 @@ gunicorn = "==20.0.4"
 xlsxwriter = "==1.2.9"
 dash = "==1.13.4"
 dash-bootstrap-components = "==0.10.3"
-econuy = {editable = true, git = "https://github.com/rxavier/econuy.git", ref = "97c38fb3ba4a5fb983b367a6b468d0135ab4d836"}
+econuy = {editable = true, ref = "0b12e84b7225794adff57f54fede7ae1088ca0b4", git = "https://github.com/rxavier/econuy.git"}
 camelot-py = {extras = ["cv"], version = "==0.8.2"}
 
 [requires]

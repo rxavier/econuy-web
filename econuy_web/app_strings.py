@@ -67,9 +67,15 @@ table_options = {
     "interest_rates": "Tasas de interés activas y pasivas (ene-98, M)",
     "call": "Tasa call a 1 día (02-ene-02, D)",
     "bonds": "Rendimiento de bonos soberanos (02-jun-03, D [e])",
-    "sovereign_risk": "Uruguay Bond Index - riesgo soberano (01-ene-1999, D)",
+    "sovereign_risk": "Uruguay Bond Index - riesgo soberano (01-ene-99, D)",
     "income_sep": "----- Ingresos -----",
     "household_income": "Ingreso medio de los hogares sin valor ni aguinaldo (ene-06, M)",
     "capita_income": "Ingreso medio per cápita sin valor locativo ni aguinaldo (ene-06, M)",
-    "consumer_confidence": "Índice de Confianza del Consumidor (ago-07, M)"
+    "consumer_confidence": "Índice de Confianza del Consumidor (ago-07, M)",
+    "global_sep": "----- Indicadores globales -----",
+    "global_gdp": "PBI real desestacionalizado de EE.UU., Unión Europea, Japón y China (mar-47, T)",
+    "global_stocks": "Índices bursátiles de EE.UU., Unión Europea, Japón y China (30-dic-27, D)",
+    "global_policy_rates": "Tasas de interés de política monetaria de EE.UU., Eurozona, Japón y China (01-ene-46, D)",
+    "global_long_rates": "Tasas de interés de largo plazo (10 años) de EE.UU., Alemania, Francia, España, Italia, Reino Unido, Japón y China (02-ene-62, D)",
+    "global_currencies": "Cotización de monedas de EE.UU., Eurozona, Japón y China (04-ene-71, D)"
 }

@@ -16,7 +16,7 @@ dash-html-components==1.0.3
 dash-renderer==1.5.1
 dash-table==4.8.1
 dominate==2.6.0
--e git+https://github.com/rxavier/econuy.git@97c38fb3ba4a5fb983b367a6b468d0135ab4d836#egg=econuy
+-e git+https://github.com/rxavier/econuy.git@0b12e84b7225794adff57f54fede7ae1088ca0b4#egg=econuy
 et-xmlfile==1.0.1
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1

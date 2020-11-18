@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7a084a67401f7d27573b568d9aae5dc462f3bd0660ac39991d8a835352d3e96b"
+            "sha256": "bb58db5f104f665d1440e1f0ec83846f5314f83dc9c04971ef6afd22ba367903"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -232,7 +232,7 @@
         "econuy": {
             "editable": true,
             "git": "https://github.com/rxavier/econuy.git",
-            "ref": "97c38fb3ba4a5fb983b367a6b468d0135ab4d836"
+            "ref": "0b12e84b7225794adff57f54fede7ae1088ca0b4"
         },
         "et-xmlfile": {
             "hashes": [
@@ -783,7 +783,7 @@
                 "sha256:1634eea42ab371d3d346309b93df7870a88610f0725d47528be902a0d95ecc55",
                 "sha256:a59dc181727e95d25f781f0eb4fd1825ff45590ec8ff49eadfd7f1a537cc0232"
             ],
-            "markers": "python_version >= '3.0'",
+            "markers": "python_version >= '3'",
             "version": "==2.0.1"
         },
         "sqlalchemy": {
