@@ -375,6 +375,8 @@ def register_callbacks(app):
         if subtitle is not None and subtitle != "":
             title_text = f"{title_text}<br><span style='font-size: 14px'>{subtitle}</span>"
         height = 600 + 20 * len(set(trimmed_tables))
+        if len(df) > 7000:
+            df = transform.resample(df, target="M", operation="average")
         df_chart = df.reset_index()
         df_chart.columns = df_chart.columns.get_level_values(0)
         export_name = uuid.uuid4().hex
