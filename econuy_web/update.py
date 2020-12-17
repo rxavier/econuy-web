@@ -2,7 +2,7 @@ from functools import partial
 
 from econuy.retrieval import (economic_activity, fiscal_accounts, prices,
                               external_sector, financial_sector,
-                              labor, income, international)
+                              labor, income, international, regional)
 from econuy_web import db, create_app
 from econuy_web.tasks import full_update
 
@@ -11,11 +11,20 @@ if __name__ == "__main__":
     app.app_context().push()
     updates = full_update(
         con=db.engine,
-        functions=[international.gdp,
+        functions=[regional.gdp,
+                   regional.monthly_gdp,
+                   regional.cpi,
+                   regional.nxr,
+                   regional.rxr,
+                   regional.embi_spreads,
+                   regional.embi_yields,
+                   regional.policy_rates,
+                   regional.stocks,
+                   international.gdp,
                    international.stocks,
                    international.policy_rates,
                    international.long_rates,
-                   international.currencies,
+                   international.nxr,
                    labor.hours,
                    economic_activity.electricity,
                    economic_activity.gasoline,
