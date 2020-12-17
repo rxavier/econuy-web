@@ -6,9 +6,11 @@ from sqlalchemy import inspect
 
 
 def full_update(con: Union[Connection, Engine],
-                functions: List) -> List:
+                functions: List, run: int = 0) -> List:
     output = []
+    failed = []
     for f in functions:
+        print(f"*** RUN: {run} ***")
         try:
             name = f.__name__
             module = f.__module__
@@ -16,14 +18,18 @@ def full_update(con: Union[Connection, Engine],
             name = f.func.__name__
             module = f.func.__module__
         try:
-            print(f"Running {name} in {module}...")
+            print(f"{module}.{name}...")
             output.append(f(update_loc=con, save_loc=con))
-            print("Success.")
+            print("SUCCESS")
         except:
             # This exception is intentionally broad.
             # If any function fails, carry on with the next one.
-            print(f"{name} in {module} FAILED.")
+            print("FAIL")
+            failed.append(f)
             continue
+    if len(failed) > 0:
+        next_run = run + 1
+        full_update(con=con, functions=failed, run=next_run)
     return output
 
 
