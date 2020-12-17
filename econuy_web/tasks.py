@@ -6,8 +6,10 @@ from sqlalchemy import inspect
 
 
 def full_update(con: Union[Connection, Engine],
-                functions: List, run: int = 0) -> List:
-    output = []
+                functions: List, run: int = 0,
+                output: List = None) -> List:
+    if output is None:
+        output = []
     failed = []
     for f in functions:
         print(f"*** RUN: {run} ***")
@@ -27,9 +29,10 @@ def full_update(con: Union[Connection, Engine],
             print("FAIL")
             failed.append(f)
             continue
-    if len(failed) > 0:
-        next_run = run + 1
-        full_update(con=con, functions=failed, run=next_run)
+    if len(failed) > 0 and run < 3:
+        run += 1
+        full_update(con=con, functions=failed, run=run,
+                    output=output)
     return output
 
 
