@@ -78,6 +78,7 @@ table_options = {
     "global_policy_rates": "Tasas de interés de política monetaria de EE.UU., Eurozona, Japón y China (01-ene-46, D)",
     "global_long_rates": "Tasas de interés de largo plazo (10 años) de EE.UU., Alemania, Francia, España, Italia, Reino Unido, Japón y China (02-ene-62, D)",
     "global_nxr": "Cotización de monedas de EE.UU., Eurozona, Japón y China (04-ene-71, D)",
+    "regional_sep": "----- Indicadores regionales -----",
     "regional_gdp": "PBI real desestacionalizado de Argentina y Brasil (mar-93, T)",
     "regional_monthly_gdp": "PBI real mensual desestacionalizado de Argentina y Brasil (ene-03, M)",
     "regional_cpi": "Índice de precios al consumo de Argentina y Brasil (ene-70, M)",
