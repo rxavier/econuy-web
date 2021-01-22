@@ -31,9 +31,13 @@ def full_update(con: Union[Connection, Engine],
             continue
     if len(failed) > 0 and run < 3:
         run += 1
-        full_update(con=con, functions=failed, run=run,
-                    output=output)
-    print(f"Updating required {run} run(s).")
+        return full_update(con=con, functions=failed, run=run,
+                           output=output)
+    if len(failed) > 0:
+        failed_text = f" {len(failed)} datasets could not be updated."
+    else:
+        failed_text = ""
+    print(f"Updating required {run} run(s).{failed_text}")
     return output
 
 
