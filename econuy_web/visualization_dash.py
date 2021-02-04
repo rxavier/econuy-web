@@ -193,8 +193,8 @@ def register_callbacks(app):
                   chart_type, title, subtitle, table_s, indicator_s, usd_s,
                   real_s, real_start_s, real_end_s, gdp_s, resample_s,
                   resample_frequency_s, resample_operation_s, rolling_s,
-                  rolling_period_s, rolling_operation_s, base_index_s,
-                  base_start_s, base_end_s, base_base_s, chg_diff_s,
+                  rolling_period_s, rolling_operation_s, rebase_s,
+                  rebase_start_s, rebase_end_s, rebase_base_s, chg_diff_s,
                   chg_diff_operation_s, chg_diff_period_s, seas_s,
                   seas_method_s, seas_type_s, orders_1_s, order_2_s, order_3_s,
                   order_4_s, order_5_s, order_6_s, order_7_s, order_8_s,
@@ -219,10 +219,10 @@ def register_callbacks(app):
              rolling,
              rolling_periods,
              rolling_operations,
-             base_index,
-             base_start,
-             base_end,
-             base_base,
+             rebase,
+             rebase_start,
+             rebase_end,
+             rebase_base,
              chg_diff,
              chg_diff_operation,
              chg_diff_period,
@@ -249,10 +249,10 @@ def register_callbacks(app):
                              rolling_s,
                              rolling_period_s,
                              rolling_operation_s,
-                             base_index_s,
-                             base_start_s,
-                             base_end_s,
-                             base_base_s,
+                             rebase_s,
+                             rebase_start_s,
+                             rebase_end_s,
+                             rebase_base_s,
                              chg_diff_s,
                              chg_diff_operation_s,
                              chg_diff_period_s,
@@ -272,9 +272,9 @@ def register_callbacks(app):
                     or (True in rolling and
                         (rolling_periods is None or
                          rolling_operations is None))
-                    or (True in base_index
-                        and (base_start is None or
-                             base_base is None))
+                    or (True in rebase
+                        and (rebase_start is None or
+                             rebase_base is None))
                     or (True in chg_diff and
                         (chg_diff_period is None or
                          chg_diff_operation is None))
@@ -309,41 +309,46 @@ def register_callbacks(app):
                     orders[i] = 1
             submit_order = {k: v for k, v in
                             zip(["usd", "real", "gdp", "res", "roll",
-                                 "base_index", "chg_diff", "seas"], orders)}
+                                 "rebase", "chg_diff", "seas"], orders)}
             all_transforms = {k: (True if True in v else False) for k, v
                               in
                               {"usd": usd, "real": real, "gdp": gdp,
                                "res": resample, "roll": rolling,
-                               "base_index": base_index, "chg_diff": chg_diff,
+                               "rebase": rebase, "chg_diff": chg_diff,
                                "seas": seas}.items()}
             arr_orders = define_order(submit_order, all_transforms)
             arr_orders_s.append(arr_orders)
             function_dict = {
                 "usd": lambda x: transform.convert_usd(x, update_loc=db.engine,
-                                                       only_get=True),
+                                                       only_get=True,
+                                                       errors="ignore"),
                 "real": lambda x: transform.convert_real(
                     x, update_loc=db.engine, only_get=True,
                     start_date=real_start,
-                    end_date=real_end),
+                    end_date=real_end, errors="ignore"),
                 "gdp": lambda x: transform.convert_gdp(x, update_loc=db.engine,
-                                                       only_get=True),
+                                                       only_get=True,
+                                                       errors="ignore"),
                 "res": lambda x: transform.resample(
-                    x, target=resample_frequency, operation=resample_operation
+                    x, rule=resample_frequency, 
+                    operation=resample_operation, errors="ignore"
                 ),
                 "roll": lambda x: transform.rolling(
-                    x, periods=rolling_periods, operation=rolling_operations
+                    x, window=rolling_periods, 
+                    operation=rolling_operations, errors="ignore"
                 ),
-                "base_index": lambda x: transform.base_index(
-                    x, start_date=base_start,
-                    end_date=base_end,
-                    base=base_base),
+                "rebase": lambda x: transform.rebase(
+                    x, start_date=rebase_start,
+                    end_date=rebase_end,
+                    base=rebase_base, errors="ignore"),
                 "chg_diff": lambda x: transform.chg_diff(
                     x, operation=chg_diff_operation,
-                    period_op=chg_diff_period),
+                    period=chg_diff_period, errors="ignore"),
                 "seas": lambda x: transform.decompose(x,
-                                                      flavor=seas_type,
+                                                      component=seas_type,
                                                       method=seas_method,
-                                                      force_x13=True)
+                                                      force_x13=True, 
+                                                      errors="ignore")
             }
 
             for t in arr_orders.values():
@@ -376,7 +381,7 @@ def register_callbacks(app):
             title_text = f"{title_text}<br><span style='font-size: 14px'>{subtitle}</span>"
         height = 600 + 20 * len(set(trimmed_tables))
         if len(df) > 7000:
-            df = transform.resample(df, target="M", operation="average")
+            df = transform.resample(df, rule="M", operation="average")
         df_chart = df.reset_index()
         df_chart.columns = df_chart.columns.get_level_values(0)
         export_name = uuid.uuid4().hex
@@ -673,7 +678,7 @@ def register_callbacks(app):
                          searchable=False, disabled=True)]),
             order_dropdown(number="5", n_clicks=n_clicks)])
 
-        base_index = html.Div(children=[
+        rebase = html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
@@ -775,7 +780,7 @@ def register_callbacks(app):
                                           indicator_dropdown, html.Br(), usd,
                                           short_br, real, short_br, gdp,
                                           short_br, res, short_br, roll,
-                                          short_br, base_index, short_br,
+                                          short_br, rebase, short_br,
                                           chg_diff, short_br, seas, html.Br()],
                                 id={"type": "complete-div", "index": n_clicks})
         hide_button = dbc.Button("Colapsar conjunto de indicadores", id={
@@ -956,15 +961,15 @@ def fix_freqs_and_names(dfs: List[pd.DataFrame]) -> pd.DataFrame:
                         type_df = df.columns.get_level_values("Tipo")[0]
                         unit_df = df.columns.get_level_values("Unidad")[0]
                         if type_df == "Stock":
-                            df_match = transform.resample(df, target=freq_opt,
+                            df_match = transform.resample(df, rule=freq_opt,
                                                           operation="end")
                         elif (type_df == "Flujo" and
                               not any(x in unit_df for
                                       x in ["%", "=", "Cambio"])):
-                            df_match = transform.resample(df, target=freq_opt,
+                            df_match = transform.resample(df, rule=freq_opt,
                                                           operation="sum")
                         else:
-                            df_match = transform.resample(df, target=freq_opt,
+                            df_match = transform.resample(df, rule=freq_opt,
                                                           operation="average")
                     output.append(df_match)
                 return pd.concat(output, axis=1)
@@ -999,7 +1004,7 @@ def build_metadata(tables: List[str], dfs: List[pd.DataFrame],
                              "gdp": "Convertir a % del PBI",
                              "res": "Cambiar frecuencia",
                              "roll": "Acumular",
-                             "base_index": "Calcular índice base",
+                             "rebase": "Calcular índice base",
                              "chg_diff": "Calcular variaciones o diferencias",
                              "seas": "Desestacionalizar"}
     divs = []
