@@ -331,19 +331,19 @@ def register_callbacks(app):
                                                        errors="ignore"),
                 "res": lambda x: transform.resample(
                     x, rule=resample_frequency, 
-                    operation=resample_operation, errors="ignore"
+                    operation=resample_operation
                 ),
                 "roll": lambda x: transform.rolling(
                     x, window=rolling_periods, 
-                    operation=rolling_operations, errors="ignore"
+                    operation=rolling_operations
                 ),
                 "rebase": lambda x: transform.rebase(
                     x, start_date=rebase_start,
                     end_date=rebase_end,
-                    base=rebase_base, errors="ignore"),
+                    base=rebase_base),
                 "chg_diff": lambda x: transform.chg_diff(
                     x, operation=chg_diff_operation,
-                    period=chg_diff_period, errors="ignore"),
+                    period=chg_diff_period),
                 "seas": lambda x: transform.decompose(x,
                                                       component=seas_type,
                                                       method=seas_method,
