@@ -100,7 +100,7 @@ def register_callbacks(app):
         gdp = sqlutil.read(con=db.engine,
                            table_name="naccounts_ind_con_idx_sa")
         gdp = gdp.iloc[:, [-1]]
-        gdp = transform.chg_diff(gdp, operation="chg", period_op="last")
+        gdp = transform.chg_diff(gdp, operation="chg", period="last")
         gdp = gdp.loc[(gdp.index >= start_date) & (gdp.index <= end_date)]
 
         return generate_plot(df=gdp, chart_type=px.bar, title="Crecimiento",
@@ -116,7 +116,7 @@ def register_callbacks(app):
 
         cpi = sqlutil.read(con=db.engine, table_name="cpi_measures")
         cpi = cpi.iloc[:, 0:4]
-        cpi = transform.chg_diff(cpi, operation="chg", period_op="inter")
+        cpi = transform.chg_diff(cpi, operation="chg", period="inter")
         cpi.columns = cpi.columns.get_level_values(0).str.replace(
             "Índice de precios al consumo: ", "").str.capitalize()
         cpi = cpi.loc[(cpi.index >= start_date) & (cpi.index <= end_date)]
@@ -174,7 +174,7 @@ def register_callbacks(app):
         imports = sqlutil.read(con=db.engine,
                                table_name="trade_m_orig_val")
         x_m = pd.concat([exports.iloc[:, [0]], imports.iloc[:, [0]]], axis=1)
-        x_m = transform.rolling(x_m, periods=12, operation="sum")
+        x_m = transform.rolling(x_m, window=12, operation="sum")
         x_m.columns = ["Exportaciones", "Importaciones"]
         x_m = x_m.loc[(x_m.index >= start_date) & (x_m.index <= end_date)]
 
@@ -209,7 +209,7 @@ def register_callbacks(app):
         labor = sqlutil.read(con=db.engine,
                              table_name="rates_people")
         labor = labor.iloc[:, 0:3]
-        labor_decomp = transform.decompose(labor, flavor="trend",
+        labor_decomp = transform.decompose(labor, component="trend",
                                            method="x13")
         emp = pd.concat([labor.iloc[:, [0]],
                          labor_decomp.iloc[:, [0]]], axis=1)
