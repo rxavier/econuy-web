@@ -381,7 +381,7 @@ def register_callbacks(app):
             title_text = f"{title_text}<br><span style='font-size: 14px'>{subtitle}</span>"
         height = 600 + 20 * len(set(trimmed_tables))
         if len(df) > 7000:
-            df = transform.resample(df, rule="M", operation="average")
+            df = transform.resample(df, rule="M", operation="mean")
         df_chart = df.reset_index()
         df_chart.columns = df_chart.columns.get_level_values(0)
         export_name = uuid.uuid4().hex
@@ -962,7 +962,7 @@ def fix_freqs_and_names(dfs: List[pd.DataFrame]) -> pd.DataFrame:
                         unit_df = df.columns.get_level_values("Unidad")[0]
                         if type_df == "Stock":
                             df_match = transform.resample(df, rule=freq_opt,
-                                                          operation="end")
+                                                          operation="last")
                         elif (type_df == "Flujo" and
                               not any(x in unit_df for
                                       x in ["%", "=", "Cambio"])):
@@ -970,7 +970,7 @@ def fix_freqs_and_names(dfs: List[pd.DataFrame]) -> pd.DataFrame:
                                                           operation="sum")
                         else:
                             df_match = transform.resample(df, rule=freq_opt,
-                                                          operation="average")
+                                                          operation="mean")
                     output.append(df_match)
                 return pd.concat(output, axis=1)
         if None in freqs:
