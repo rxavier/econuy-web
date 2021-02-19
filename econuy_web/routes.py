@@ -200,21 +200,21 @@ def query():
         "gdp": lambda x: transform.convert_gdp(x, update_loc=db.engine,
                                                only_get=True),
         "freq": lambda x: transform.resample(x,
-                                             target=data["frequency"]["data"],
+                                             rule=data["frequency"]["data"],
                                              operation=data["operation_res"][
                                                  "data"]),
-        "cum": lambda x: transform.rolling(x, periods=data["periods"]["data"],
+        "cum": lambda x: transform.rolling(x, window=data["periods"]["data"],
                                            operation=data["operation"][
                                                "data"]),
-        "base_index": lambda x: transform.base_index(
+        "base_index": lambda x: transform.rebase(
             x, start_date=data["base_index_start"]["data"],
             end_date=data["base_index_end"]["data"],
             base=data["base_index_base"]["data"]),
         "chg_diff": lambda x: transform.chg_diff(
             x, operation=data["chg_diff_type"]["data"],
-            period_op=data["chg_diff_period"]["data"]),
+            period=data["chg_diff_period"]["data"]),
         "seas": lambda x: transform.decompose(x,
-                                              flavor=data["seas_type"]["data"],
+                                              component=data["seas_type"]["data"],
                                               method=data["seas_method"]["data"],
                                               force_x13=True)
     }

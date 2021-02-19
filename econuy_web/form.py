@@ -59,10 +59,10 @@ class NoneOfMultiple(object):
 
 class SubmitForm(FlaskForm):
     indicators = [(k, v) for k, v in table_options.items()]
-    operations = [("average", "Promedio"), ("sum", "Suma")]
-    operations_res = [("average", "Reducir frecuencia: promedio"),
+    operations = [("mean", "Promedio"), ("sum", "Suma")]
+    operations_res = [("mean", "Reducir frecuencia: promedio"),
                       ("sum", "Reducir frecuencia: suma"),
-                      ("end", "Reducir frecuencia: último período"),
+                      ("last", "Reducir frecuencia: último período"),
                       ("upsample", "Aumentar frecuencia")]
     frequencies = [("A-DEC", "Anual"),
                    ("Q-DEC", "Trimestral"),
@@ -86,7 +86,8 @@ class SubmitForm(FlaskForm):
                                 NoneOf(["activity_sep", "prices_sep",
                                         "fiscal_sep", "labor_sep",
                                         "external_sep", "money_sep",
-                                        "frequent_sep"],
+                                        "frequent_sep", "regional_sep", 
+                                        "global_sep"],
                                        message="Seleccionar una tabla.")
                             ], id="indicator")
     start = DateField("Fecha inicial", format="%Y-%m-%d",
