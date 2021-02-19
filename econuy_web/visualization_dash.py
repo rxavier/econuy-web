@@ -639,11 +639,11 @@ def register_callbacks(app):
                          "index": n_clicks
                      }, options=[
                          {"label": "Reducir frecuencia: promedio",
-                          "value": "average"},
+                          "value": "mean"},
                          {"label": "Reducir frecuencia: suma",
                           "value": "sum"},
                          {"label": "Reducir frecuencia: último período",
-                          "value": "end"},
+                          "value": "last"},
                          {"label": "Aumentar frecuencia",
                           "value": "upsample"}],
                          placeholder="Método", style={"width": "300px"},
@@ -673,7 +673,7 @@ def register_callbacks(app):
                          "type": "rolling-operation",
                          "index": n_clicks
                      }, options=[{"label": "Suma", "value": "sum"},
-                                 {"label": "Promedio", "value": "average"}],
+                                 {"label": "Promedio", "value": "mean"}],
                          placeholder="Operación", style={"width": "120px"},
                          searchable=False, disabled=True)]),
             order_dropdown(number="5", n_clicks=n_clicks)])
