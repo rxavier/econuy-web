@@ -1,97 +1,10 @@
-import warnings
-from functools import partial
+from econuy.session import Session
 
-from econuy.retrieval import (economic_activity, fiscal_accounts, prices,
-                              external_sector, financial_sector,
-                              labor, income, international, regional)
 from econuy_web import db, create_app
-from econuy_web.tasks import full_update
 
 if __name__ == "__main__":
     app = create_app()
     app.app_context().push()
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=UserWarning)
-        updates = full_update(
-            con=db.engine,
-            functions=[regional.gdp,
-                       regional.monthly_gdp,
-                       regional.cpi,
-                       regional.nxr,
-                       regional.rxr,
-                       regional.embi_spreads,
-                       regional.embi_yields,
-                       regional.policy_rates,
-                       regional.stocks,
-                       international.gdp,
-                       international.stocks,
-                       international.policy_rates,
-                       international.long_rates,
-                       international.nxr,
-                       labor.hours,
-                       economic_activity.electricity,
-                       economic_activity.gasoline,
-                       economic_activity.diesel,
-                       economic_activity.cement,
-                       economic_activity.milk,
-                       economic_activity.cattle,
-                       income.consumer_confidence,
-                       financial_sector.sovereign_risk,
-                       income.income_household,
-                       income.income_capita,
-                       financial_sector.call_rate,
-                       financial_sector.deposits,
-                       financial_sector.credit,
-                       fiscal_accounts.tax_revenue,
-                       financial_sector.interest_rates,
-                       financial_sector.bonds,
-                       prices.cpi,
-                       fiscal_accounts.public_debt_nfps,
-                       fiscal_accounts.public_debt_gps,
-                       fiscal_accounts.public_debt_cb,
-                       fiscal_accounts.balance_gps,
-                       fiscal_accounts.balance_nfps,
-                       fiscal_accounts.balance_cg_bps,
-                       fiscal_accounts.balance_ancap,
-                       fiscal_accounts.balance_ose,
-                       fiscal_accounts.balance_ute,
-                       fiscal_accounts.balance_antel,
-                       fiscal_accounts.balance_summary,
-                       external_sector.commodity_index,
-                       labor.labor_rates,
-                       labor.nominal_wages,
-                       labor.real_wages,
-                       economic_activity.industrial_production,
-                       economic_activity.natacc_gas_con_nsa,
-                       economic_activity.natacc_gdp_cur_nsa,
-                       economic_activity.natacc_ind_con_idx_nsa,
-                       economic_activity.natacc_ind_con_nsa,
-                       economic_activity.natacc_ind_cur_nsa,
-                       economic_activity.natacc_ind_con_idx_sa,
-                       prices.nxr_daily,
-                       prices.nxr_monthly,
-                       external_sector.rxr_official,
-                       external_sector.rxr_custom,
-                       external_sector.reserves,
-                       external_sector.reserves_changes,
-                       external_sector.trade_x_dest_pri,
-                       external_sector.trade_x_dest_vol,
-                       external_sector.trade_x_dest_val,
-                       external_sector.trade_x_prod_pri,
-                       external_sector.trade_x_prod_vol,
-                       external_sector.trade_x_prod_val,
-                       external_sector.trade_m_orig_pri,
-                       external_sector.trade_m_orig_vol,
-                       external_sector.trade_m_orig_val,
-                       external_sector.trade_m_sect_pri,
-                       external_sector.trade_m_sect_vol,
-                       external_sector.trade_m_sect_val,
-                       labor.rates_people,
-                       prices.cpi_measures,
-                       external_sector.trade_balance,
-                       external_sector.terms_of_trade,
-                       economic_activity.core_industrial,
-                       fiscal_accounts.net_public_debt,
-                       partial(economic_activity._lin_gdp, only_get=False,
-                               only_get_na=True)]
-        )
+    s = Session(location=db.engine)
+    s.get_bulk("all")
+    s.get("_lin_gdp")

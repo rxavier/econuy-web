@@ -7,6 +7,7 @@ from dash import Dash
 from dash.dependencies import Input, Output
 from flask import url_for
 
+from econuy.session import Session
 from econuy import transform
 from econuy.utils import sqlutil
 
@@ -96,11 +97,11 @@ def register_callbacks(app):
     def activity(start_date, end_date):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
-
-        gdp = sqlutil.read(con=db.engine,
-                           table_name="naccounts_ind_con_idx_sa")
+        s = Session(location=db.engine, download=False)
+        s.get("natacc_ind_con_idx_sa")
+        s.chg_diff(operation="chg", period="last")
+        gdp = s.datasets["natacc_ind_con_idx_sa"]
         gdp = gdp.iloc[:, [-1]]
-        gdp = transform.chg_diff(gdp, operation="chg", period="last")
         gdp = gdp.loc[(gdp.index >= start_date) & (gdp.index <= end_date)]
 
         return generate_plot(df=gdp, chart_type=px.bar, title="Crecimiento",
@@ -113,10 +114,11 @@ def register_callbacks(app):
     def inflation(start_date, end_date):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
-
-        cpi = sqlutil.read(con=db.engine, table_name="cpi_measures")
+        s = Session(location=db.engine, download=False)
+        s.get("cpi_measures")
+        s.chg_diff(operation="chg", period="inter")
+        cpi = s.datasets["cpi_measures"]
         cpi = cpi.iloc[:, 0:4]
-        cpi = transform.chg_diff(cpi, operation="chg", period="inter")
         cpi.columns = cpi.columns.get_level_values(0).str.replace(
             "Índice de precios al consumo: ", "").str.capitalize()
         cpi = cpi.loc[(cpi.index >= start_date) & (cpi.index <= end_date)]
@@ -131,12 +133,11 @@ def register_callbacks(app):
     def fiscal(start_date, end_date):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
-
-        deficit = sqlutil.read(con=db.engine,
-                               table_name="balance_fss_gps_fssadj")
+        s = Session(location=db.engine, download=False)
+        s.get("balance_summary")
+        s.convert(flavor="gdp")
+        deficit = s.datasets["balance_summary"]
         deficit = deficit.iloc[:, [-1]]
-        deficit = transform.convert_gdp(deficit, update_loc=db.engine,
-                                        only_get=True)
         deficit = deficit.loc[(deficit.index >= start_date) &
                               (deficit.index <= end_date)]
 
@@ -150,11 +151,10 @@ def register_callbacks(app):
     def debt(start_date, end_date):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
-
-        net_debt = sqlutil.read(con=db.engine,
-                            table_name="net_public_debt")
-        net_debt = transform.convert_gdp(net_debt, update_loc=db.engine,
-                                         only_get=True)
+        s = Session(location=db.engine, download=False)
+        s.get("net_public_debt")
+        s.convert(flavor="gdp")
+        net_debt = s.datasets["net_public_debt"]
         net_debt = net_debt.loc[(net_debt.index >= start_date) &
                                 (net_debt.index <= end_date)]
 
@@ -168,13 +168,12 @@ def register_callbacks(app):
     def trade(start_date, end_date):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
-
-        exports = sqlutil.read(con=db.engine,
-                               table_name="trade_x_dest_val")
-        imports = sqlutil.read(con=db.engine,
-                               table_name="trade_m_orig_val")
-        x_m = pd.concat([exports.iloc[:, [0]], imports.iloc[:, [0]]], axis=1)
-        x_m = transform.rolling(x_m, window=12, operation="sum")
+        s = Session(location=db.engine, download=False)
+        s.get(["trade_x_dest_val", "trade_m_orig_val"])
+        s.rolling(window=12, operation="sum")
+        x, m = s.datasets["trade_x_dest_val"], s.datasets["trade_m_orig_val"]
+        x_m = pd.concat([x.iloc[:, [0]], m.iloc[:, [0]]], axis=1)
+        x_m = x_m.loc[:, ["Total exportaciones", "Total importaciones"]]
         x_m.columns = ["Exportaciones", "Importaciones"]
         x_m = x_m.loc[(x_m.index >= start_date) & (x_m.index <= end_date)]
 
@@ -188,9 +187,9 @@ def register_callbacks(app):
     def nxr(start_date, end_date):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
-
-        interbank = sqlutil.read(con=db.engine,
-                           table_name="nxr_daily")
+        s = Session(location=db.engine, download=False)
+        s.get("nxr_daily")
+        interbank = s.datasets["nxr_daily"]
         interbank = interbank.loc[(interbank.index >= start_date) &
                                   (interbank.index <= end_date)]
 
@@ -205,17 +204,17 @@ def register_callbacks(app):
     def emp_unemp(start_date, end_date):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
-
-        labor = sqlutil.read(con=db.engine,
-                             table_name="rates_people")
-        labor = labor.iloc[:, 0:3]
-        labor_decomp = transform.decompose(labor, component="trend",
-                                           method="x13")
-        emp = pd.concat([labor.iloc[:, [0]],
-                         labor_decomp.iloc[:, [0]]], axis=1)
+        s = Session(location=db.engine, download=False)
+        s.get(["labor_rates_people"])
+        s._datasets["labor_rates_people"] = s._datasets["labor_rates_people"].iloc[:, 0:3]
+        orig = s.datasets["labor_rates_people"]
+        s.decompose(component="trend", method="x13")
+        decomp = s.datasets["labor_rates_people"]
+        emp = pd.concat([orig.iloc[:, [0]],
+                         decomp.iloc[:, [0]]], axis=1)
         emp.columns = ["Empleo", "Empleo tendencia-ciclo"]
-        unemp = pd.concat([labor.iloc[:, [2]],
-                           labor_decomp.iloc[:, [2]]], axis=1)
+        unemp = pd.concat([orig.iloc[:, [2]],
+                           decomp.iloc[:, [2]]], axis=1)
         unemp.columns = ["Desempleo", "Desempleo tendencia-ciclo"]
         emp = emp.loc[(emp.index >= start_date) & (emp.index <= end_date)]
         unemp = unemp.loc[(unemp.index >= start_date) &
