@@ -96,10 +96,9 @@ def register_callbacks(app):
         start_date = start_date or "2010-01-01"
         end_date = end_date or "2100-01-01"
         s = Session(location=db.engine, download=False)
-        s.get("natacc_ind_con_idx_sa")
+        s.get("gdp_con_idx_sa")
         s.chg_diff(operation="chg", period="last")
-        gdp = s.datasets["natacc_ind_con_idx_sa"]
-        gdp = gdp.iloc[:, [-1]]
+        gdp = s.datasets["gdp_con_idx_sa"]
         gdp = gdp.loc[(gdp.index >= start_date) & (gdp.index <= end_date)]
 
         return generate_plot(df=gdp, chart_type=px.bar, title="Crecimiento",
