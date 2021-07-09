@@ -14,7 +14,7 @@ dash-html-components==1.0.3
 dash-renderer==1.5.1
 dash-table==4.8.1
 dominate==2.6.0
--e git+https://github.com/rxavier/econuy.git@5a0e3406c7e597c3a2432aef09f5235e76679ca4#egg=econuy
+-e git+https://github.com/rxavier/econuy.git@3b23e606b880bdc516bc308c3962e6d303837c1c#egg=econuy
 et-xmlfile==1.1.0
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1
@@ -25,7 +25,7 @@ future==0.18.2
 gunicorn==20.0.4
 html5lib==1.1
 idna==2.10
-importlib-metadata==4.6.0
+importlib-metadata==4.6.1
 itsdangerous==2.0.1
 jdcal==1.4.1
 Jinja2==3.0.1
@@ -36,11 +36,11 @@ matplotlib==3.4.2
 numpy==1.17.4
 openpyxl==3.0.7
 opnieuw==1.1.0
-packaging==20.9
+packaging==21.0
 pandas==1.2.3
 patool==1.12
 patsy==0.5.1
-Pillow==8.3.0
+Pillow==8.3.1
 plotly==5.1.0
 psycopg2==2.8.5
 pyparsing==2.4.7
@@ -54,7 +54,7 @@ six==1.16.0
 soupsieve==2.2.1
 SQLAlchemy==1.3.16
 statsmodels==0.12.0
-tenacity==7.0.0
+tenacity==8.0.0
 typing-extensions==3.10.0.0
 urllib3==1.26.6
 visitor==0.1.3
