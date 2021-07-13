@@ -2,12 +2,11 @@
 
 {% block head %}
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
-      rel="stylesheet">
-<link rel="icon" type="image/png"
-      href="{{ url_for('static', filename='custom-icon.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='custom-icon.png') }}">
 <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.png') }}">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
@@ -26,7 +25,8 @@
 <meta property="og:url" content="https://econ.uy/">
 <meta property="og:title" content="econuy | Economía uruguaya para gente sin tiempo">
 <meta property="og:image" content="{{ url_for('static', filename='cards.jpg') }}">
-<meta property="og:description" content="econuy permite la visualización y descarga de estadísticas de la economía uruguaya.">
+<meta property="og:description"
+    content="econuy permite la visualización y descarga de estadísticas de la economía uruguaya.">
 <meta property="og:site_name" content="econuy">
 <meta property="og:locale" content="es_US">
 <meta property="og:image:width" content="1200">
@@ -37,7 +37,8 @@
 <meta name="twitter:creator" content="@_rxavier_">
 <meta name="twitter:url" content="https://econ.uy">
 <meta name="twitter:title" content="econuy | Economía uruguaya para gente sin tiempo">
-<meta name="twitter:description" content="econuy permite la visualización y descarga de estadísticas de la economía uruguaya.">
+<meta name="twitter:description"
+    content="econuy permite la visualización y descarga de estadísticas de la economía uruguaya.">
 <meta name="twitter:image" content="{{ url_for('static', filename='cards.jpg') }}">
 
 <link rel="dns-prefetch" href="https://twitter.com/econ_uy">
@@ -46,67 +47,74 @@
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-CYNBM12GS9"></script>
 <script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-gtag('config', 'G-CYNBM12GS9');
+    gtag('config', 'G-CYNBM12GS9');
 </script>
 {% endblock %}
 
 {% block body %}
-<body style="font-family: 'Roboto', sans-serif; margin-left: 5%; margin-right: 5%; margin-top: 1%">
-<a id="top"></a>
 
-<script>
-$(document).ready(function(){
-  $('[data-toggle="tooltip"]').tooltip();
-});
-</script>
+<body style="margin-top: 1%;margin-left:1%;margin-right:1%;margin-bottom:1%">
+    <a id="top"></a>
 
-{% block navbar %}
-<div>
-    <p><a href="{{ url_for('landing') }}">
-        <img src="{{url_for('static', filename='logo.png')}}" width=250></a></p>
-</div>
-<p>
-    <a href="{{ url_for('landing') }}" style='margin-right: 1%'>Inicio</a>
-    <a href="{{ url_for('about') }}" style='margin-left: 1%; margin-right: 1%'>Sobre</a>
-    <a href="https://twitter.com/econ_uy" style='margin-left: 1%; margin-right: 1%'>Novedades</a>
-    <a href="https://github.com/rxavier/econuy" style='margin-left: 1%'>Github</a>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
 
-</p>
-<hr>
-{% endblock %}
+    {% block navbar %}
+    <div class="container">
+        <div class="row mb-2">
+            <div class="col">
+                <a href="{{ url_for('landing') }}">
+                    <img src="{{url_for('static', filename='logo.png')}}" width=20% class="mx-auto d-block"></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 d-flex justify-content-center"> <a href="{{ url_for('landing') }}">Inicio</a></div>
+            <div class="col-3 d-flex justify-content-center"> <a href="{{ url_for('about') }}">Sobre</a></div>
+            <div class="col-3 d-flex justify-content-center"> <a href="https://twitter.com/econ_uy">Novedades</a></div>
+            <div class="col-3 d-flex justify-content-center"> <a href="https://github.com/rxavier/econuy">Github</a>
+            </div>
+        </div>
+    </div>
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-{% endwith %}
-
-{% block content %}
-{% endblock %}
-
-{% block footer %}
-<footer>
     <hr>
-    <p style="text-align:left;font-size:14px">
-        Si usás datos de econuy, considerá citar la web
-        (<a href="https://econ.uy">econ.uy</a>)
+    {% endblock %}
 
-    </p>
-    <p style="text-align:left;font-size:14px">Creado por
-        <a href="https://twitter.com/_rxavier_">Rafael Xavier</a>, 2020
-        <span style="float:right;font-size:14px">
-            <a href="#top" style="text-align:right;font-size:14px">Subir</a>
-    </span></p>
-</footer>
-{% endblock %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}
+    {% endblock %}
+
+    {% block footer %}
+    <footer>
+        <hr>
+        <p style="text-align:left;font-size:14px">
+            Si usás datos de econuy, considerá citar la web
+            (<a href="https://econ.uy">econ.uy</a>)
+
+        </p>
+        <p style="text-align:left;font-size:14px">
+            <a href="https://twitter.com/_rxavier_">Rafael Xavier</a>, 2021
+            <span style="float:right;font-size:14px">
+                <a href="#top" style="text-align:right;font-size:14px">Subir</a>
+            </span>
+        </p>
+    </footer>
+    {% endblock %}
 
 </body>
 {% endblock %}

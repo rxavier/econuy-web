@@ -20,11 +20,12 @@ from flask import (url_for, send_file, request, flash,
                    current_app, send_from_directory)
 from sqlalchemy.exc import ProgrammingError
 
+from econuy.core import Pipeline
 from econuy import transform
 from econuy_web.app_strings import table_options
 from econuy.utils import sqlutil, metadata
 
-external_stylesheets = [dbc.themes.FLATLY]
+external_stylesheets = [dbc.themes.BOOTSTRAP]
 
 url_base = "/dash/viz/"
 
@@ -32,20 +33,21 @@ url_base = "/dash/viz/"
 def add_dash(server):
     app = Dash(server=server, url_base_pathname=url_base,
                external_stylesheets=external_stylesheets)
-    app.layout = html.Div([html.H1("Visualización interactiva"),
+    app.layout = html.Div([html.H1("Visualizador"),
+                           html.Br(),
                            dbc.Button("Agregar conjunto de indicadores",
                                       id="add-indicator",
-                                      n_clicks=0,
-                                      color="primary"),
+                                      n_clicks=0, color="info"),
                            html.Br(), html.Br(),
-                           html.Div(id="indicator-container",
+                           dbc.Tabs(id="indicator-container",
                                     children=[]),
                            html.Br(),
                            html.Div(
                                id="chart-type-container",
                                children=[
-                                   html.P("Tipo de visualización",
-                                          style={"display": "inline-block"}),
+                                   html.Span("Tipo de visualización",
+                                          style={"display": "inline-block",
+                                                 "font-weight": "500"}),
                                    dbc.RadioItems(
                                        id="chart-type",
                                        options=[{"label": "Líneas",
@@ -62,11 +64,13 @@ def add_dash(server):
                                                  "value": "table"}],
                                        value="line",
                                        inline=True,
-                                       style={"margin-left": "10px"})]),
+                                       style={"display": "inline-block",
+                                              "margin-left": "10px"})]),
                            html.Div(style={"height": "5px"}),
                            html.Div(id="date-range-container",
                                     children=[
-                                        "Filtrar fechas",
+                                        html.Span("Filtrar fechas",
+                                                 style={"font-weight": "500"}),
                                         html.Div(
                                             dcc.DatePickerRange(
                                                 id="date-picker",
@@ -88,20 +92,17 @@ def add_dash(server):
                            html.Br(),
                            dbc.Button("Actualizar consulta",
                                       id="submit",
-                                      color="dark",
                                       style={
                                           "display": "inline-block",
                                           "margin": "10px"}),
                            html.Div([html.A(
                                dbc.Button("Exportar a Excel",
-                                          id="download-button",
-                                          color="dark"),
+                                          id="download-button"),
                                id="download-link",
                                style={"display": "none"}),
                                html.A(
                                    dbc.Button("Exportar a HTML",
-                                              id="download-html-button",
-                                              color="dark"),
+                                              id="download-html-button"),
                                    id="download-html-link",
                                    style={"display": "none"})]),
                            html.Div(
@@ -113,8 +114,7 @@ def add_dash(server):
                            html.Br(),
                            dbc.Button("Desplegar metadatos",
                                       id="metadata-button",
-                                      style={"display": "none"},
-                                      color="dark"),
+                                      style={"display": "none"}),
                            html.Br(),
                            html.Div(id="metadata", children=[]),
                            dbc.Toast(children=[], id="update-toast",
@@ -318,23 +318,22 @@ def register_callbacks(app):
                                "seas": seas}.items()}
             arr_orders = define_order(submit_order, all_transforms)
             arr_orders_s.append(arr_orders)
+            p = Pipeline(location=db.engine, download=False)
             function_dict = {
-                "usd": lambda x: transform.convert_usd(x, update_loc=db.engine,
-                                                       only_get=True,
+                "usd": lambda x: transform.convert_usd(x, pipeline=p,
                                                        errors="ignore"),
                 "real": lambda x: transform.convert_real(
-                    x, update_loc=db.engine, only_get=True,
+                    x, pipeline=p,
                     start_date=real_start,
                     end_date=real_end, errors="ignore"),
-                "gdp": lambda x: transform.convert_gdp(x, update_loc=db.engine,
-                                                       only_get=True,
+                "gdp": lambda x: transform.convert_gdp(x, pipeline=p,
                                                        errors="ignore"),
                 "res": lambda x: transform.resample(
-                    x, rule=resample_frequency, 
+                    x, rule=resample_frequency,
                     operation=resample_operation
                 ),
                 "roll": lambda x: transform.rolling(
-                    x, window=rolling_periods, 
+                    x, window=rolling_periods,
                     operation=rolling_operations
                 ),
                 "rebase": lambda x: transform.rebase(
@@ -347,7 +346,7 @@ def register_callbacks(app):
                 "seas": lambda x: transform.decompose(x,
                                                       component=seas_type,
                                                       method=seas_method,
-                                                      force_x13=True, 
+                                                      force_x13=True,
                                                       errors="ignore")
             }
 
@@ -429,7 +428,7 @@ def register_callbacks(app):
                 ylabels = ylabels[0]
             else:
                 ylabels = ""
-            fig.update_layout({"margin": {"l": 0, "r": 15},
+            fig.update_layout({"margin": {"l": 0, "r": 30},
                                "legend": {"orientation": "h", "yanchor": "top",
                                           "y": -0.1, "xanchor": "left",
                                           "x": 0},
@@ -558,8 +557,7 @@ def register_callbacks(app):
                                    optionHeight=50, multi=True,
                                    disabled=True)],
             type="default")
-
-        usd = html.Div(children=[
+        row_1 = dbc.Row([dbc.Col(html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
@@ -568,13 +566,14 @@ def register_callbacks(app):
                     options=[
                         {"label": "Convertir a dólares",
                          "value": True}], value=[],
-                    inputStyle={"margin-right": "10px"})]),
+                    inputStyle={"margin-right": "10px"},
+                    labelStyle={"font-weight": "500"})]),
             order_dropdown(number="1", n_clicks=n_clicks),
             details("Las selecciones de *orden* definen qué "
                     "transformación se aplica en qué orden, siendo "
-                    "*orden=1* la primera")])
+                    "*orden=1* la primera")])),
 
-        real = html.Div(children=[
+                        dbc.Col(html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
@@ -582,7 +581,8 @@ def register_callbacks(app):
                     "index": n_clicks
                 }, options=[{"label": "Deflactar",
                              "value": True}], value=[],
-                    inputStyle={"margin-right": "10px"})]),
+                    inputStyle={"margin-right": "10px"},
+                    labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.DatePickerRange(id={
@@ -590,16 +590,16 @@ def register_callbacks(app):
                          "index": n_clicks},
                          start_date_placeholder_text="Fecha inicial",
                          end_date_placeholder_text="Fecha final",
-                         display_format="DD-MM-YYYY", disabled=True)]),
+                         display_format="DD-MM-YYYY")]),
             order_dropdown(number="2", n_clicks=n_clicks),
             details(
                 "Es posible deflactar a) definiendo solo la fecha de inicio "
                 "para que los datos queden expresados a precios de ese mes, b)"
                 " definiendo ambas para que los datos queden expresados a "
                 "precios promedio de ese rango de meses, c) sin definir "
-                "fechas.")])
+                "fechas.")]))])
 
-        gdp = html.Div(children=[
+        row_2 = dbc.Row([dbc.Col(html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
@@ -608,10 +608,10 @@ def register_callbacks(app):
                     options=[
                         {"label": "Convertir a % del PBI",
                          "value": True}], value=[],
-                    inputStyle={"margin-right": "10px"})]),
-            order_dropdown(number="3", n_clicks=n_clicks)])
-
-        res = html.Div(children=[
+                    inputStyle={"margin-right": "10px"},
+                    labelStyle={"font-weight": "500"})]),
+            order_dropdown(number="3", n_clicks=n_clicks)])),
+                         dbc.Col(html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
@@ -619,7 +619,8 @@ def register_callbacks(app):
                     "index": n_clicks
                 }, options=[{"label": "Cambiar frecuencia",
                              "value": True}], value=[],
-                    inputStyle={"margin-right": "10px"})]),
+                    inputStyle={"margin-right": "10px"},
+                    labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -631,7 +632,7 @@ def register_callbacks(app):
                                  {"label": "14 días", "value": "2W"},
                                  {"label": "Semanal", "value": "W"}],
                          placeholder="Frecuencia", style={"width": "150px"},
-                         searchable=False, disabled=True)]),
+                         searchable=False)]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -647,10 +648,10 @@ def register_callbacks(app):
                          {"label": "Aumentar frecuencia",
                           "value": "upsample"}],
                          placeholder="Método", style={"width": "300px"},
-                         searchable=False, disabled=True)]),
-            order_dropdown(number="4", n_clicks=n_clicks)])
+                         searchable=False)]),
+            order_dropdown(number="4", n_clicks=n_clicks)]))])
 
-        roll = html.Div(children=[
+        row_3 = dbc.Row([dbc.Col(html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
@@ -658,14 +659,15 @@ def register_callbacks(app):
                     "index": n_clicks
                 }, options=[{"label": "Acumular",
                              "value": True}], value=[],
-                    inputStyle={"margin-right": "10px"})]),
+                    inputStyle={"margin-right": "10px"},
+                    labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dbc.Input(id={
                          "type": "rolling-periods",
                          "index": n_clicks
                      }, type="number", placeholder="Períodos",
-                         style={"width": "100px"}, disabled=True,
+                         style={"width": "100px"},
                          debounce=True)]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
@@ -675,10 +677,9 @@ def register_callbacks(app):
                      }, options=[{"label": "Suma", "value": "sum"},
                                  {"label": "Promedio", "value": "mean"}],
                          placeholder="Operación", style={"width": "120px"},
-                         searchable=False, disabled=True)]),
-            order_dropdown(number="5", n_clicks=n_clicks)])
-
-        rebase = html.Div(children=[
+                         searchable=False)]),
+            order_dropdown(number="5", n_clicks=n_clicks)])),
+                         dbc.Col(html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
@@ -686,7 +687,8 @@ def register_callbacks(app):
                     "index": n_clicks
                 }, options=[{"label": "Calcular índice base",
                              "value": True}], value=[],
-                    inputStyle={"margin-right": "10px"})]),
+                    inputStyle={"margin-right": "10px"},
+                    labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.DatePickerRange(id={
@@ -694,23 +696,23 @@ def register_callbacks(app):
                          "index": n_clicks},
                          start_date_placeholder_text="Fecha inicial",
                          end_date_placeholder_text="Fecha final",
-                         display_format="DD-MM-YYYY", disabled=True)]),
+                         display_format="DD-MM-YYYY")]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dbc.Input(id={
                          "type": "base-base",
                          "index": n_clicks
                      }, type="number", placeholder="Valor base",
-                         style={"width": "150px"}, disabled=True,
+                         style={"width": "150px"},
                          debounce=True)]),
             order_dropdown(number="6", n_clicks=n_clicks),
             details(
                 "La fecha final es opcional, en cuyo caso el índice será "
                 "*valor de fecha inicial=valor base*. Si se define fecha "
                 "final, el índice será *promedio de valores entre fecha "
-                "inicial y fecha final=valor base*.")])
+                "inicial y fecha final=valor base*.")]))])
 
-        chg_diff = html.Div(children=[
+        row_4 = dbc.Row([dbc.Col(html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
@@ -718,7 +720,8 @@ def register_callbacks(app):
                     "index": n_clicks
                 }, options=[{"label": "Calcular variaciones o diferencias",
                              "value": True}], value=[],
-                    inputStyle={"margin-right": "10px"})]),
+                    inputStyle={"margin-right": "10px"},
+                    labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -728,7 +731,7 @@ def register_callbacks(app):
                          {"label": "Variación porcentual", "value": "chg"},
                          {"label": "Diferencia", "value": "diff"}],
                          placeholder="Tipo", style={"width": "200px"},
-                         searchable=False, disabled=True)]),
+                         searchable=False)]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -738,10 +741,9 @@ def register_callbacks(app):
                                  {"label": "Interanual", "value": "inter"},
                                  {"label": "Anual", "value": "annual"}],
                          placeholder="Operación", style={"width": "150px"},
-                         searchable=False, disabled=True)]),
-            order_dropdown(number="7", n_clicks=n_clicks)])
-
-        seas = html.Div(children=[
+                         searchable=False)]),
+            order_dropdown(number="7", n_clicks=n_clicks)])),
+                         dbc.Col(html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
                 children=[dcc.Checklist(id={
@@ -749,7 +751,8 @@ def register_callbacks(app):
                     "index": n_clicks
                 }, options=[{"label": "Desestacionalizar",
                              "value": True}], value=[],
-                    inputStyle={"margin-right": "10px"})]),
+                    inputStyle={"margin-right": "10px"},
+                    labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -759,7 +762,7 @@ def register_callbacks(app):
                                  {"label": "Medias móviles", "value": "ma"},
                                  {"label": "X13 ARIMA", "value": "x13"}],
                          placeholder="Método", style={"width": "200px"},
-                         searchable=False, disabled=True)]),
+                         searchable=False)]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dcc.Dropdown(id={
@@ -769,74 +772,23 @@ def register_callbacks(app):
                          {"label": "Desestacionalizado", "value": "seas"},
                          {"label": "Tendencia-ciclo", "value": "trend"}],
                          placeholder="Componente", style={"width": "200px"},
-                         searchable=False, disabled=True)]),
+                         searchable=False)]),
             order_dropdown(number="8", n_clicks=n_clicks),
             details("El procesamiento con el método X13 ARIMA puede demorar "
                     "dependiendo del tipo y largo de series en la tabla "
                     "seleccionada. En algunos casos la consulta puede ser "
-                    "terminada.")])
+                    "terminada.")]))])
 
-        complete_div = html.Div(children=[table_dropdown, short_br,
-                                          indicator_dropdown, html.Br(), usd,
-                                          short_br, real, short_br, gdp,
-                                          short_br, res, short_br, roll,
-                                          short_br, rebase, short_br,
-                                          chg_diff, short_br, seas, html.Br()],
-                                id={"type": "complete-div", "index": n_clicks})
-        hide_button = dbc.Button("Colapsar conjunto de indicadores", id={
-            "type": "hide-button",
-            "index": n_clicks}, style={"display": "block"}, color="dark")
-        children.extend([hide_button, complete_div])
+        complete_div = dbc.Tab(children=[table_dropdown, short_br,
+                                          indicator_dropdown, html.Br(), row_1,
+                                          short_br, row_2, short_br, row_3,
+                                          short_br, row_4],
+                                id={"type": "complete-div", "index": n_clicks},
+                                label=f"Conjunto #{n_clicks + 1}",
+                                activeLabelClassName="btn btn-primary")
+        children.append(complete_div)
         return children
 
-    @app.callback(
-        [Output({"type": "order-1", "index": MATCH}, "disabled"),
-         Output({"type": "real-range", "index": MATCH}, "disabled"),
-         Output({"type": "order-2", "index": MATCH}, "disabled"),
-         Output({"type": "order-3", "index": MATCH}, "disabled"),
-         Output({"type": "resample-frequency", "index": MATCH}, "disabled"),
-         Output({"type": "resample-operation", "index": MATCH}, "disabled"),
-         Output({"type": "order-4", "index": MATCH}, "disabled"),
-         Output({"type": "rolling-periods", "index": MATCH}, "disabled"),
-         Output({"type": "rolling-operation", "index": MATCH}, "disabled"),
-         Output({"type": "order-5", "index": MATCH}, "disabled"),
-         Output({"type": "base-range", "index": MATCH}, "disabled"),
-         Output({"type": "base-base", "index": MATCH}, "disabled"),
-         Output({"type": "order-6", "index": MATCH}, "disabled"),
-         Output({"type": "chg-diff-operation", "index": MATCH}, "disabled"),
-         Output({"type": "chg-diff-period", "index": MATCH}, "disabled"),
-         Output({"type": "order-7", "index": MATCH}, "disabled"),
-         Output({"type": "seas-method", "index": MATCH}, "disabled"),
-         Output({"type": "seas-type", "index": MATCH}, "disabled"),
-         Output({"type": "order-8", "index": MATCH}, "disabled")],
-        [Input({"type": "usd-check", "index": MATCH}, "value"),
-         Input({"type": "real-check", "index": MATCH}, "value"),
-         Input({"type": "gdp-check", "index": MATCH}, "value"),
-         Input({"type": "resample-check", "index": MATCH}, "value"),
-         Input({"type": "rolling-check", "index": MATCH}, "value"),
-         Input({"type": "base-check", "index": MATCH}, "value"),
-         Input({"type": "chg-diff-check", "index": MATCH}, "value"),
-         Input({"type": "seas-check", "index": MATCH}, "value")])
-    def enable_options(usd, real, gdp, resample, rolling,
-                       base, chg_diff, seas):
-        outputs = [True] * 19
-        if True in usd:
-            outputs[0] = False
-        if True in real:
-            outputs[1], outputs[2] = False, False
-        if True in gdp:
-            outputs[3] = False
-        if True in resample:
-            outputs[4], outputs[5], outputs[6] = False, False, False
-        if True in rolling:
-            outputs[7], outputs[8], outputs[9] = False, False, False
-        if True in base:
-            outputs[10], outputs[11], outputs[12] = False, False, False
-        if True in chg_diff:
-            outputs[13], outputs[14], outputs[15] = False, False, False
-        if True in seas:
-            outputs[16], outputs[17], outputs[18] = False, False, False
-        return outputs
 
     @app.callback(
         [Output({"type": "indicator-dropdown", "index": MATCH}, "options"),
@@ -850,17 +802,6 @@ def register_callbacks(app):
         return ([{"label": "Todos los indicadores", "value": "*"}]
                 + [{"label": v, "value": v} for v in columns]), False
 
-    @app.callback(
-        [Output({"type": "complete-div", "index": MATCH}, "style"),
-         Output({"type": "hide-button", "index": MATCH}, "children")],
-        [Input({"type": "hide-button", "index": MATCH}, "n_clicks")])
-    def toggle_hide_indicators(n_clicks):
-        if n_clicks is None:
-            return {"display": "block"}, "Colapsar conjunto de indicadores"
-        elif n_clicks % 2 != 0:
-            return {"display": "none"}, "Mostrar conjunto de indicadores"
-        else:
-            return {"display": "block"}, "Colapsar conjunto de indicadores"
 
     @app.callback(
         [Output("metadata", "style"),
@@ -920,7 +861,7 @@ def order_dropdown(number: str, n_clicks):
                 options=[{"label": i, "value": i} for i in range(1, 9)],
                 placeholder="Orden", clearable=False,
                 style={"width": "100px"},
-                searchable=False, disabled=True),
+                searchable=False),
                 style={"display": "inline-block",
                        "vertical-align": "middle"})])
 

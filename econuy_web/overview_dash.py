@@ -18,7 +18,7 @@ def add_dash(server):
     app = Dash(server=server, url_base_pathname=url_base,
                external_stylesheets=external_stylesheets)
     app.layout = html.Div([
-        html.H1("Economía uruguaya de un vistazo"),
+        html.H1("Monitor"),
         html.Br(),
         html.Div(dcc.DatePickerRange(id="dates",
                                      start_date_placeholder_text="Fecha inicial",
