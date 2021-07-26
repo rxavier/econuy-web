@@ -32,12 +32,15 @@ url_base = "/dash/viz/"
 
 def add_dash(server):
     app = Dash(server=server, url_base_pathname=url_base,
-               external_stylesheets=external_stylesheets)
+               external_stylesheets=external_stylesheets,
+               meta_tags=[
+        {"name": "viewport", "content": "width=device-width, initial-scale=1"},
+    ])
     app.layout = html.Div([html.H1("Visualizador"),
                            html.Br(),
                            dbc.Button("Agregar conjunto de indicadores",
                                       id="add-indicator",
-                                      n_clicks=0, color="info"),
+                                      n_clicks=0, color="primary"),
                            html.Br(), html.Br(),
                            dbc.Tabs(id="indicator-container",
                                     children=[]),
@@ -79,7 +82,8 @@ def add_dash(server):
                                                 display_format="DD-MM-YYYY"),
                                             style={
                                                 "display": "inline-block",
-                                                "margin-left": "10px"})]),
+                                                "margin-left": "10px"},
+                                            className="dash-bootstrap")]),
                            html.Div(
                                [html.Br(),
                                 dbc.Input(placeholder="Título del gráfico",
@@ -93,27 +97,26 @@ def add_dash(server):
                            dbc.Button("Actualizar consulta",
                                       id="submit",
                                       style={
-                                          "display": "inline-block",
-                                          "margin": "10px"}),
-                           html.Div([html.A(
-                               dbc.Button("Exportar a Excel",
-                                          id="download-button"),
-                               id="download-link",
-                               style={"display": "none"}),
-                               html.A(
-                                   dbc.Button("Exportar a HTML",
-                                              id="download-html-button"),
-                                   id="download-html-link",
-                                   style={"display": "none"})]),
+                                          "display": "inline-block"}, color="primary"),
                            html.Div(
                                className="loader-wrapper",
                                children=[dcc.Loading(
                                    html.Div(id="viz-container", children=[])
                                )]
                            ),
+                           html.Div([html.A(
+                               dbc.Button("Exportar a Excel",
+                                          id="download-button", color="primary"),
+                               id="download-link",
+                               style={"display": "none"}),
+                               html.A(
+                                   dbc.Button("Exportar a HTML",
+                                              id="download-html-button", color="primary"),
+                                   id="download-html-link",
+                                   style={"display": "none"})]),
                            html.Br(),
                            dbc.Button("Desplegar metadatos",
-                                      id="metadata-button",
+                                      id="metadata-button", color="primary",
                                       style={"display": "none"}),
                            html.Br(),
                            html.Div(id="metadata", children=[]),
@@ -299,9 +302,9 @@ def register_callbacks(app):
                 table_text = f"{trimmed_table}_"
             else:
                 table_text = ""
-            df_aux.columns.set_levels(table_text
+            df_aux.columns = df_aux.columns.set_levels(table_text
                                       + df_aux.columns.levels[0],
-                                      level=0, inplace=True)
+                                      level=0)
             orders = [order_1, order_2, order_3, order_4, order_5,
                       order_6, order_7, order_8]
             for i in range(len(orders)):
@@ -525,8 +528,7 @@ def register_callbacks(app):
             sqlutil.df_to_sql(df, name=export_name,
                               con=db.get_engine(bind="queries"))
         return (viz,
-                {"display": "block"}, notes, href, {"display": "inline-block",
-                                                    "margin": "10px"},
+                {"display": "block"}, notes, href, {"display": "inline-block"},
                 html_href, html_style,
                 True, "success", html.P("Visualización actualizada👇",
                                         className="mb-0"))
@@ -541,21 +543,21 @@ def register_callbacks(app):
         options = [{"label": v, "value": k} if "-----" not in v
                    else {"label": v, "value": k, "disabled": True}
                    for k, v in table_options.items()]
-        table_dropdown = dcc.Dropdown(id={
+        table_dropdown = html.Div(dcc.Dropdown(id={
             "type": "table-dropdown",
             "index": n_clicks
         },
             options=options,
             placeholder="Seleccionar cuadro", optionHeight=50
-        )
+        ), className="dash-bootstrap")
 
         indicator_dropdown = dcc.Loading(
             id="indicator-loading",
-            children=[dcc.Dropdown(id={"type": "indicator-dropdown",
+            children=[html.Div(dcc.Dropdown(id={"type": "indicator-dropdown",
                                        "index": n_clicks},
                                    placeholder="Seleccionar indicador",
                                    optionHeight=50, multi=True,
-                                   disabled=True)],
+                                   disabled=True), className="dash-bootstrap")],
             type="default")
         row_1 = dbc.Row([dbc.Col(html.Div(children=[
             html.Div(
@@ -585,12 +587,12 @@ def register_callbacks(app):
                     labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.DatePickerRange(id={
+                     children=[html.Div(dcc.DatePickerRange(id={
                          "type": "real-range",
                          "index": n_clicks},
                          start_date_placeholder_text="Fecha inicial",
                          end_date_placeholder_text="Fecha final",
-                         display_format="DD-MM-YYYY")]),
+                         display_format="DD-MM-YYYY"), className="dash-bootstrap")]),
             order_dropdown(number="2", n_clicks=n_clicks),
             details(
                 "Es posible deflactar a) definiendo solo la fecha de inicio "
@@ -602,7 +604,7 @@ def register_callbacks(app):
         row_2 = dbc.Row([dbc.Col(html.Div(children=[
             html.Div(
                 style={"vertical-align": "middle"},
-                children=[dcc.Checklist(id={
+                children=[  dcc.Checklist(id={
                     "type": "gdp-check",
                     "index": n_clicks},
                     options=[
@@ -623,7 +625,7 @@ def register_callbacks(app):
                     labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.Dropdown(id={
+                     children=[html.Div(dcc.Dropdown(id={
                          "type": "resample-frequency",
                          "index": n_clicks
                      }, options=[{"label": "Anual", "value": "A-DEC"},
@@ -632,23 +634,23 @@ def register_callbacks(app):
                                  {"label": "14 días", "value": "2W"},
                                  {"label": "Semanal", "value": "W"}],
                          placeholder="Frecuencia", style={"width": "150px"},
-                         searchable=False)]),
+                         searchable=False), className="dash-bootstrap")]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.Dropdown(id={
+                     children=[html.Div(dcc.Dropdown(id={
                          "type": "resample-operation",
                          "index": n_clicks
                      }, options=[
-                         {"label": "Reducir frecuencia: promedio",
+                         {"label": "Reducir: promedio",
                           "value": "mean"},
-                         {"label": "Reducir frecuencia: suma",
+                         {"label": "Reducir: suma",
                           "value": "sum"},
-                         {"label": "Reducir frecuencia: último período",
+                         {"label": "Reducir: último período",
                           "value": "last"},
-                         {"label": "Aumentar frecuencia",
+                         {"label": "Aumentar",
                           "value": "upsample"}],
-                         placeholder="Método", style={"width": "300px"},
-                         searchable=False)]),
+                         placeholder="Método", style={"width": "200px"},
+                         searchable=False), className="dash-bootstrap")]),
             order_dropdown(number="4", n_clicks=n_clicks)]))])
 
         row_3 = dbc.Row([dbc.Col(html.Div(children=[
@@ -671,13 +673,13 @@ def register_callbacks(app):
                          debounce=True)]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.Dropdown(id={
+                     children=[html.Div(dcc.Dropdown(id={
                          "type": "rolling-operation",
                          "index": n_clicks
                      }, options=[{"label": "Suma", "value": "sum"},
                                  {"label": "Promedio", "value": "mean"}],
                          placeholder="Operación", style={"width": "120px"},
-                         searchable=False)]),
+                         searchable=False), className="dash-bootstrap")]),
             order_dropdown(number="5", n_clicks=n_clicks)])),
                          dbc.Col(html.Div(children=[
             html.Div(
@@ -691,12 +693,12 @@ def register_callbacks(app):
                     labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.DatePickerRange(id={
+                     children=[html.Div(dcc.DatePickerRange(id={
                          "type": "base-range",
                          "index": n_clicks},
                          start_date_placeholder_text="Fecha inicial",
                          end_date_placeholder_text="Fecha final",
-                         display_format="DD-MM-YYYY")]),
+                         display_format="DD-MM-YYYY"), className="dash-bootstrap")]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
                      children=[dbc.Input(id={
@@ -724,24 +726,24 @@ def register_callbacks(app):
                     labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.Dropdown(id={
+                     children=[html.Div(dcc.Dropdown(id={
                          "type": "chg-diff-operation",
                          "index": n_clicks
                      }, options=[
                          {"label": "Variación porcentual", "value": "chg"},
                          {"label": "Diferencia", "value": "diff"}],
                          placeholder="Tipo", style={"width": "200px"},
-                         searchable=False)]),
+                         searchable=False), className="dash-bootstrap")]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.Dropdown(id={
+                     children=[html.Div(dcc.Dropdown(id={
                          "type": "chg-diff-period",
                          "index": n_clicks
                      }, options=[{"label": "Último período", "value": "last"},
                                  {"label": "Interanual", "value": "inter"},
                                  {"label": "Anual", "value": "annual"}],
                          placeholder="Operación", style={"width": "150px"},
-                         searchable=False)]),
+                         searchable=False), className="dash-bootstrap")]),
             order_dropdown(number="7", n_clicks=n_clicks)])),
                          dbc.Col(html.Div(children=[
             html.Div(
@@ -755,24 +757,24 @@ def register_callbacks(app):
                     labelStyle={"font-weight": "500"})]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.Dropdown(id={
+                     children=[html.Div(dcc.Dropdown(id={
                          "type": "seas-method",
                          "index": n_clicks
                      }, options=[{"label": "Loess", "value": "loess"},
                                  {"label": "Medias móviles", "value": "ma"},
                                  {"label": "X13 ARIMA", "value": "x13"}],
                          placeholder="Método", style={"width": "200px"},
-                         searchable=False)]),
+                         searchable=False), className="dash-bootstrap")]),
             html.Div(style={"display": "inline-block", "margin-left": "10px",
                             "vertical-align": "middle"},
-                     children=[dcc.Dropdown(id={
+                     children=[html.Div(dcc.Dropdown(id={
                          "type": "seas-type",
                          "index": n_clicks
                      }, options=[
                          {"label": "Desestacionalizado", "value": "seas"},
                          {"label": "Tendencia-ciclo", "value": "trend"}],
                          placeholder="Componente", style={"width": "200px"},
-                         searchable=False)]),
+                         searchable=False), className="dash-bootstrap")]),
             order_dropdown(number="8", n_clicks=n_clicks),
             details("El procesamiento con el método X13 ARIMA puede demorar "
                     "dependiendo del tipo y largo de series en la tabla "
@@ -785,7 +787,7 @@ def register_callbacks(app):
                                           short_br, row_4],
                                 id={"type": "complete-div", "index": n_clicks},
                                 label=f"Conjunto #{n_clicks + 1}",
-                                activeLabelClassName="btn btn-primary")
+                                activeLabelClassName="btn btn-info")
         children.append(complete_div)
         return children
 
@@ -853,7 +855,7 @@ def register_callbacks(app):
 def order_dropdown(number: str, n_clicks):
     return html.Div(
         style={"display": "inline-block", "margin-left": "10px",
-               "vertical-align": "middle"},
+               "vertical-align": "middle"}, className="dash-bootstrap",
         children=[
             html.Div(children=dcc.Dropdown(
                 id={"type": f"order-{number}",
@@ -933,7 +935,7 @@ def unique_names(dfs: List[pd.DataFrame]) -> List[pd.DataFrame]:
             else:
                 names.append(name)
                 df_names.append(name)
-        df.columns.set_levels(df_names, level=0, inplace=True)
+        df.columns = df.columns.set_levels(df_names, level=0)
         new_dfs.append(df)
     return new_dfs
 
