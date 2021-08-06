@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 
 from config import Config
-from econuy_web.app_strings import table_options
 
 
 db = SQLAlchemy()
@@ -19,14 +18,11 @@ def create_app():
     bootstrap.init_app(app)
 
     with app.app_context():
-        from econuy_web import form
-        from econuy_web import update
         from econuy_web import visualization_dash, overview_dash
-        from econuy_web import tasks
-        from econuy_web import clear
-        from econuy_web import errors
-        from econuy_web import routes
-        app = visualization_dash.add_dash(app)
+        from econuy_web.dash_apps import visualization
+        from econuy_web import routes, update, tasks, clear, errors
+        app = visualization.add_dash(app)
         app = overview_dash.add_dash(app)
+        app = visualization_dash.add_dash(app)
 
         return app

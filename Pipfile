@@ -20,6 +20,7 @@ xlsxwriter = "==1.2.9"
 dash = "==1.13.4"
 dash-bootstrap-components = "==0.12.1"
 econuy = {editable = true, ref = "3b23e606b880bdc516bc308c3962e6d303837c1c", git = "https://github.com/rxavier/econuy.git"}
+dash-daq = "==0.5.0"
 
 [requires]
 python_version = "3.7"
