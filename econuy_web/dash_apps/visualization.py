@@ -26,7 +26,7 @@ from econuy_web.dash_apps.callbacks import register_general_callbacks, register_
 
 
 def add_dash(server):
-    app = Dash(server=server, url_base_pathname="/v/",
+    app = Dash(server=server, url_base_pathname="/v/", suppress_callback_exceptions=True,
                external_stylesheets=[dbc.themes.BOOTSTRAP],
                meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1"},
