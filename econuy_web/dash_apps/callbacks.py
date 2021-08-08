@@ -108,6 +108,7 @@ def register_general_callbacks(app):
         s.concat(select="all", concat_name="final")
         data = s.datasets["concat_final"]
         data.columns = data.columns.get_level_values(0)
+        data.dropna(how="all", inplace=True)
         fig = px.line(data, y=data.columns,
                       color_discrete_sequence=px.colors.qualitative.Vivid,
                       template="plotly_white")
