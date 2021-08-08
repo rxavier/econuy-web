@@ -77,7 +77,7 @@ def register_general_callbacks(app):
         if not n:
             return True, text
         if text == "Mostrar selección":
-            text = "Esconder selección"
+            text = "Ocultar selección"
         else:
             text = "Mostrar selección"
         return not is_open, text

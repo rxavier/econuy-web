@@ -13,7 +13,7 @@ def build_layout(params):
         dbc.Row(
             dbc.Col([
                 html.H1("Visualizador", className="mt-2"),
-                dbc.Button("Esconder selección", id="collapse-button", size="sm",
+                dbc.Button("Ocultar selección", id="collapse-button", size="sm",
                            color="secondary", className="float-right mb-0 ml-0"),
                 dbc.Collapse(form_tabs(params), id="collapse", is_open=True),
                 ]), className="mx-0 mx-md-3"),
