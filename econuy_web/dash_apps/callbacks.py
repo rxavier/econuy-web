@@ -163,8 +163,8 @@ def register_tabs_callbacks(app, i: int):
         [Input(f"table-{i}", "value"),
          Input(f"indicator-{i}", "value")])
     def store_query_data(table, indicator):
-        if not indicator:
-            raise PreventUpdate
+        if not table or not indicator:
+            return {}, {}
         if "*" in indicator:
             indicator = "*"
         data = sqlutil.read(con=db.engine, table_name=table, cols=indicator)
