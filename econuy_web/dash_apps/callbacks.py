@@ -187,6 +187,8 @@ def register_tabs_callbacks(app, i: int):
                                order, query_data, query_metadata):
         if not order:
             return query_data, query_metadata
+        if ("resample" in order and (not resample_freq or not resample_method)):
+            raise PreventUpdate
         data = pd.DataFrame.from_records(query_data, coerce_float=True, index="index")
         data.index = pd.to_datetime(data.index)
         metadata = pd.DataFrame.from_records(query_metadata)
