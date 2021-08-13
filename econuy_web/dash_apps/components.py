@@ -17,6 +17,8 @@ def build_layout(params):
                            color="secondary", className="float-right mb-0 ml-0"),
                 dbc.Collapse(form_tabs(params), id="collapse", is_open=True),
                 ]), className="mx-0 mx-md-3"),
+        dcc.Store(id="final-data"),
+        dcc.Store(id="final-metadata"),
         dbc.Row(
             dbc.Col(dbc.Spinner(dcc.Graph(id="graph"), color="primary")))])
 
@@ -108,12 +110,11 @@ def form_builder(i: int, params):
                     ),
                 dbc.CardBody([dbc.Form(
                     dbc.FormGroup([
-                        dbc.Label("Rango de fechas", html_for=f"real-dates-{i}", className="mr-2"),
+                        dbc.Label("Período", html_for=f"real-dates-{i}", className="mr-2"),
                         apply_qs(params)(dcc.DatePickerRange)(start_date_placeholder_text="Inicial",
                                     end_date_placeholder_text="Final",
                                     display_format="DD-MM-YYYY", clearable=True,
-                                    className="dash-bootstrap", id=f"real-dates-{i}"),
-                        dbc.FormText("Las fechas definen el nivel de precios de referencia")
+                                    className="dash-bootstrap", id=f"real-dates-{i}")
                         ]), id=f"real-dates-group-{i}")
                     ])
                 ], color="primary", outline=True), md=6)
@@ -130,32 +131,142 @@ def form_builder(i: int, params):
                                 className="ml-auto")
                         ]), id=f"resample-header-{i}"
                     ),
-                dbc.CardBody(dbc.Form([
-                    dbc.FormGroup([
-                        dbc.Label("Frecuencia"),
-                        html.Div(apply_qs(params)(
-                            dcc.Dropdown)(id=f"resample-freq-{i}",
+                dbc.CardBody(
+                    dbc.Row([
+                        dbc.Col(
+                            dbc.FormGroup([
+                                dbc.Label("Frecuencia", html_for=f"resample-freq-{i}"),
+                                html.Div(apply_qs(params)(
+                                    dcc.Dropdown)(id=f"resample-freq-{i}",
                                           options=[{"label": "Anual", "value": "A-DEC"},
                                                    {"label": "Trimestral", "value": "Q-DEC"},
                                                    {"label": "Mensual", "value": "M"},
                                                    {"label": "14 días", "value": "2W"},
                                                    {"label": "Semanal", "value": "W"}],
                                           placeholder="Seleccionar frecuencia", searchable=False),
-                            className="dash-bootstrap")]),
-                    dbc.FormGroup([
-                        dbc.Label("Método de agregación"),
+                            className="dash-bootstrap")]), md=6),
+                    dbc.Col(dbc.FormGroup([
+                        dbc.Label("Método de agregación", html_for=f"resample-operation-{i}"),
                         html.Div(apply_qs(params)(
-                            dcc.Dropdown)(id=f"resample-method-{i}",
+                            dcc.Dropdown)(id=f"resample-operation-{i}",
                                           options=[{"label": "Reducir: promedio", "value": "mean"},
                                                    {"label": "Reducir: suma", "value": "sum"},
                                                    {"label": "Reducir: último período", "value": "last"},
                                                    {"label": "Aumentar", "value": "upsample"}],
                                           placeholder="Seleccionar método", searchable=False),
-                            className="dash-bootstrap"),
-                        dbc.FormText("Define la operación para agrupar o desagrupar períodos",
-                                     color="secondary")
-                        ])]))], color="primary", outline=True), md=6)
-        ], form=True)
+                            className="dash-bootstrap")
+                        ]), md=6)], form=True))], color="primary", outline=True), md=6),
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader(
+                    dbc.Row([
+                        dbc.Col(html.H6("Acumular")),
+                        dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"rolling-switch-{i}",
+                                                                    color="#0275d8"),
+                                className="ml-auto")
+                        ]), id=f"rolling-header-{i}"
+                    ),
+                dbc.CardBody(dbc.Row([
+                    dbc.Col(dbc.FormGroup([
+                        dbc.Label("Períodos", html_for=f"rolling-periods-{i}"),
+                        apply_qs(params)(dbc.Input)(id=f"rolling-periods-{i}",
+                                                    placeholder="Seleccionar cantidad de períodos",
+                                                    type="number", min=2)]), md=6),
+                    dbc.Col(dbc.FormGroup([
+                        dbc.Label("Método de acumulación", html_for=f"rolling-operation-{i}"),
+                        html.Div(apply_qs(params)(
+                            dcc.Dropdown)(id=f"rolling-operation-{i}",
+                                          options=[{"label": "Suma", "value": "sum"},
+                                                   {"label": "Promedio", "value": "mean"}],
+                                          placeholder="Seleccionar método", searchable=False),
+                            className="dash-bootstrap")
+                        ]), md=6)], form=True))], color="primary", outline=True), md=6)], className="mb-0 mb-md-2", form=True)
+
+    third_form = dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader(
+                    dbc.Row([
+                        dbc.Col(html.H6("Calcular variaciones o diferencias")),
+                        dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"chg-diff-switch-{i}",
+                                                                    color="#0275d8"),
+                                className="ml-auto")
+                        ]), id=f"chg-diff-header-{i}"
+                    ),
+                dbc.CardBody(dbc.Row([
+                    dbc.Col(dbc.FormGroup([
+                        dbc.Label("Período", html_for=f"chg-diff-operation-{i}"),
+                        html.Div(apply_qs(params)(
+                            dcc.Dropdown)(id=f"chg-diff-operation-{i}",
+                                          options=[{"label": "Variación porcentual", "value": "chg"},
+                                                   {"label": "Diferencia", "value": "diff"}],
+                                          placeholder="Seleccionar tipo", searchable=False),
+                            className="dash-bootstrap")]), md=6),
+                    dbc.Col(dbc.FormGroup([
+                        dbc.Label("Período de referencia", html_for=f"chg-diff-period-{i}"),
+                        html.Div(apply_qs(params)(
+                            dcc.Dropdown)(id=f"chg-diff-period-{i}",
+                                          options=[{"label": "Último período", "value": "last"},
+                                                   {"label": "Interanual", "value": "inter"},
+                                                   {"label": "Anual", "value": "annual"}],
+                                          placeholder="Seleccionar período", searchable=False),
+                            className="dash-bootstrap")
+                        ]), md=6)], form=True))], color="primary", outline=True), md=6),
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader(
+                    dbc.Row([
+                        dbc.Col(html.H6("Indexar a período base")),
+                        dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"rebase-switch-{i}",
+                                                                    color="#0275d8"),
+                                className="ml-auto")
+                        ]), id=f"rebase-header-{i}"
+                    ),
+                dbc.CardBody(dbc.Row([
+                    dbc.Col(dbc.FormGroup([
+                        dbc.Label("Período", html_for=f"rebase-dates-{i}"),
+                        apply_qs(params)(dcc.DatePickerRange)(start_date_placeholder_text="Inicial",
+                                    end_date_placeholder_text="Final",
+                                    display_format="DD-MM-YYYY", clearable=True,
+                                    className="dash-bootstrap", id=f"rebase-dates-{i}")]), md=6),
+                    dbc.Col(dbc.FormGroup([
+                        dbc.Label("Valor de base", html_for=f"rebase-base-{i}"),
+                        apply_qs(params)(dbc.Input)(id=f"rebase-base-{i}", type="number", min=1,
+                                                    placeholder="Seleccionar valor"),
+                        ]), md=6)], form=True))], color="primary", outline=True), md=6)], form=True,
+                         className="mb-0 mb-md-2")
+
+    fourth_form = dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader(
+                    dbc.Row([
+                        dbc.Col(html.H6("Desestacionalizar")),
+                        dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"decompose-switch-{i}",
+                                                                    color="#0275d8"),
+                                className="ml-auto")
+                        ]), id=f"decompose-header-{i}"
+                    ),
+                dbc.CardBody(dbc.Row([
+                    dbc.Col(dbc.FormGroup([
+                        dbc.Label("Método", html_for=f"decompose-method-{i}"),
+                        html.Div(apply_qs(params)(
+                            dcc.Dropdown)(id=f"decompose-method-{i}",
+                                          options=[{"label": "Loess", "value": "loess"},
+                                                   {"label": "Medias móviles", "value": "ma"},
+                                                   {"label": "X13 ARIMA", "value": "x13"}],
+                                          placeholder="Seleccionar método", searchable=False),
+                            className="dash-bootstrap")]), md=6),
+                    dbc.Col(dbc.FormGroup([
+                        dbc.Label("Componente", html_for=f"decompose-component-{i}"),
+                        html.Div(apply_qs(params)(
+                            dcc.Dropdown)(id=f"decompose-component-{i}",
+                                          options=[{"label": "Desestacionalizado", "value": "seas"},
+                                                   {"label": "Tendencia-ciclo", "value": "trend"}],
+                                          placeholder="Seleccionar componente", searchable=False),
+                            className="dash-bootstrap")
+                        ]), md=6)], form=True))], color="primary", outline=True), md=6),
+        ], form=True, className="mb-0 mb-md-2")
 
     order = dbc.FormGroup([
         dbc.Label(html.H6("Definir orden de transformaciones"), html_for=f"order-{i}"),
@@ -164,8 +275,8 @@ def form_builder(i: int, params):
                                            multi=True),
         dbc.FormText("Las transformaciones se aplican empezando por la izquierda.", color="secondary")])
 
-    return html.Div([table_indicator, html.Br(), first_form, second_form, html.Br(),
-                     order, data_storage(i=i), tooltip_builder(i=i)])
+    return html.Div([table_indicator, html.Br(), first_form, second_form, third_form,
+                     fourth_form, html.Br(), order, data_storage(i=i), tooltip_builder(i=i)])
 
 
 def tooltip_builder(i: int):

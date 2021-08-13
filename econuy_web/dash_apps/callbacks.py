@@ -4,11 +4,11 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from econuy.utils import sqlutil
 from econuy.core import Pipeline
-from econuy.session import Session
-from econuy.transform import convert_usd, convert_real, convert_gdp, resample
+from econuy.transform import chg_diff, convert_usd, convert_real, convert_gdp, resample, rolling, rebase, decompose
 
 from econuy_web.dash_apps.querystrings import encode_state, parse_state
 from econuy_web.dash_apps.components import build_layout
+from econuy_web.dash_apps import utils
 
 
 def register_general_callbacks(app):
@@ -33,7 +33,20 @@ def register_general_callbacks(app):
                      (f"gdp-switch-{i}", "on"),
                      (f"resample-switch-{i}", "on"),
                      (f"resample-freq-{i}", "value"),
-                     (f"resample-method-{i}", "value")
+                     (f"resample-operation-{i}", "value"),
+                     (f"rolling-switch-{i}", "on"),
+                     (f"rolling-periods-{i}", "value"),
+                     (f"rolling-operation-{i}", "value"),
+                     (f"chg-diff-switch-{i}", "on"),
+                     (f"chg-diff-operation-{i}", "value"),
+                     (f"chg-diff-period-{i}", "value"),
+                     (f"rebase-switch-{i}", "on"),
+                     (f"rebase-dates-{i}", "start_date"),
+                     (f"rebase-dates-{i}", "end_date"),
+                     (f"rebase-base-{i}", "value"),
+                     (f"decompose-switch-{i}", "on"),
+                     (f"decompose-method-{i}", "value"),
+                     (f"decompose-component-{i}", "value"),
                      ]
         return id_values
 
@@ -82,13 +95,13 @@ def register_general_callbacks(app):
             text = "Mostrar selección"
         return not is_open, text
 
-
     @app.callback(
-        Output("graph", "figure"),
+        [Output("final-data", "data"),
+         Output("final-metadata", "data")],
         [Input(f"data-transformed-{i}", "data") for i in range(1, 4)]
         + [Input(f"metadata-transformed-{i}", "data") for i in range(1, 4)]
         + [Input(f"table-{i}", "value") for i in range(1, 4)])
-    def update_chart(*args):
+    def build_final_df(*args):
         data_records = args[:3]
         metadata_records = args[3:6]
         tables = args[6:]
@@ -103,17 +116,28 @@ def register_general_callbacks(app):
                 dfs.append(transformed)
         if len(dfs) == 0:
             raise PreventUpdate
-        s = Session()
-        s._datasets = {name: dataset for name, dataset in zip(tables, dfs) if name}
-        s.concat(select="all", concat_name="final")
-        data = s.datasets["concat_final"]
-        data.columns = data.columns.get_level_values(0)
-        data.dropna(how="all", inplace=True)
+        dfs = [df for df in dfs if df is not None]
+        tables = [table for table in tables if table is not None]
+        tables_dedup = utils.dedup_colnames(dfs=dfs, tables=tables)
+        final_data = utils.concat(dfs=tables_dedup)
+        final_data.dropna(how="all", inplace=True)
+
+        final_metadata = final_data.columns.to_frame()
+        final_data.columns = final_data.columns.get_level_values(0)
+        final_data.reset_index(inplace=True)
+
+        return final_data.to_dict("records"), final_metadata.to_dict("records")
+
+    @app.callback(
+        Output("graph", "figure"),
+        [Input("final-data", "data")])
+    def update_chart(final_data_record):
+        data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
+        data.index = pd.to_datetime(data.index)
         fig = px.line(data, y=data.columns,
                       color_discrete_sequence=px.colors.qualitative.Vivid,
                       template="plotly_white")
         return fig
-
 
 def register_tabs_callbacks(app, i: int):
 
@@ -138,13 +162,22 @@ def register_tabs_callbacks(app, i: int):
         [Input(f"usd-switch-{i}", "on"),
          Input(f"real-switch-{i}", "on"),
          Input(f"gdp-switch-{i}", "on"),
-         Input(f"resample-switch-{i}", "on")],
+         Input(f"resample-switch-{i}", "on"),
+         Input(f"rolling-switch-{i}", "on"),
+         Input(f"chg-diff-switch-{i}", "on"),
+         Input(f"rebase-switch-{i}", "on"),
+         Input(f"decompose-switch-{i}", "on")],
         [State(f"order-{i}", "value")])
-    def transformation_order(usd, real, gdp, resample, current_values):
+    def transformation_order(usd, real, gdp, resample, rolling, chg_diff, rebase, decompose,
+                             current_values):
         transformations = {"usd": [usd, "Convertir a dólares"],
                            "real": [real, "Convertir a precios constantes"],
                            "gdp": [gdp, "Convertir a % del PBI"],
-                           "resample": [resample, "Cambiar frecuencia"]}
+                           "resample": [resample, "Cambiar frecuencia"],
+                           "rolling": [rolling, "Acumular"],
+                           "chg-diff": [chg_diff, "Calcular variaciones o diferencias"],
+                           "rebase": [rebase, "Indexar a período base"],
+                           "decompose": [decompose, "Desestacionalizar"]}
         transformations_on = [{"label": v[1], "value": k} for k, v in transformations.items()
                                   if v[0] is True or v[0] == "True"]
         transformations_off = [{"label": v[1], "value": k} for k, v in transformations.items()
@@ -179,15 +212,31 @@ def register_tabs_callbacks(app, i: int):
         [Input(f"real-dates-{i}", "start_date"),
          Input(f"real-dates-{i}", "end_date"),
          Input(f"resample-freq-{i}", "value"),
-         Input(f"resample-method-{i}", "value"),
+         Input(f"resample-operation-{i}", "value"),
+         Input(f"rolling-periods-{i}", "value"),
+         Input(f"rolling-operation-{i}", "value"),
+         Input(f"chg-diff-operation-{i}", "value"),
+         Input(f"chg-diff-period-{i}", "value"),
+         Input(f"rebase-dates-{i}", "start_date"),
+         Input(f"rebase-dates-{i}", "end_date"),
+         Input(f"rebase-base-{i}", "value"),
+         Input(f"decompose-method-{i}", "value"),
+         Input(f"decompose-component-{i}", "value"),
          Input(f"order-{i}", "value"),
          Input(f"data-{i}", "data"),
          Input(f"metadata-{i}", "data")])
-    def store_transformed_data(real_start, real_end, resample_freq, resample_method,
+    def store_transformed_data(real_start, real_end, resample_freq, resample_operation,
+                               rolling_periods, rolling_operation, chg_diff_operation,
+                               chg_diff_period, rebase_start, rebase_end, rebase_base,
+                               decompose_method, decompose_component,
                                order, query_data, query_metadata):
         if not order:
             return query_data, query_metadata
-        if ("resample" in order and (not resample_freq or not resample_method)):
+        if (("resample" in order and (not resample_freq or not resample_operation))
+            or ("rolling" in order and (not rolling_periods or not rolling_operation))
+            or ("chg-diff" in order and (not chg_diff_operation or not chg_diff_period))
+            or ("rebase" in order and (not rebase_start or not rebase_base))
+            or ("decompose" in order and (not decompose_method or not decompose_component))):
             raise PreventUpdate
         data = pd.DataFrame.from_records(query_data, coerce_float=True, index="index")
         data.index = pd.to_datetime(data.index)
@@ -201,7 +250,16 @@ def register_tabs_callbacks(app, i: int):
                                                           errors="ignore"),
                            "gdp": lambda x: convert_gdp(x, pipeline=p, errors="ignore"),
                            "resample": lambda x: resample(x, rule=resample_freq,
-                                                          operation=resample_method)}
+                                                          operation=resample_operation),
+                           "rolling": lambda x: rolling(x, window=rolling_periods,
+                                                        operation=rolling_operation),
+                           "chg-diff": lambda x: chg_diff(x, operation=chg_diff_operation,
+                                                          period=chg_diff_period),
+                           "rebase": lambda x: rebase(x, start_date=rebase_start,
+                                                      end_date=rebase_end, base=rebase_base),
+                           "decompose": lambda x: decompose(x, component=decompose_component,
+                                                            method=decompose_method,
+                                                            force_x13=True, errors="ignore")}
         transformed_data = data.copy()
         for t in order:
             transformed_data = transformations[t](transformed_data)
