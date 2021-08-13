@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 import plotly.express as px
 from dash.dependencies import Input, Output, State
@@ -130,13 +132,53 @@ def register_general_callbacks(app):
 
     @app.callback(
         Output("graph", "figure"),
-        [Input("final-data", "data")])
-    def update_chart(final_data_record):
+        [Input("final-data", "data")] +
+        [Input("final-metadata", "data")] +
+        [Input(f"table-{i}", "value") for i in range(1, 4)] +
+        [Input(f"indicator-{i}", "value") for i in range(1, 4)])
+    def update_chart(final_data_record, final_metadata_record, *tables_indicators):
         data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
+        final_metadata = pd.DataFrame.from_records(final_metadata_record)
         data.index = pd.to_datetime(data.index)
+        if len(data) > 7000:
+            data = resample(data, rule="M", operation="mean")
+        tables = tables_indicators[:3]
+        indicators = tables_indicators[3:]
+        tables = [table for table, indicator in zip(tables, indicators) if indicator]
+        labels = utils.get_labels(tables)
+        labels_dedup = list(dict.fromkeys(labels))
+        title = "<br>".join(labels_dedup)
+        height = 600 + 20 * len(labels_dedup)
         fig = px.line(data, y=data.columns,
-                      color_discrete_sequence=px.colors.qualitative.Vivid,
-                      template="plotly_white")
+                      color_discrete_sequence=px.colors.qualitative.Pastel,
+                      template="plotly_white", title=title, height=height)
+        ylabels = []
+        for currency, unit, inf in zip(
+                final_metadata["Moneda"],
+                final_metadata["Unidad"],
+                final_metadata["Inf. adj."]):
+            text = []
+            if currency != "-":
+                text += [currency]
+            text += [unit]
+            if inf != "No":
+                text += [inf]
+            ylabels.append(" | ".join(text))
+        if all(x == ylabels[0] for x in ylabels):
+            ylabels = ylabels[0]
+        else:
+            ylabels = ""
+        fig.update_layout({"margin": {"l": 20, "r": 20},
+                            "legend": {"orientation": "h", "yanchor": "top",
+                                        "y": -0.1, "xanchor": "left",
+                                        "x": 0},
+                            "legend_orientation": "h",
+                            "xaxis_title": "",
+                            "yaxis_title": ylabels,
+                            "legend_title": "",
+                            "title": {"y": 0.9,
+                                      "yanchor": "top",
+                                      "font": {"size": 20}}})
         return fig
 
 def register_tabs_callbacks(app, i: int):

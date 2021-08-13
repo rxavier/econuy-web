@@ -7,7 +7,7 @@ from econuy.utils import datasets
 import pandas as pd
 
 
-def dedup_colnames(dfs: List[pd.DataFrame], tables: List[str]) -> Dict[str, pd.DataFrame]:
+def get_labels(tables: List[str]) -> List[str]:
     original_tables = datasets.original()
     original_tables = {k: v["description"] for k, v in original_tables.items()}
     custom_tables = datasets.custom()
@@ -19,6 +19,11 @@ def dedup_colnames(dfs: List[pd.DataFrame], tables: List[str]) -> Dict[str, pd.D
         except KeyError:
             label_tables.append(custom_tables[table])
     label_tables = [re.sub(r" \(([^)]+)\)$", "", table) for table in label_tables]
+    return label_tables
+
+
+def dedup_colnames(dfs: List[pd.DataFrame], tables: List[str]) -> Dict[str, pd.DataFrame]:
+    label_tables = get_labels(tables)
     tables_nodup = []
     counter = Counter(label_tables)
     mod_counter = counter.copy()
