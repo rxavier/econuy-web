@@ -1,4 +1,5 @@
 import dash_bootstrap_components as dbc
+from dash_bootstrap_components._components.RadioItems import RadioItems
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_daq as daq
@@ -20,7 +21,32 @@ def build_layout(params):
         dcc.Store(id="final-data"),
         dcc.Store(id="final-metadata"),
         dbc.Row(
-            dbc.Col(dbc.Spinner(dcc.Graph(id="graph"), color="primary")))])
+        dbc.Card([
+            dbc.CardHeader(html.H6("Opciones de gráfico")),
+            dbc.CardBody(
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Label("Tipo de gráfico"),
+                        apply_qs(params)(dbc.RadioItems)(options=[{"label": "Líneas", "value": "line"},
+                                                {"label": "Barras", "value": "bar"},
+                                                {"label": "Barras apiladas", "value": "stackbar"},
+                                                {"label": "Áreas", "value": "area"},
+                                                {"label": "Proporciones", "value": "normarea"},
+                                                {"label": "Líneas-año", "value": "lineyears"},
+                                                {"label": "Tabla", "value": "table"}],
+                                       id="chart-type", value="line", inline=True)]),
+                    dbc.Col([
+                        apply_qs(params)(dbc.Input)(id="chart-title", placeholder="Título",
+                                  debounce=True, type="text"),
+                        apply_qs(params)(dbc.Input)(id="chart-subtitle", placeholder="Subtítulo",
+                                  debounce=True, type="text", className="mt-1"),
+                        apply_qs(params)(dcc.DatePickerRange)(start_date_placeholder_text="Inicial",
+                                            end_date_placeholder_text="Final",
+                                            display_format="DD-MM-YYYY", clearable=True,
+                                            className="dash-bootstrap mt-1", id="chart-dates")])]))]),
+            className="mx-3 mt-2 justify-content-center"),
+        dbc.Row(
+            dbc.Col(dbc.Spinner(dcc.Graph(), id="graph-spinner", color="primary")), className="mx-0 mx-md-3")])
 
 
 NAVBAR = dbc.Navbar(
@@ -51,7 +77,7 @@ NAVBAR = dbc.Navbar(
 
 def form_builder(i: int, params):
     table_indicator = dbc.Card([
-        dbc.CardHeader(html.H6("Seleccionar indicadores"), className="p-1 p-md-3"),
+        dbc.CardHeader(html.H6("Seleccionar indicadores"), className="p-2"),
         dbc.CardBody(
             dbc.Row([
                 dbc.Col(
@@ -71,7 +97,7 @@ def form_builder(i: int, params):
                                  placeholder="Seleccionar indicadores", optionHeight=50,
                                  multi=True, disabled=True),
                     className="dash-bootstrap"), color="primary"), md=6)
-                ]), className="p-1 p-md-3")
+                ]), className="p-2")
         ])
 
     first_form = dbc.Row([
@@ -83,7 +109,7 @@ def form_builder(i: int, params):
                         dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"usd-switch-{i}",
                                                                     color="#0275d8"),
                                 className="ml-auto")
-                        ]), id=f"usd-header-{i}" , className="p-1 p-md-3"),
+                        ]), id=f"usd-header-{i}", className="p-2"),
                 ], className="mb-0 mb-md-2"),
             dbc.Card([
                     dbc.CardHeader(
@@ -92,7 +118,7 @@ def form_builder(i: int, params):
                             dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"gdp-switch-{i}",
                                                                         color="#0275d8"),
                                     className="ml-auto")
-                            ]), id=f"gdp-header-{i}", className="p-1 p-md-3"),
+                            ]), id=f"gdp-header-{i}", className="p-2"),
                     ])]
             , md=6),
 
@@ -104,7 +130,7 @@ def form_builder(i: int, params):
                         dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"real-switch-{i}",
                                                                     color="#0275d8"),
                                 className="ml-auto")
-                        ]), id=f"real-header-{i}", className="p-1 p-md-3"),
+                        ]), id=f"real-header-{i}", className="p-2"),
                 dbc.CardBody([dbc.Form(
                     dbc.FormGroup([
                         dbc.Label("Período", html_for=f"real-dates-{i}", className="mr-2"),
@@ -113,7 +139,7 @@ def form_builder(i: int, params):
                                     display_format="DD-MM-YYYY", clearable=True,
                                     className="dash-bootstrap", id=f"real-dates-{i}")
                         ]), id=f"real-dates-group-{i}")
-                    ], className="p-1 p-md-3")
+                    ], className="p-2")
                 ]), md=6)
         ], form=True, className="mb-0 mb-md-2")
 
@@ -126,7 +152,7 @@ def form_builder(i: int, params):
                         dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"resample-switch-{i}",
                                                                     color="#0275d8"),
                                 className="ml-auto")
-                        ]), id=f"resample-header-{i}", className="p-1 p-md-3"),
+                        ]), id=f"resample-header-{i}", className="p-2"),
                 dbc.CardBody(
                     dbc.Row([
                         dbc.Col(
@@ -151,7 +177,7 @@ def form_builder(i: int, params):
                                                    {"label": "Aumentar", "value": "upsample"}],
                                           placeholder="Seleccionar método", searchable=False),
                             className="dash-bootstrap")
-                        ]), md=6)], form=True), className="p-1 p-md-3")]), md=6),
+                        ]), md=6)], form=True), className="p-2")]), md=6),
         dbc.Col(
             dbc.Card([
                 dbc.CardHeader(
@@ -160,7 +186,7 @@ def form_builder(i: int, params):
                         dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"rolling-switch-{i}",
                                                                     color="#0275d8"),
                                 className="ml-auto")
-                        ]), id=f"rolling-header-{i}", className="p-1 p-md-3"),
+                        ]), id=f"rolling-header-{i}", className="p-2"),
                 dbc.CardBody(dbc.Row([
                     dbc.Col(dbc.FormGroup([
                         dbc.Label("Períodos", html_for=f"rolling-periods-{i}"),
@@ -175,7 +201,7 @@ def form_builder(i: int, params):
                                                    {"label": "Promedio", "value": "mean"}],
                                           placeholder="Seleccionar método", searchable=False),
                             className="dash-bootstrap")
-                        ]), md=6)], form=True), className="p-1 p-md-3")]), md=6)],
+                        ]), md=6)], form=True), className="p-2")]), md=6)],
                           className="mb-0 mb-md-2", form=True)
 
     third_form = dbc.Row([
@@ -187,7 +213,7 @@ def form_builder(i: int, params):
                         dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"chg-diff-switch-{i}",
                                                                     color="#0275d8"),
                                 className="ml-auto")
-                        ]), id=f"chg-diff-header-{i}", className="p-1 p-md-3"),
+                        ]), id=f"chg-diff-header-{i}", className="p-2"),
                 dbc.CardBody(dbc.Row([
                     dbc.Col(dbc.FormGroup([
                         dbc.Label("Período", html_for=f"chg-diff-operation-{i}"),
@@ -206,7 +232,7 @@ def form_builder(i: int, params):
                                                    {"label": "Anual", "value": "annual"}],
                                           placeholder="Seleccionar período", searchable=False),
                             className="dash-bootstrap")
-                        ]), md=6)], form=True), className="p-1 p-md-3")]), md=6),
+                        ]), md=6)], form=True), className="p-2")]), md=6),
         dbc.Col(
             dbc.Card([
                 dbc.CardHeader(
@@ -215,7 +241,7 @@ def form_builder(i: int, params):
                         dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"rebase-switch-{i}",
                                                                     color="#0275d8"),
                                 className="ml-auto")
-                        ]), id=f"rebase-header-{i}", className="p-1 p-md-3"),
+                        ]), id=f"rebase-header-{i}", className="p-2"),
                 dbc.CardBody(dbc.Row([
                     dbc.Col(dbc.FormGroup([
                         dbc.Label("Período", html_for=f"rebase-dates-{i}"),
@@ -227,7 +253,7 @@ def form_builder(i: int, params):
                         dbc.Label("Valor de base", html_for=f"rebase-base-{i}"),
                         apply_qs(params)(dbc.Input)(id=f"rebase-base-{i}", type="number", min=1,
                                                     placeholder="Seleccionar valor"),
-                        ]), md=6)], form=True), className="p-1 p-md-3")]), md=6)],
+                        ]), md=6)], form=True), className="p-2")]), md=6)],
                          form=True, className="mb-0 mb-md-2")
 
     fourth_form = dbc.Row([
@@ -239,7 +265,7 @@ def form_builder(i: int, params):
                         dbc.Col(apply_qs(params)(daq.BooleanSwitch)(id=f"decompose-switch-{i}",
                                                                     color="#0275d8"),
                                 className="ml-auto")
-                        ]), id=f"decompose-header-{i}", className="p-1 p-md-3"),
+                        ]), id=f"decompose-header-{i}", className="p-2"),
                 dbc.CardBody(dbc.Row([
                     dbc.Col(dbc.FormGroup([
                         dbc.Label("Método", html_for=f"decompose-method-{i}"),
@@ -258,7 +284,7 @@ def form_builder(i: int, params):
                                                    {"label": "Tendencia-ciclo", "value": "trend"}],
                                           placeholder="Seleccionar componente", searchable=False),
                             className="dash-bootstrap")
-                        ]), md=6)], form=True), className="p-1 p-md-3")]), md=6)],
+                        ]), md=6)], form=True), className="p-2")]), md=6)],
                           form=True, className="mb-0 mb-md-2")
 
     order = dbc.FormGroup([

@@ -1,12 +1,18 @@
-import re
+from os import path
 
 import pandas as pd
 import plotly.express as px
+import dash_html_components as html
+import dash_core_components as dcc
+import dash_table as dt
+from PIL import Image
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+from dash_table.Format import Format, Scheme, Group
 from econuy.utils import sqlutil
 from econuy.core import Pipeline
 from econuy.transform import chg_diff, convert_usd, convert_real, convert_gdp, resample, rolling, rebase, decompose
+from flask import current_app
 
 from econuy_web.dash_apps.querystrings import encode_state, parse_state
 from econuy_web.dash_apps.components import build_layout
@@ -24,7 +30,7 @@ def register_general_callbacks(app):
             return not is_open
         return is_open
 
-    def shareable_components(i: int):
+    def tabs_components(i: int):
         id_values = [(f"table-{i}", "value"),
                      (f"indicator-{i}", "value"),
                      (f"usd-switch-{i}", "on"),
@@ -52,8 +58,13 @@ def register_general_callbacks(app):
                      ]
         return id_values
 
-    id_values_stacked = [shareable_components(i) for i in range(1, 4)]
-    id_values = [item for sublist in id_values_stacked for item in sublist]
+    id_values_stacked = [tabs_components(i) for i in range(1, 4)]
+    id_values = ([item for sublist in id_values_stacked for item in sublist]
+                 + [("chart-type", "value"),
+                     ("chart-dates", "start_date"),
+                     ("chart-dates", "end_date"),
+                     ("chart-title", "value"),
+                     ("chart-subtitle", "value")])
     zipped_id_values = list(zip(*id_values))
 
     @app.callback(
@@ -101,14 +112,19 @@ def register_general_callbacks(app):
         [Output("final-data", "data"),
          Output("final-metadata", "data")],
         [Input(f"data-transformed-{i}", "data") for i in range(1, 4)]
-        + [Input(f"metadata-transformed-{i}", "data") for i in range(1, 4)]
-        + [Input(f"table-{i}", "value") for i in range(1, 4)])
+        + [Input(f"metadata-transformed-{i}", "data") for i in range(1, 4)],
+        [State(f"table-{i}", "value") for i in range(1, 4)]
+        + [State(f"indicator-{i}", "value") for i in range(1, 4)])
     def build_final_df(*args):
         data_records = args[:3]
         metadata_records = args[3:6]
-        tables = args[6:]
+        tables = args[6:9]
+        indicators = args[9:]
         dfs = []
-        for data_record, metadata_record in zip(data_records, metadata_records):
+        for data_record, metadata_record, table, indicator in zip(data_records, metadata_records,
+                                                                  tables, indicators):
+            if not table or not indicator:
+                continue
             if data_record:
                 transformed = pd.DataFrame.from_records(data_record,
                                                         coerce_float=True, index="index")
@@ -117,7 +133,7 @@ def register_general_callbacks(app):
                 transformed.columns = pd.MultiIndex.from_frame(metadata)
                 dfs.append(transformed)
         if len(dfs) == 0:
-            raise PreventUpdate
+            return {}, {}
         dfs = [df for df in dfs if df is not None]
         tables = [table for table in tables if table is not None]
         tables_dedup = utils.dedup_colnames(dfs=dfs, tables=tables)
@@ -131,55 +147,158 @@ def register_general_callbacks(app):
         return final_data.to_dict("records"), final_metadata.to_dict("records")
 
     @app.callback(
-        Output("graph", "figure"),
-        [Input("final-data", "data")] +
-        [Input("final-metadata", "data")] +
+        Output("graph-spinner", "children"),
+        [Input("final-data", "data"),
+         Input("final-metadata", "data"),
+         Input("chart-title", "value"),
+         Input("chart-subtitle", "value"),
+         Input("chart-dates", "start_date"),
+         Input("chart-dates", "end_date"),
+         Input("chart-type", "value")] +
         [Input(f"table-{i}", "value") for i in range(1, 4)] +
         [Input(f"indicator-{i}", "value") for i in range(1, 4)])
-    def update_chart(final_data_record, final_metadata_record, *tables_indicators):
+    def update_chart(final_data_record, final_metadata_record, title, subtitle,
+                     start_date, end_date, chart_type, *tables_indicators):
+        if not final_data_record:
+            return dcc.Graph(id="graph")
         data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
         final_metadata = pd.DataFrame.from_records(final_metadata_record)
         data.index = pd.to_datetime(data.index)
+        start_date = start_date or "1970-01-01"
+        end_date = end_date or "2100-01-01"
+        data = data.loc[(data.index >= start_date) & (data.index <= end_date), :]
         if len(data) > 7000:
             data = resample(data, rule="M", operation="mean")
+
         tables = tables_indicators[:3]
         indicators = tables_indicators[3:]
         tables = [table for table, indicator in zip(tables, indicators) if indicator]
         labels = utils.get_labels(tables)
         labels_dedup = list(dict.fromkeys(labels))
-        title = "<br>".join(labels_dedup)
+        if not title:
+            title = "<br>".join(labels_dedup)
+        if subtitle:
+            title = f"{title}<br><span style='font-size: 14px'>{subtitle}</span>"
         height = 600 + 20 * len(labels_dedup)
-        fig = px.line(data, y=data.columns,
-                      color_discrete_sequence=px.colors.qualitative.Pastel,
-                      template="plotly_white", title=title, height=height)
-        ylabels = []
-        for currency, unit, inf in zip(
-                final_metadata["Moneda"],
-                final_metadata["Unidad"],
-                final_metadata["Inf. adj."]):
-            text = []
-            if currency != "-":
-                text += [currency]
-            text += [unit]
-            if inf != "No":
-                text += [inf]
-            ylabels.append(" | ".join(text))
-        if all(x == ylabels[0] for x in ylabels):
-            ylabels = ylabels[0]
+        if chart_type != "table":
+            if chart_type == "bar":
+                fig = px.bar(data, y=data.columns,
+                                height=height, title=title,
+                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                barmode="group", template="plotly_white")
+            elif chart_type == "stackbar":
+                fig = px.bar(data, y=data.columns,
+                                height=height, title=title,
+                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                barmode="stack", template="plotly_white")
+            elif chart_type == "area":
+                fig = px.area(data, y=data.columns,
+                                height=height, title=title,
+                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                template="plotly_white")
+            elif chart_type == "normarea":
+                fig = px.area(data, y=data.columns,
+                                height=height, title=title,
+                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                template="plotly_white", groupnorm="fraction")
+            elif chart_type == "lineyears":
+                data["Año"] = data.index.year
+                if pd.infer_freq(data.index) in ["M", "MS", "Q", "Q-DEC"]:
+                    data["Período"] = data.index.month_name()
+                elif pd.infer_freq(data.index) in ["A", "A-DEC"]:
+                    raise PreventUpdate
+                elif pd.infer_freq(data.index) in ["W", "W-SUN"]:
+                    data["Período"] = data.index.strftime("%U").astype("int32")
+                else:
+                    data["Período"] = data.index.dayofyear
+                fig = px.line(data, y=data.columns, color="Año", x="Período",
+                                height=height, title=title,
+                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                template="plotly_white")
+            else:
+                fig = px.line(data, y=data.columns,
+                                height=height, title=title,
+                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                template="plotly_white")
+            ylabels = []
+            for currency, unit, inf in zip(
+                    final_metadata["Moneda"],
+                    final_metadata["Unidad"],
+                    final_metadata["Inf. adj."]):
+                text = []
+                if currency != "-":
+                    text += [currency]
+                text += [unit]
+                if inf != "No":
+                    text += [inf]
+                ylabels.append(" | ".join(text))
+            if all(x == ylabels[0] for x in ylabels):
+                ylabels = ylabels[0]
+            else:
+                ylabels = ""
+            fig.update_layout({"margin": {"l": 20, "r": 20},
+                                "legend": {"orientation": "h", "yanchor": "top",
+                                            "y": -0.1, "xanchor": "left",
+                                            "x": 0},
+                                "legend_orientation": "h",
+                                "xaxis_title": "",
+                                "yaxis_title": ylabels,
+                                "legend_title": "",
+                                "title": {"y": 0.9,
+                                        "yanchor": "top",
+                                        "font": {"size": 20}}})
+            path_to_logo = path.join(current_app.root_path,
+                                        "static", "cards.jpg")
+            fig.add_layout_image(dict(source=Image.open(path_to_logo),
+                                        sizex=0.1, sizey=0.1, xanchor="right",
+                                        yanchor="bottom", xref="paper",
+                                        yref="paper",
+                                        x=1, y=1.01))
+            fig.update_xaxes(
+                rangeselector=dict(yanchor="bottom", y=1.01, xanchor="right",
+                                    x=0.9,
+                                    buttons=list([
+                                        dict(count=1, label="1m", step="month",
+                                            stepmode="backward"),
+                                        dict(count=6, label="6m", step="month",
+                                            stepmode="backward"),
+                                        dict(count=1, label="YTD", step="year",
+                                            stepmode="todate"),
+                                        dict(count=1, label="1a", step="year",
+                                            stepmode="backward"),
+                                        dict(count=5, label="5a", step="year",
+                                            stepmode="backward"),
+                                        dict(label="todos", step="all")])))
+            viz = dcc.Graph(figure=fig, id="graph")
         else:
-            ylabels = ""
-        fig.update_layout({"margin": {"l": 20, "r": 20},
-                            "legend": {"orientation": "h", "yanchor": "top",
-                                        "y": -0.1, "xanchor": "left",
-                                        "x": 0},
-                            "legend_orientation": "h",
-                            "xaxis_title": "",
-                            "yaxis_title": ylabels,
-                            "legend_title": "",
-                            "title": {"y": 0.9,
-                                      "yanchor": "top",
-                                      "font": {"size": 20}}})
-        return fig
+            data.reset_index(inplace=True)
+            data.rename(columns={"index": "Fecha"}, inplace=True)
+            data["Fecha"] = data["Fecha"].dt.strftime("%d-%m-%Y")
+            viz = html.Div([html.Br(),
+                            dt.DataTable(id="table",
+                                         columns=[{"name": "Fecha",
+                                                   "id": "Fecha",
+                                                   "type": "datetime"}] +
+                                                 [{"name": i, "id": i,
+                                                   "type": "numeric",
+                                                   "format":
+                                                       Format(precision=2,
+                                                              scheme=Scheme.fixed,
+                                                              group=Group.yes,
+                                                              groups=3,
+                                                              group_delimiter=",",
+                                                              decimal_delimiter=".")}
+                                                  for i in
+                                                  data.columns[1:]],
+                                         data=data.to_dict("records"),
+                                         style_cell={"textAlign": "center"},
+                                         style_header={
+                                             "whiteSpace": "normal",
+                                             "height": "auto",
+                                             "textAlign": "center"},
+                                         page_action="none",
+                                         fixed_rows={"headers": True})])
+        return viz
 
 def register_tabs_callbacks(app, i: int):
 
@@ -274,6 +393,8 @@ def register_tabs_callbacks(app, i: int):
                                order, query_data, query_metadata):
         if not order:
             return query_data, query_metadata
+        if not query_data:
+            return {}, {}
         if (("resample" in order and (not resample_freq or not resample_operation))
             or ("rolling" in order and (not rolling_periods or not rolling_operation))
             or ("chg-diff" in order and (not chg_diff_operation or not chg_diff_period))
