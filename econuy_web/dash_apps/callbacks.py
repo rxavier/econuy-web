@@ -1,9 +1,11 @@
 from os import path
+from io import StringIO, BytesIO
 
 import pandas as pd
 import plotly.express as px
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 import dash_table as dt
 from PIL import Image
 from dash.dependencies import Input, Output, State
@@ -20,6 +22,8 @@ from econuy_web.dash_apps import utils
 
 
 def register_general_callbacks(app):
+
+    from econuy_web import db
 
     @app.callback(
         Output("navbar-collapse", "is_open"),
@@ -99,7 +103,7 @@ def register_general_callbacks(app):
         [Input("collapse-button", "n_clicks")],
         [State("collapse", "is_open"),
          State("collapse-button", "children")])
-    def fade_forms(n, is_open, text):
+    def collapse_forms(n, is_open, text):
         if not n:
             return True, text
         if text == "Mostrar selección":
@@ -109,13 +113,33 @@ def register_general_callbacks(app):
         return not is_open, text
 
     @app.callback(
+        [Output("metadata-collapse", "is_open"),
+         Output("metadata-button", "children")],
+        [Input("metadata-button", "n_clicks")],
+        [State("metadata-collapse", "is_open"),
+         State("metadata-button", "children")])
+    def collapse_metadata(n, is_open, text):
+        if not n:
+            return False, text
+        if text == "Mostrar metadatos":
+            text = "Ocultar metadatos"
+        else:
+            text = "Mostrar metadatos"
+        return not is_open, text
+
+
+    @app.callback(
         [Output("final-data", "data"),
-         Output("final-metadata", "data")],
+         Output("final-metadata", "data"),
+         Output("csv-button", "disabled"),
+         Output("xlsx-button", "disabled"),
+         Output("metadata-button", "disabled"),
+         Output("metadata-collapse", "children")],
         [Input(f"data-transformed-{i}", "data") for i in range(1, 4)]
         + [Input(f"metadata-transformed-{i}", "data") for i in range(1, 4)],
         [State(f"table-{i}", "value") for i in range(1, 4)]
         + [State(f"indicator-{i}", "value") for i in range(1, 4)])
-    def build_final_df(*args):
+    def build_final_df_and_metadata(*args):
         data_records = args[:3]
         metadata_records = args[3:6]
         tables = args[6:9]
@@ -133,7 +157,7 @@ def register_general_callbacks(app):
                 transformed.columns = pd.MultiIndex.from_frame(metadata)
                 dfs.append(transformed)
         if len(dfs) == 0:
-            return {}, {}
+            return {}, {}, True, True, True, []
         dfs = [df for df in dfs if df is not None]
         tables = [table for table in tables if table is not None]
         tables_dedup = utils.dedup_colnames(dfs=dfs, tables=tables)
@@ -143,11 +167,16 @@ def register_general_callbacks(app):
         final_metadata = final_data.columns.to_frame()
         final_data.columns = final_data.columns.get_level_values(0)
         final_data.reset_index(inplace=True)
+        collapse_metadata = dbc.Card(dbc.CardBody(
+            dbc.Table.from_dataframe(final_metadata.T, responsive=True,
+                                     striped=True, bordered=True, header=False,
+                                     index=True, size="sm")), style={"fontSize": "12px"})
 
-        return final_data.to_dict("records"), final_metadata.to_dict("records")
+        return final_data.to_dict("records"), final_metadata.to_dict("records"), False, False, False, collapse_metadata
 
     @app.callback(
-        Output("graph-spinner", "children"),
+        [Output("graph-spinner", "children"),
+         Output("html-div", "children")],
         [Input("final-data", "data"),
          Input("final-metadata", "data"),
          Input("chart-title", "value"),
@@ -160,7 +189,7 @@ def register_general_callbacks(app):
     def update_chart(final_data_record, final_metadata_record, title, subtitle,
                      start_date, end_date, chart_type, *tables_indicators):
         if not final_data_record:
-            return dcc.Graph(id="graph")
+            return dcc.Graph(id="graph"), ""
         data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
         final_metadata = pd.DataFrame.from_records(final_metadata_record)
         data.index = pd.to_datetime(data.index)
@@ -184,22 +213,22 @@ def register_general_callbacks(app):
             if chart_type == "bar":
                 fig = px.bar(data, y=data.columns,
                                 height=height, title=title,
-                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                color_discrete_sequence=px.colors.qualitative.Bold,
                                 barmode="group", template="plotly_white")
             elif chart_type == "stackbar":
                 fig = px.bar(data, y=data.columns,
                                 height=height, title=title,
-                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                color_discrete_sequence=px.colors.qualitative.Bold,
                                 barmode="stack", template="plotly_white")
             elif chart_type == "area":
                 fig = px.area(data, y=data.columns,
                                 height=height, title=title,
-                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                color_discrete_sequence=px.colors.qualitative.Bold,
                                 template="plotly_white")
             elif chart_type == "normarea":
                 fig = px.area(data, y=data.columns,
                                 height=height, title=title,
-                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                color_discrete_sequence=px.colors.qualitative.Bold,
                                 template="plotly_white", groupnorm="fraction")
             elif chart_type == "lineyears":
                 data["Año"] = data.index.year
@@ -213,12 +242,12 @@ def register_general_callbacks(app):
                     data["Período"] = data.index.dayofyear
                 fig = px.line(data, y=data.columns, color="Año", x="Período",
                                 height=height, title=title,
-                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                color_discrete_sequence=px.colors.qualitative.Bold,
                                 template="plotly_white")
             else:
                 fig = px.line(data, y=data.columns,
                                 height=height, title=title,
-                                color_discrete_sequence=px.colors.qualitative.Pastel,
+                                color_discrete_sequence=px.colors.qualitative.Bold,
                                 template="plotly_white")
             ylabels = []
             for currency, unit, inf in zip(
@@ -246,7 +275,7 @@ def register_general_callbacks(app):
                                 "legend_title": "",
                                 "title": {"y": 0.9,
                                         "yanchor": "top",
-                                        "font": {"size": 20}}})
+                                        "font": {"size": 16}}})
             path_to_logo = path.join(current_app.root_path,
                                         "static", "cards.jpg")
             fig.add_layout_image(dict(source=Image.open(path_to_logo),
@@ -254,22 +283,26 @@ def register_general_callbacks(app):
                                         yanchor="bottom", xref="paper",
                                         yref="paper",
                                         x=1, y=1.01))
-            fig.update_xaxes(
-                rangeselector=dict(yanchor="bottom", y=1.01, xanchor="right",
-                                    x=0.9,
-                                    buttons=list([
-                                        dict(count=1, label="1m", step="month",
-                                            stepmode="backward"),
-                                        dict(count=6, label="6m", step="month",
-                                            stepmode="backward"),
-                                        dict(count=1, label="YTD", step="year",
-                                            stepmode="todate"),
-                                        dict(count=1, label="1a", step="year",
-                                            stepmode="backward"),
-                                        dict(count=5, label="5a", step="year",
-                                            stepmode="backward"),
-                                        dict(label="todos", step="all")])))
-            viz = dcc.Graph(figure=fig, id="graph")
+            # fig.update_xaxes(
+            #     rangeselector=dict(yanchor="bottom", y=1.01, xanchor="right",
+            #                         x=0.9,
+            #                         buttons=list([
+            #                             dict(count=1, label="1m", step="month",
+            #                                 stepmode="backward"),
+            #                             dict(count=6, label="6m", step="month",
+            #                                 stepmode="backward"),
+            #                             dict(count=1, label="YTD", step="year",
+            #                                 stepmode="todate"),
+            #                             dict(count=1, label="1a", step="year",
+            #                                 stepmode="backward"),
+            #                             dict(count=5, label="5a", step="year",
+            #                                 stepmode="backward"),
+            #                             dict(label="todos", step="all")])))
+            html_string = StringIO()
+            fig.write_html(html_string)
+            html_string.seek(0)
+            viz = dcc.Graph(figure=fig, id="graph", config={"displayModeBar": False})
+            return viz, html_string.read()
         else:
             data.reset_index(inplace=True)
             data.rename(columns={"index": "Fecha"}, inplace=True)
@@ -298,7 +331,38 @@ def register_general_callbacks(app):
                                              "textAlign": "center"},
                                          page_action="none",
                                          fixed_rows={"headers": True})])
-        return viz
+            return viz, []
+
+    @app.callback(
+        Output("download-data-csv", "data"),
+        [Input("csv-button", "n_clicks")],
+        [State("final-data", "data"),
+         State("final-metadata", "data")], prevent_initial_call=True)
+    def download_csv(n, final_data_record, final_metadata_record):
+        if not final_data_record:
+            raise PreventUpdate
+        data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
+        final_metadata = pd.DataFrame.from_records(final_metadata_record)
+        data.index = pd.to_datetime(data.index)
+        data.columns = pd.MultiIndex.from_frame(final_metadata)
+        data.rename_axis(None, axis=0, inplace=True)
+        return dcc.send_bytes(str.encode(data.to_csv(), encoding="latin1"), "econuy-data.csv")
+
+    @app.callback(
+        Output("download-data-xlsx", "data"),
+        [Input("xlsx-button", "n_clicks")],
+        [State("final-data", "data"),
+         State("final-metadata", "data")], prevent_initial_call=True)
+    def download_xlsx(n, final_data_record, final_metadata_record):
+        if not final_data_record:
+            raise PreventUpdate
+        data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
+        final_metadata = pd.DataFrame.from_records(final_metadata_record)
+        data.index = pd.to_datetime(data.index)
+        data.columns = pd.MultiIndex.from_frame(final_metadata)
+        data.rename_axis(None, axis=0, inplace=True)
+        return dcc.send_bytes(data.to_excel, "econuy-data.xlsx")
+
 
 def register_tabs_callbacks(app, i: int):
 

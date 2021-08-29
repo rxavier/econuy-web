@@ -1,5 +1,4 @@
 import dash_bootstrap_components as dbc
-from dash_bootstrap_components._components.RadioItems import RadioItems
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_daq as daq
@@ -22,8 +21,8 @@ def build_layout(params):
         dcc.Store(id="final-metadata"),
         dbc.Row(
         dbc.Card([
-            dbc.CardHeader(html.H6("Opciones de gráfico")),
-            dbc.CardBody(
+            dbc.CardHeader(html.H6("Opciones de gráfico"), className="p-2"),
+            dbc.CardBody([
                 dbc.Row([
                     dbc.Col([
                         dbc.Label("Tipo de gráfico"),
@@ -39,14 +38,28 @@ def build_layout(params):
                         apply_qs(params)(dbc.Input)(id="chart-title", placeholder="Título",
                                   debounce=True, type="text"),
                         apply_qs(params)(dbc.Input)(id="chart-subtitle", placeholder="Subtítulo",
-                                  debounce=True, type="text", className="mt-1"),
-                        apply_qs(params)(dcc.DatePickerRange)(start_date_placeholder_text="Inicial",
+                                  debounce=True, type="text", className="mt-1")])]),
+                 dbc.Form(dbc.FormGroup([dbc.Label("Fechas", html_for="chart-dates", className="mr-2"), apply_qs(params)(dcc.DatePickerRange)(start_date_placeholder_text="Inicial",
                                             end_date_placeholder_text="Final",
                                             display_format="DD-MM-YYYY", clearable=True,
-                                            className="dash-bootstrap mt-1", id="chart-dates")])]))]),
+                                            className="dash-bootstrap", id="chart-dates")]), className="row mt-2 mx-2 justify-content-center")], className="p-2")]),
             className="mx-3 mt-2 justify-content-center"),
         dbc.Row(
-            dbc.Col(dbc.Spinner(dcc.Graph(), id="graph-spinner", color="primary")), className="mx-0 mx-md-3")])
+            dbc.Col(dbc.Spinner(dcc.Graph(),
+                                id="graph-spinner", color="primary")), className="mx-0 mx-md-3"),
+        dbc.Row([dbc.Col([dcc.Clipboard(target_id="html-div", id="clipboard", className="d-inline btn btn-primary"),
+                          html.Div("Copiar HTML", className="d-inline ml-2")],
+                         className="text-center mb-2", md=2, align="center"),
+                 dbc.Col(dbc.Button("Descargar Excel", id="xlsx-button",
+                                    color="primary", disabled=True), className="text-center mb-2", md=2),
+                 dbc.Col(dbc.Button("Descargar CSV", id="csv-button",
+                                    color="primary", disabled=True), className="text-center mb-2", md=2)],
+                 justify="center", className="mx-0 mx-md-3", no_gutters=True),
+        html.Div(id="html-div", hidden=True),
+        dcc.Download(id="download-data-csv"),
+        dcc.Download(id="download-data-xlsx"),
+        metadata_notes(),
+        html.Div(id="dummy")])
 
 
 NAVBAR = dbc.Navbar(
@@ -231,7 +244,7 @@ def form_builder(i: int, params):
                                                    {"label": "Interanual", "value": "inter"},
                                                    {"label": "Anual", "value": "annual"}],
                                           placeholder="Seleccionar período", searchable=False),
-                            className="dash-bootstrap")
+                            className="dash-bootstrap", id=f"chg-diff-period-div-{i}")
                         ]), md=6)], form=True), className="p-2")]), md=6),
         dbc.Col(
             dbc.Card([
@@ -325,6 +338,32 @@ def tooltip_builder(i: int):
             target=f"resample-header-{i}",
             placement="bottom",
             delay={"show": 250}),
+        dbc.Tooltip("Acumular en ventanas móviles. Cada período pasa a ser la suma / promedio de ese período y los n-1 anteriores.",
+            target=f"rolling-header-{i}",
+            placement="bottom",
+            delay={"show": 250}),
+        dbc.Tooltip("Modificar la frecuencia de acuerdo a distintos métodos de agregación / desagregación.",
+            target=f"resample-header-{i}",
+            placement="bottom",
+            delay={"show": 250}),
+        dbc.Tooltip("Calcular variaciones contra la propia serie.",
+            target=f"chg-diff-header-{i}",
+            placement="bottom",
+            delay={"show": 250}),
+        dbc.Tooltip("Último refiere a comparar el período actual con el inmediatamente anterior. "
+                    "Anual refiere a comparar el promedio del último año contra el del año previo.",
+            target=f"chg-diff-period-div-{i}",
+            placement="bottom",
+            delay={"show": 250}),
+        dbc.Tooltip("Reescalar los indicadores para que tengan un determinado valor en determinada fecha o rango de fechas. ",
+            target=f"rebase-header-{i}",
+            placement="bottom",
+            delay={"show": 250}),
+        dbc.Tooltip("Descomponer las series en componente tendencial, estacional e irregular. "
+                    "Es posible elegir mostrar el componente tendencial o la serie original sin el componente estacional.",
+            target=f"decompose-header-{i}",
+            placement="bottom",
+            delay={"show": 250}),
         ])
 
 
@@ -343,3 +382,15 @@ def data_storage(i: int):
                      dcc.Store(id=f"metadata-{i}"),
                      dcc.Store(id=f"data-transformed-{i}"),
                      dcc.Store(id=f"metadata-transformed-{i}")])
+
+def metadata_notes():
+    return html.Div([
+            dbc.Row(
+                dbc.Col(
+                    dbc.Button("Mostrar metadatos", color="secondary",
+                               id="metadata-button", disabled=True)),
+                className="mx-0 mx-md-3"),
+            dbc.Row(
+                dbc.Col(
+                    dbc.Collapse(is_open=False, id="metadata-collapse")),
+                className="mx-0 mx-md-3")])
