@@ -94,7 +94,8 @@ def register_callbacks(app):
         supply = supply.div(supply["Producto bruto interno"], axis=0).shift(4).mul(supply.pct_change(4), axis=0) * 100
         supply_plot = build_chart(supply, y=supply.columns[:-1],
                                   title="Cuentas nacionales, oferta: contribución al crecimiento interanual",
-                                  kind="bar", start=start, end=end, extra_trace="Producto bruto interno")
+                                  kind="bar", start=start, end=end, extra_trace="Producto bruto interno",
+                                  height=470)
         return supply_plot
 
     @app.callback(
@@ -151,7 +152,7 @@ def register_callbacks(app):
         cpi_measures.columns = cpi_measures.columns.get_level_values(0)
         cpi_measures_plot = build_chart(cpi_measures, title="Inflación transable, no transable y subyacente",
                                         kind="line", y=cpi_measures.columns[:-2],
-                                        start=start, end=end)
+                                        start=start, end=end, height=460)
         return cpi_measures_plot
 
     @app.callback(
@@ -241,7 +242,8 @@ def register_callbacks(app):
         activity_employment_plot = build_chart(data, title="Actividad y empleo",
                                kind="line", start=start, end=end,
                                y=["Tasa de actividad", "Tasa de actividad (tendencia-ciclo)",
-                                  "Tasa de empleo", "Tasa de empleo (tendencia-ciclo)"])
+                                  "Tasa de empleo", "Tasa de empleo (tendencia-ciclo)"],
+                               height=460)
         unemployment_plot = build_chart(data, title="Desempleo",
                                kind="line", start=start, end=end,
                                y=["Tasa de desempleo", "Tasa de desempleo (tendencia-ciclo)"])
@@ -278,18 +280,21 @@ def load_datasets():
 
 def build_chart(data: pd.DataFrame, title: str, y: Sequence = None, kind: str = "line",
                 yaxis_label: str = None, y_tickformat: str = None,
-                start: str = None, end: str = None, extra_trace: str = None):
+                start: str = None, end: str = None, extra_trace: str = None, **kwargs):
     start = start or "1900-01-01"
     end = end or dt.date.today().strftime("%Y-%m-%d")
     data = data.loc[start:end]
     if y is None:
         y = data.columns
     if kind == "line":
-        fig = px.line(data, y=y, color_discrete_sequence=px.colors.qualitative.Bold, title=title)
+        fig = px.line(data, y=y, color_discrete_sequence=px.colors.qualitative.Bold,
+                      title=title, **kwargs)
     elif kind == "bar":
-        fig = px.bar(data, y=y, color_discrete_sequence=px.colors.qualitative.Bold, title=title)
+        fig = px.bar(data, y=y, color_discrete_sequence=px.colors.qualitative.Bold,
+                     title=title, **kwargs)
     else:
-        fig = px.area(data, y=y, color_discrete_sequence=px.colors.qualitative.Bold, title=title)
+        fig = px.area(data, y=y, color_discrete_sequence=px.colors.qualitative.Bold,
+                      title=title, **kwargs)
     if extra_trace is not None:
         fig.add_trace(go.Scatter(x=data.index, y=data[extra_trace], mode="lines",
                                  line=go.scatter.Line(color="black"), name=extra_trace))
