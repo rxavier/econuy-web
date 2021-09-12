@@ -1,5 +1,5 @@
 from os import path
-from io import StringIO, BytesIO
+from io import StringIO
 
 import pandas as pd
 import plotly.express as px
@@ -17,8 +17,8 @@ from econuy.transform import chg_diff, convert_usd, convert_real, convert_gdp, r
 from flask import current_app
 
 from econuy_web.dash_apps.querystrings import encode_state, parse_state
-from econuy_web.dash_apps.components import build_layout
-from econuy_web.dash_apps import utils
+from econuy_web.dash_apps.visualization.components import build_layout
+from econuy_web.dash_apps.visualization import utils
 
 
 def register_general_callbacks(app):
@@ -176,7 +176,8 @@ def register_general_callbacks(app):
 
     @app.callback(
         [Output("graph-spinner", "children"),
-         Output("html-div", "children")],
+         Output("html-div", "children"),
+         Output("clipboard", "className")],
         [Input("final-data", "data"),
          Input("final-metadata", "data"),
          Input("chart-title", "value"),
@@ -189,7 +190,7 @@ def register_general_callbacks(app):
     def update_chart(final_data_record, final_metadata_record, title, subtitle,
                      start_date, end_date, chart_type, *tables_indicators):
         if not final_data_record:
-            return dcc.Graph(id="graph"), ""
+            return dcc.Graph(id="graph"), "", "d-inline btn btn-primary disabled"
         data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
         final_metadata = pd.DataFrame.from_records(final_metadata_record)
         data.index = pd.to_datetime(data.index)
@@ -214,41 +215,42 @@ def register_general_callbacks(app):
                 fig = px.bar(data, y=data.columns,
                                 height=height, title=title,
                                 color_discrete_sequence=px.colors.qualitative.Bold,
-                                barmode="group", template="plotly_white")
+                                barmode="group", )
             elif chart_type == "stackbar":
                 fig = px.bar(data, y=data.columns,
                                 height=height, title=title,
                                 color_discrete_sequence=px.colors.qualitative.Bold,
-                                barmode="stack", template="plotly_white")
+                                barmode="stack", )
             elif chart_type == "area":
                 fig = px.area(data, y=data.columns,
                                 height=height, title=title,
                                 color_discrete_sequence=px.colors.qualitative.Bold,
-                                template="plotly_white")
+                                )
             elif chart_type == "normarea":
                 fig = px.area(data, y=data.columns,
                                 height=height, title=title,
                                 color_discrete_sequence=px.colors.qualitative.Bold,
-                                template="plotly_white", groupnorm="fraction")
+                                groupnorm="fraction")
             elif chart_type == "lineyears":
-                data["Año"] = data.index.year
-                if pd.infer_freq(data.index) in ["M", "MS", "Q", "Q-DEC"]:
-                    data["Período"] = data.index.month_name()
-                elif pd.infer_freq(data.index) in ["A", "A-DEC"]:
+                aux = data.copy()
+                aux["Año"] = aux.index.year
+                if pd.infer_freq(aux.index) in ["M", "MS", "Q", "Q-DEC"]:
+                    aux["Período"] = aux.index.month_name()
+                elif pd.infer_freq(aux.index) in ["A", "A-DEC"]:
                     raise PreventUpdate
-                elif pd.infer_freq(data.index) in ["W", "W-SUN"]:
-                    data["Período"] = data.index.strftime("%U").astype("int32")
+                elif pd.infer_freq(aux.index) in ["W", "W-SUN"]:
+                    aux["Período"] = aux.index.strftime("%U").astype("int32")
                 else:
-                    data["Período"] = data.index.dayofyear
-                fig = px.line(data, y=data.columns, color="Año", x="Período",
+                    aux["Período"] = aux.index.dayofyear
+                fig = px.line(aux, y=aux.columns, color="Año", x="Período",
                                 height=height, title=title,
                                 color_discrete_sequence=px.colors.qualitative.Bold,
-                                template="plotly_white")
+                                )
             else:
                 fig = px.line(data, y=data.columns,
                                 height=height, title=title,
                                 color_discrete_sequence=px.colors.qualitative.Bold,
-                                template="plotly_white")
+                                )
             ylabels = []
             for currency, unit, inf in zip(
                     final_metadata["Moneda"],
@@ -302,7 +304,7 @@ def register_general_callbacks(app):
             fig.write_html(html_string)
             html_string.seek(0)
             viz = dcc.Graph(figure=fig, id="graph", config={"displayModeBar": False})
-            return viz, html_string.read()
+            return viz, html_string.read(), "d-inline btn btn-primary"
         else:
             data.reset_index(inplace=True)
             data.rename(columns={"index": "Fecha"}, inplace=True)
@@ -331,7 +333,7 @@ def register_general_callbacks(app):
                                              "textAlign": "center"},
                                          page_action="none",
                                          fixed_rows={"headers": True})])
-            return viz, []
+            return viz, [], "d-inline btn btn-primary disabled"
 
     @app.callback(
         Output("download-data-csv", "data"),

@@ -1,3 +1,5 @@
+import datetime as dt
+
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -5,6 +7,7 @@ import dash_daq as daq
 
 from econuy_web.app_strings import table_options
 from econuy_web.dash_apps.querystrings import apply_qs
+from econuy_web.dash_apps.general_components import NAVBAR, FOOTER
 
 
 def build_layout(params):
@@ -47,45 +50,22 @@ def build_layout(params):
         dbc.Row(
             dbc.Col(dbc.Spinner(dcc.Graph(),
                                 id="graph-spinner", color="primary")), className="mx-0 mx-md-3"),
-        dbc.Row([dbc.Col([dcc.Clipboard(target_id="html-div", id="clipboard", className="d-inline btn btn-primary"),
-                          html.Div("Copiar HTML", className="d-inline ml-2")],
-                         className="text-center mb-2", md=2, align="center"),
-                 dbc.Col(dbc.Button("Descargar Excel", id="xlsx-button",
+        dbc.Row([dbc.Col(dbc.Button("Descargar Excel", id="xlsx-button",
                                     color="primary", disabled=True), className="text-center mb-2", md=2),
                  dbc.Col(dbc.Button("Descargar CSV", id="csv-button",
-                                    color="primary", disabled=True), className="text-center mb-2", md=2)],
+                                    color="primary", disabled=True), className="text-center mb-2", md=2),
+                 dbc.Col([dcc.Clipboard(target_id="html-div", id="clipboard", className="d-inline btn btn-primary disabled"),
+                          html.Div("Copiar HTML", className="d-inline ml-2")],
+                         className="text-center mb-2", md=2, align="center")],
                  justify="center", className="mx-0 mx-md-3", no_gutters=True),
         html.Div(id="html-div", hidden=True),
         dcc.Download(id="download-data-csv"),
         dcc.Download(id="download-data-xlsx"),
         metadata_notes(),
-        html.Div(id="dummy")])
-
-
-NAVBAR = dbc.Navbar(
-            [html.A(
-                dbc.Row([
-                    dbc.Col(html.Img(src="assets/logo_only.png", height="40px")),
-                    dbc.Col(dbc.NavbarBrand("econuy", className="ml-2"))]),
-                href="/"),
-             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
-             dbc.Collapse(dbc.Row(
-                 dbc.Nav([
-                     dbc.DropdownMenu([dbc.DropdownMenuItem("2015",
-                                                            href="/over2/?dates=start_date&dates=2015-01-01", external_link=True),
-                                       dbc.DropdownMenuItem("2019", href="/over2/?dates=start_date&dates=2019-01-01", external_link=True)],
-                                      nav=True, in_navbar=True, label="Monitor"),
-                     dbc.NavItem(dbc.NavLink("Visualizador", href="/v/", external_link=True)),
-                     dbc.NavItem(dbc.NavLink("Docs Python", href="https://econuy.readthedocs.io/", external_link=True)),
-                     dbc.NavItem(dbc.NavLink("Inicio", href="/", external_link=True))
-                     ]),
-                 no_gutters=True,
-                 className="ml-auto flex-nowrap mt-3 mt-md-0",
-                 align="center"),
-                          id="navbar-collapse", navbar=True, is_open=False
-                          )
-             ]
-            )
+        html.Div(id="dummy"),
+        html.Br(),
+        FOOTER
+        ])
 
 
 def form_builder(i: int, params):
