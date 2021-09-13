@@ -77,7 +77,7 @@ def register_callbacks(app):
         demand_plot = build_chart(demand, y=["Gasto de consumo: hogares", "Gasto de consumo: gobierno y ISFLH",
                                              "Formación bruta de capital", "Exportaciones de bienes y servicios",
                                              "Importaciones de bienes y servicios"],
-                                  title="Cuentas nacionales, demanda: contribución al crecimiento interanual",
+                                  title="Cuentas nacionales, demanda", subtitle="Contribución al crecimiento interanual",
                                   kind="bar", start=start, end=end, extra_trace="Producto bruto interno")
         return demand_plot
 
@@ -93,7 +93,7 @@ def register_callbacks(app):
         supply.columns = supply.columns.get_level_values(0)
         supply = supply.div(supply["Producto bruto interno"], axis=0).shift(4).mul(supply.pct_change(4), axis=0) * 100
         supply_plot = build_chart(supply, y=supply.columns[:-1],
-                                  title="Cuentas nacionales, oferta: contribución al crecimiento interanual",
+                                  title="Cuentas nacionales, oferta", subtitle="Contribución al crecimiento interanual",
                                   kind="bar", start=start, end=end, extra_trace="Producto bruto interno",
                                   height=470)
         return supply_plot
@@ -108,7 +108,7 @@ def register_callbacks(app):
         p.chg_diff(period="last")
         gdp = p.dataset
         gdp.columns = gdp.columns.get_level_values(0)
-        gdp_plot = build_chart(gdp, title="PBI real: crecimiento trimestral", kind="bar",
+        gdp_plot = build_chart(gdp, title="PBI real", subtitle="Desestacionalizado, variación trimestral", kind="bar",
                                start=start, end=end)
         return gdp_plot
 
@@ -122,7 +122,7 @@ def register_callbacks(app):
         p.chg_diff(period="inter")
         industrial = p.dataset
         industrial.columns = industrial.columns.get_level_values(0)
-        industrial_plot = build_chart(industrial, title="Producción industrial: crecimiento interanual",
+        industrial_plot = build_chart(industrial, title="Producción industrial", subtitle="Variación interanual",
                                       kind="line", start=start, end=end)
         return industrial_plot
 
@@ -136,7 +136,7 @@ def register_callbacks(app):
         p.chg_diff(period="inter")
         cpi = p.dataset
         cpi.columns = cpi.columns.get_level_values(0)
-        cpi_plot = build_chart(cpi, title="Inflación interanual", kind="line",
+        cpi_plot = build_chart(cpi, title="IPC", subtitle="Variación interanual", kind="line",
                                start=start, end=end)
         return cpi_plot
 
@@ -150,7 +150,8 @@ def register_callbacks(app):
         p.chg_diff(period="inter")
         cpi_measures = p.dataset
         cpi_measures.columns = cpi_measures.columns.get_level_values(0)
-        cpi_measures_plot = build_chart(cpi_measures, title="Inflación transable, no transable y subyacente",
+        cpi_measures_plot = build_chart(cpi_measures, title="IPC transable, no transable y subyacente",
+                                        subtitle="Variación interanual",
                                         kind="line", y=cpi_measures.columns[:-2],
                                         start=start, end=end, height=460)
         return cpi_measures_plot
@@ -164,7 +165,7 @@ def register_callbacks(app):
         p.get("nxr_daily")
         nxr_daily = p.dataset
         nxr_daily.columns = nxr_daily.columns.get_level_values(0)
-        nxr_plot = build_chart(nxr_daily, title="Tipo de cambio", kind="area",
+        nxr_plot = build_chart(nxr_daily, title="Tipo de cambio", subtitle="Cable", kind="area",
                                start=start, end=end)
         return nxr_plot
 
@@ -179,11 +180,11 @@ def register_callbacks(app):
         p.convert(flavor="gdp")
         balance = p.dataset
         balance.columns = balance.columns.get_level_values(0)
-        balance_plot = build_chart(balance, title="Resultado fiscal del sector público consolidado: % PBI",
+        balance_plot = build_chart(balance, title="Resultado fiscal del sector público consolidado", subtitle="% del PBI",
                                    kind="line", start=start, end=end,
                                    y=["Resultado: Primario SPC ex FSS", "Resultado: Primario SPC",
                                       "Resultado: Global SPC ex FSS", "Resultado: Global SPC"])
-        balance_sectors_plot = build_chart(balance, title="Resultado global por sector: % PBI",
+        balance_sectors_plot = build_chart(balance, title="Resultado global por sector", subtitle="% del PBI",
                                    kind="line", start=start, end=end,
                                    y=["Resultado: Global GC-BPS ex FSS", "Resultado: Global EEPP",
                                       "Resultado: Global intendencias", "Resultado: Global BSE",
@@ -204,7 +205,7 @@ def register_callbacks(app):
              "IRPF Cat II - Rentas de las Personas Físicas"]] = tax[["IRAE - Rentas de Actividades Económicas",
                                                                      "IRPF Cat II - Rentas de las Personas Físicas"]].mask(tax.index.to_series() < "2009-01-01")
         tax.columns = tax.columns.get_level_values(0)
-        tax_plot = build_chart(tax, title="Recaudación impositiva: crecimiento interanual",
+        tax_plot = build_chart(tax, title="Recaudación impositiva", subtitle="Variación interanual",
                                kind="line", start=start, end=end,
                                y=["IRAE - Rentas de Actividades Económicas",
                                   "IRPF Cat II - Rentas de las Personas Físicas",
@@ -221,7 +222,7 @@ def register_callbacks(app):
         p.convert(flavor="gdp")
         debt = p.dataset
         debt.columns = debt.columns.get_level_values(0)
-        debt_plot = build_chart(debt, title="Deuda neta del sector público global: % PBI",
+        debt_plot = build_chart(debt, title="Deuda neta del sector público global", subtitle="% del PBI",
                                kind="area", start=start, end=end)
         return debt_plot
 
@@ -239,12 +240,12 @@ def register_callbacks(app):
         trends = sqlutil.read(con=db.engine, table_name="labor_rates_people_seas")
         trends.columns = trends.columns.get_level_values(0) + [" (tendencia-ciclo)"]
         data = pd.concat([nsa, trends], axis=1)
-        activity_employment_plot = build_chart(data, title="Actividad y empleo",
+        activity_employment_plot = build_chart(data, title="Actividad y empleo", subtitle="Tasa",
                                kind="line", start=start, end=end,
                                y=["Tasa de actividad", "Tasa de actividad (tendencia-ciclo)",
                                   "Tasa de empleo", "Tasa de empleo (tendencia-ciclo)"],
                                height=460)
-        unemployment_plot = build_chart(data, title="Desempleo",
+        unemployment_plot = build_chart(data, title="Desempleo", subtitle="Tasa",
                                kind="line", start=start, end=end,
                                y=["Tasa de desempleo", "Tasa de desempleo (tendencia-ciclo)"])
 
@@ -261,16 +262,74 @@ def register_callbacks(app):
         p.chg_diff(period="inter")
         wages = p.dataset
         wages.columns = wages.columns.get_level_values(0)
-        wages_plot = build_chart(wages, title="Salario real: crecimiento interanual",
+        wages_plot = build_chart(wages, title="Salario real", subtitle="Variación interanual",
                                kind="line", start=start, end=end)
         return wages_plot
+
+    @app.callback(
+        Output("chart-exp-imp", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_expimp(start, end):
+        s = Session(location=db.engine, download=False)
+        s.get(["trade_x_prod_val", "trade_m_sect_val"])
+        s.convert(flavor="gdp")
+        s.concat(concat_name="expimp")
+        data = s.datasets["concat_expimp"]
+        data.columns = data.columns.get_level_values(0)
+        expimp_plot = build_chart(data, title="Exportaciones e importaciones", subtitle="% del PBI",
+                               kind="line", start=start, end=end,
+                               y=["Total exportaciones", "Total importaciones: CIF "])
+        return expimp_plot
+
+    @app.callback(
+        Output("chart-tot", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_tot(start, end):
+        p = Pipeline(location=db.engine, download=False)
+        p.get("terms_of_trade")
+        p.chg_diff(period="inter")
+        tot = p.dataset
+        tot.columns = tot.columns.get_level_values(0)
+        tot_plot = build_chart(tot, title="Términos de intercambio", subtitle="Variación interanual",
+                               kind="bar", start=start, end=end)
+        return tot_plot
+
+
+    @app.callback(
+        Output("chart-rxr", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_rxr(start, end):
+        p = Pipeline(location=db.engine, download=False)
+        p.get("rxr_custom")
+        p.rebase(start_date=p.dataset.index.min(), end_date=p.dataset.index.max())
+        rxr = p.dataset
+        rxr.columns = rxr.columns.get_level_values(0)
+        rxr_plot = build_chart(rxr, title=f"Tipo de cambio real", subtitle=f"1980-{dt.date.today().year}=100",
+                               kind="line", start=start, end=end)
+        return rxr_plot
+
+    @app.callback(
+        Output("chart-commodity-index", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_commodity(start, end):
+        p = Pipeline(location=db.engine, download=False)
+        p.get("commodity_index")
+        p.chg_diff(period="inter")
+        commodity = p.dataset
+        commodity.columns = commodity.columns.get_level_values(0)
+        commodity_plot = build_chart(commodity, title="Índice de precios de commodities",
+                                     subtitle="Variación interanual", kind="line", start=start, end=end)
+        return commodity_plot
 
 
 def load_datasets():
     from econuy_web import db
     s = Session(location=db.engine, download=False)
-    s.get(["trade_x_prod_val", "trade_m_sect_val", "rxr_custom",
-           "commodity_index", "terms_of_trade", "bonds", "sovereign_risk"])
+    s.get(["bonds", "sovereign_risk"])
     metadatas = {k: v.columns.to_frame() for k, v in s.datasets.items()}
     datasets = {k: v.reset_index() for k, v in s.datasets_flat.items()}
     return html.Div([dcc.Store(id=k, data=v.to_dict("records")) for k, v in datasets.items()]
@@ -278,23 +337,24 @@ def load_datasets():
                        for k, v in metadatas.items()])
 
 
-def build_chart(data: pd.DataFrame, title: str, y: Sequence = None, kind: str = "line",
-                yaxis_label: str = None, y_tickformat: str = None,
+def build_chart(data: pd.DataFrame, title: str, subtitle: str, y: Sequence = None,
+                kind: str = "line", yaxis_label: str = None, y_tickformat: str = None,
                 start: str = None, end: str = None, extra_trace: str = None, **kwargs):
     start = start or "1900-01-01"
     end = end or dt.date.today().strftime("%Y-%m-%d")
     data = data.loc[start:end]
+    full_title = f"{title}<br><span style='font-size:14px'>{subtitle}</span>"
     if y is None:
         y = data.columns
     if kind == "line":
         fig = px.line(data, y=y, color_discrete_sequence=px.colors.qualitative.Bold,
-                      title=title, **kwargs)
+                      title=full_title, **kwargs)
     elif kind == "bar":
         fig = px.bar(data, y=y, color_discrete_sequence=px.colors.qualitative.Bold,
-                     title=title, **kwargs)
+                     title=full_title, **kwargs)
     else:
         fig = px.area(data, y=y, color_discrete_sequence=px.colors.qualitative.Bold,
-                      title=title, **kwargs)
+                      title=full_title, **kwargs)
     if extra_trace is not None:
         fig.add_trace(go.Scatter(x=data.index, y=data[extra_trace], mode="lines",
                                  line=go.scatter.Line(color="black"), name=extra_trace))

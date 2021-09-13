@@ -28,7 +28,8 @@ def build_layout(params):
             dbc.Tab(tab_activity, label="Actividad", activeLabelClassName="btn btn-primary"),
             dbc.Tab(tab_prices, label="Precios", activeLabelClassName="btn btn-primary"),
             dbc.Tab(tab_fiscal, label="Fiscal", activeLabelClassName="btn btn-primary"),
-            dbc.Tab(tab_laboral, label="Laboral", activeLabelClassName="btn btn-primary")
+            dbc.Tab(tab_labor, label="Laboral", activeLabelClassName="btn btn-primary"),
+            dbc.Tab(tab_external, label="Externo", activeLabelClassName="btn btn-primary")
         ], className="mx-0 mx-md-3 nav-justified"),
         FOOTER
         ])
@@ -57,10 +58,19 @@ tab_fiscal = [dbc.Row([
     dbc.Col(dcc.Graph(id="chart-debt", config={"displayModeBar": False}), md=6)
 ])]
 
-tab_laboral = [dbc.Row([
+tab_labor = [dbc.Row([
     dbc.Col(dcc.Graph(id="chart-activity-employment", config={"displayModeBar": False}), md=6),
     dbc.Col(dcc.Graph(id="chart-unemployment", config={"displayModeBar": False}), md=6)
 ]),
               dbc.Row([
     dbc.Col(dcc.Graph(id="chart-real-wages", config={"displayModeBar": False}), md=6)
+])]
+
+tab_external = [dbc.Row([
+    dbc.Col(dcc.Graph(id="chart-exp-imp", config={"displayModeBar": False}), md=6),
+    dbc.Col(dcc.Graph(id="chart-tot", config={"displayModeBar": False}), md=6)
+]),
+              dbc.Row([
+    dbc.Col(dcc.Graph(id="chart-rxr", config={"displayModeBar": False}), md=6),
+    dbc.Col(dcc.Graph(id="chart-commodity-index", config={"displayModeBar": False}), md=6)
 ])]
