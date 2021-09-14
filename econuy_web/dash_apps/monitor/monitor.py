@@ -10,7 +10,7 @@ pio.templates.default = "plotly_white"
 
 def add_dash(server):
     app = Dash(server=server, url_base_pathname="/monitor/", suppress_callback_exceptions=True,
-               external_stylesheets=[dbc.themes.BOOTSTRAP],
+               external_stylesheets=[dbc.themes.BOOTSTRAP], title="Monitor económico",
                meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1"},
     ])
