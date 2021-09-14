@@ -29,14 +29,14 @@ def build_layout(params):
                 dbc.Row([
                     dbc.Col([
                         dbc.Label("Tipo de gráfico"),
-                        apply_qs(params)(dbc.RadioItems)(options=[{"label": "Líneas", "value": "line"},
+                        html.Div(apply_qs(params)(dcc.Dropdown)(options=[{"label": "Líneas", "value": "line"},
                                                 {"label": "Barras", "value": "bar"},
                                                 {"label": "Barras apiladas", "value": "stackbar"},
                                                 {"label": "Áreas", "value": "area"},
                                                 {"label": "Proporciones", "value": "normarea"},
                                                 {"label": "Líneas-año", "value": "lineyears"},
-                                                {"label": "Tabla", "value": "table"}],
-                                       id="chart-type", value="line", inline=True)]),
+                                                {"label": "Tabla", "value": "table"}], id="chart-type",
+                                                                value="line", clearable=False), className="dash-bootstrap")]),
                     dbc.Col([
                         apply_qs(params)(dbc.Input)(id="chart-title", placeholder="Título",
                                   debounce=True, type="text"),
