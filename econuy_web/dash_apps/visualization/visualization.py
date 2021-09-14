@@ -9,7 +9,7 @@ from econuy_web.dash_apps.visualization.callbacks import register_general_callba
 pio.templates.default = "plotly_white"
 
 def add_dash(server):
-    app = Dash(server=server, url_base_pathname="/v/", suppress_callback_exceptions=True,
+    app = Dash(server=server, url_base_pathname="/interactive/", suppress_callback_exceptions=True,
                external_stylesheets=[dbc.themes.BOOTSTRAP],
                meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1"},
