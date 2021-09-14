@@ -10,8 +10,12 @@ if __name__ == "__main__":
     app.app_context().push()
     s = Session(location=db.engine)
     if len(sys.argv) == 1:
+        s.decompose(component="trend", method="x13", force_x13=True, select="labor_rates_people")
+        sqlutil.df_to_sql(s.datasets["labor_rates_people"], name="labor_rates_people_seas",
+                          con=db.engine)
         s.get_bulk("all")
         s.get("_lin_gdp")
+    elif sys.argv[1] == "labor_seas":
         s.decompose(component="trend", method="x13", force_x13=True, select="labor_rates_people")
         sqlutil.df_to_sql(s.datasets["labor_rates_people"], name="labor_rates_people_seas",
                           con=db.engine)
