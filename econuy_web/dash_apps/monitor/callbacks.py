@@ -185,7 +185,7 @@ def register_callbacks(app):
                                    y=["Resultado: Primario SPC ex FSS", "Resultado: Primario SPC",
                                       "Resultado: Global SPC ex FSS", "Resultado: Global SPC"])
         balance_sectors_plot = build_chart(balance, title="Resultado global por sector", subtitle="% del PBI",
-                                   kind="line", start=start, end=end,
+                                   kind="bar", start=start, end=end,
                                    y=["Resultado: Global GC-BPS ex FSS", "Resultado: Global EEPP",
                                       "Resultado: Global intendencias", "Resultado: Global BSE",
                                       "Resultado: Global BCU"])
@@ -293,7 +293,7 @@ def register_callbacks(app):
         tot = p.dataset
         tot.columns = tot.columns.get_level_values(0)
         tot_plot = build_chart(tot, title="Términos de intercambio", subtitle="Variación interanual",
-                               kind="bar", start=start, end=end)
+                               kind="area", start=start, end=end)
         return tot_plot
 
 
@@ -322,19 +322,89 @@ def register_callbacks(app):
         commodity = p.dataset
         commodity.columns = commodity.columns.get_level_values(0)
         commodity_plot = build_chart(commodity, title="Índice de precios de commodities",
-                                     subtitle="Variación interanual", kind="line", start=start, end=end)
+                                     subtitle="Variación interanual", kind="area", start=start, end=end)
         return commodity_plot
 
+    @app.callback(
+        Output("chart-ubi", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_ubi(start, end):
+        p = Pipeline(location=db.engine, download=False)
+        p.get("sovereign_risk")
+        ubi = p.dataset
+        ubi.columns = ubi.columns.get_level_values(0)
+        ubi_plot = build_chart(ubi, title="Uruguay Bond Index",
+                                     subtitle="Spread con respecto Treasury 10Y", kind="area", start=start, end=end)
+        return ubi_plot
 
-def load_datasets():
-    from econuy_web import db
-    s = Session(location=db.engine, download=False)
-    s.get(["bonds", "sovereign_risk"])
-    metadatas = {k: v.columns.to_frame() for k, v in s.datasets.items()}
-    datasets = {k: v.reset_index() for k, v in s.datasets_flat.items()}
-    return html.Div([dcc.Store(id=k, data=v.to_dict("records")) for k, v in datasets.items()]
-                    + [dcc.Store(id=f"{k}-metadata", data=v.to_dict("records"))
-                       for k, v in metadatas.items()])
+    @app.callback(
+        Output("chart-bonds", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_bonds(start, end):
+        p = Pipeline(location=db.engine, download=False)
+        p.get("bonds")
+        bonds = p.dataset
+        bonds.columns = bonds.columns.get_level_values(0)
+        bonds_plot = build_chart(bonds, title="Rendimiento de bonos soberanos",
+                                     subtitle="Puntos básicos", kind="line", start=start, end=end)
+        return bonds_plot
+
+    @app.callback(
+        Output("chart-regional-gdp", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_regional_gdp(start, end):
+        p = Pipeline(location=db.engine, download=False)
+        p.get("regional_monthly_gdp")
+        p.chg_diff(period="inter")
+        gdp = p.dataset
+        gdp.columns = gdp.columns.get_level_values(0)
+        gdp_plot = build_chart(gdp, title="PBI mensual",
+                                     subtitle="Variación interanual", kind="line", start=start, end=end)
+        return gdp_plot
+
+    @app.callback(
+        Output("chart-regional-nxr", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_regional_nxr(start, end):
+        p = Pipeline(location=db.engine, download=False)
+        p.get("regional_nxr")
+        nxr = p.dataset.pct_change(30) * 100
+        nxr.columns = nxr.columns.get_level_values(0)
+        rxr_plot = build_chart(nxr, title="Tipo de cambio nominal",
+                                     subtitle="Variación 30 días", kind="line", start=start, end=end)
+        return rxr_plot
+
+    @app.callback(
+        Output("chart-global-gdp", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_global_gdp(start, end):
+        p = Pipeline(location=db.engine, download=False)
+        p.get("global_gdp")
+        p.chg_diff(period="inter")
+        gdp = p.dataset[["Estados Unidos", "Unión Europea", "China"]]
+        gdp.columns = gdp.columns.get_level_values(0)
+        gdp_plot = build_chart(gdp, title="PBI real",
+                                     subtitle="Variación interanual", kind="line", start=start, end=end)
+        return gdp_plot
+
+    @app.callback(
+        Output("chart-global-nxr", "figure"),
+        [Input("dates", "start_date"),
+         Input("dates", "end_date")])
+    def build_global_nxr(start, end):
+        p = Pipeline(location=db.engine, download=False)
+        p.get("global_nxr")
+        nxr = p.dataset[["Índice Dólar", "Euro", "Renminbi"]].pct_change(30) * 100
+        nxr.columns = nxr.columns.get_level_values(0)
+        nxr_plot = build_chart(nxr, title="Tipo de cambio nominal",
+                                     subtitle="Variación 30 días", kind="line", start=start, end=end)
+        return nxr_plot
+
 
 
 def build_chart(data: pd.DataFrame, title: str, subtitle: str, y: Sequence = None,
@@ -343,6 +413,7 @@ def build_chart(data: pd.DataFrame, title: str, subtitle: str, y: Sequence = Non
     start = start or "1900-01-01"
     end = end or dt.date.today().strftime("%Y-%m-%d")
     data = data.loc[start:end]
+    #if len(data) > 7000:
     full_title = f"{title}<br><span style='font-size:14px'>{subtitle}</span>"
     if y is None:
         y = data.columns
