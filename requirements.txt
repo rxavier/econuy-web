@@ -3,7 +3,7 @@ bleach==4.1.0
 Brotli==1.0.9
 certifi==2021.5.30
 chardet==4.0.0
-charset-normalizer==2.0.4
+charset-normalizer==2.0.6
 chromedriver-autoinstaller==0.2.2
 click==8.0.1
 colorama==0.4.4
@@ -16,7 +16,7 @@ dash-html-components==1.1.4
 dash-renderer==1.5.1
 dash-table==4.12.0
 dominate==2.6.0
--e git+https://github.com/rxavier/econuy.git@41e7aa9b8930b3a7b5565af21563f0230493435b#egg=econuy
+-e git+https://github.com/rxavier/econuy.git@228b5c2180477b694d3fa90ce72ecfbe8863f0d2#egg=econuy
 et-xmlfile==1.1.0
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1
@@ -36,7 +36,7 @@ lxml==4.6.3
 MarkupSafe==2.0.1
 matplotlib==3.4.3
 numpy==1.17.4
-openpyxl==3.0.7
+openpyxl==3.0.9
 opnieuw==1.1.0
 orjson==3.6.3
 packaging==21.0
@@ -59,7 +59,7 @@ SQLAlchemy==1.3.16
 statsmodels==0.12.0
 tenacity==8.0.1
 typing-extensions==3.10.0.2
-urllib3==1.26.6
+urllib3==1.26.7
 visitor==0.1.3
 webencodings==0.5.1
 Werkzeug==2.0.1

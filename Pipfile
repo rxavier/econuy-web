@@ -19,7 +19,7 @@ gunicorn = "==20.0.4"
 xlsxwriter = "==1.2.9"
 dash = "==1.21.0"
 dash-bootstrap-components = "==0.12.1"
-econuy = {editable = true, ref = "41e7aa9b8930b3a7b5565af21563f0230493435b", git = "https://github.com/rxavier/econuy.git"}
+econuy = {editable = true, ref = "228b5c2180477b694d3fa90ce72ecfbe8863f0d2", git = "https://github.com/rxavier/econuy.git"}
 dash-daq = "==0.5.0"
 orjson = "==3.6.3"
 
