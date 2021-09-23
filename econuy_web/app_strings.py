@@ -4,7 +4,7 @@ table_options = {
     "natacc_ind_con_nsa": "Cuentas nacionales: Oferta, precios constantes (mar-16, T)",
     "gdp_con_idx_sa": "PBI: índice real, desestacionalizado (mar-16, T)",
     "natacc_ind_cur_nsa": "Cuentas nacionales: Oferta, precios corrientes (mar-16, T)",
-    "natacc_gdp_cur_nsa": "Cuentas nacionales: Demanda, precios corrientes (mar-16, T)",
+    "natacc_gas_cur_nsa": "Cuentas nacionales: Demanda, precios corrientes (mar-16, T)",
     "natacc_ind_con_nsa_long": "Cuentas nacionales: Oferta, precios constantes, serie empalmada (mar-88, T [e])",
     "natacc_gas_con_nsa_long": "Cuentas nacionales: Demanda, precios constantes, serie empalmada (mar-88, T [e])",
     "gdp_con_idx_sa_long": "PBI: índice real, desestacionalizado, serie empalmada (mar-88, T [e])",
