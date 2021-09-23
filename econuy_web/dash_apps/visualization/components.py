@@ -220,7 +220,7 @@ def form_builder(i: int, params):
                         dbc.Label("Período de referencia", html_for=f"chg-diff-period-{i}"),
                         html.Div(apply_qs(params)(
                             dcc.Dropdown)(id=f"chg-diff-period-{i}",
-                                          options=[{"label": "Último período", "value": "last"},
+                                          options=[{"label": "Período anterior", "value": "last"},
                                                    {"label": "Interanual", "value": "inter"},
                                                    {"label": "Anual", "value": "annual"}],
                                           placeholder="Seleccionar período", searchable=False),
@@ -328,11 +328,6 @@ def tooltip_builder(i: int):
             delay={"show": 250}),
         dbc.Tooltip("Calcular variaciones contra la propia serie.",
             target=f"chg-diff-header-{i}",
-            placement="bottom",
-            delay={"show": 250}),
-        dbc.Tooltip("Último refiere a comparar el período actual con el inmediatamente anterior. "
-                    "Anual refiere a comparar el promedio del último año contra el del año previo.",
-            target=f"chg-diff-period-div-{i}",
             placement="bottom",
             delay={"show": 250}),
         dbc.Tooltip("Reescalar los indicadores para que tengan un determinado valor en determinada fecha o rango de fechas. ",
