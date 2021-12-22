@@ -32,7 +32,8 @@ FREQ_TRANSLATIONS = {"Q-DEC": "Quarterly",
                      "MS": "Monthly",
                      "W": "Weekly",
                      "W-SUN": "Weekly",
-                     "D": "Daily"}
+                     "D": "Daily",
+                     "-": "Daily"}
 
 eng = create_engine(DATABASE_URL)
 
