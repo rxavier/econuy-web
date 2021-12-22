@@ -1,5 +1,6 @@
 import os
 import re
+from json.decoder import JSONDecodeError
 from pathlib import Path
 
 from alphacast import Alphacast
@@ -62,11 +63,14 @@ def build_dataset_name(dataset, name_es):
 
 
 def upload_public_datasets():
-    repo_details = alphacast.repository.create("Uruguay Macro (econuy public repo)",
-                                               repo_description=PUBLIC_REPO_DESCRIPTION,
-                                               slug="public-repo", privacy="Public",
-                                               returnIdIfExists=True)
-    repo_id = repo_details["id"]
+    try:
+        repo_details = alphacast.repository.create("Uruguay Macro (econuy public repo)",
+                                                repo_description=PUBLIC_REPO_DESCRIPTION,
+                                                slug="public-repo", privacy="Public",
+                                                returnIdIfExists=True)
+        repo_id = repo_details["id"]
+    except JSONDecodeError:
+        repo_id = 1633
 
     s = Session(location=eng, download=False)
     s.get_bulk("original")
@@ -94,11 +98,14 @@ def upload_public_datasets():
 
 
 def upload_private_datasets():
-    repo_details = alphacast.repository.create("Uruguay Macro (econuy private repo)",
-                                               repo_description=PRIVATE_REPO_DESCRIPTION,
-                                               slug="private-repo", privacy="Private",
-                                               returnIdIfExists=True)
-    repo_id = repo_details["id"]
+    try:
+        repo_details = alphacast.repository.create("Uruguay Macro (econuy private repo)",
+                                                repo_description=PRIVATE_REPO_DESCRIPTION,
+                                                slug="private-repo", privacy="Private",
+                                                returnIdIfExists=True)
+        repo_id = repo_details["id"]
+    except JSONDecodeError:
+        repo_id = 1634
 
     s = Session(location=eng, download=False)
     custom_only_uruguay = [x for x in datasets.custom().keys()
