@@ -1,0 +1,16 @@
+pandas
+sqlalchemy
+psycopg2
+flask
+flask-sqlalchemy
+flask-bootstrap
+flask-wtf
+python-dotenv
+gunicorn
+xlsxwriter
+dash
+dash-bootstrap-components
+-e git+https://github.com/rxavier/econuy.git@117914468c152abcf187170aed692a517b05a384#egg=econuy
+dash-daq
+orjson
+Pillow
