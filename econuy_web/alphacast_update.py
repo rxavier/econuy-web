@@ -41,6 +41,7 @@ FREQ_TRANSLATIONS = {
 }
 
 eng = create_engine(DATABASE_URL)
+p = Pipeline(location=eng, download=False)
 
 alphacast = Alphacast(ALPHACAST_API_KEY)
 PUBLIC_REPO_DESCRIPTION = (
@@ -58,38 +59,38 @@ PRIVATE_REPO_DESCRIPTION = (
 TRANSFORMATIONS = {
     "Public sector - Uruguay - Fiscal balance: consolidated public sector (% GDP) - Monthly": {
         "base": "balance_gps",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Public sector - Uruguay - Fiscal balance: non-financial public sector (% GDP) - Monthly": {
         "base": "balance_nfps",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Public sector - Uruguay - Fiscal balance: central government-BPS (% GDP) - Monthly": {
         "base": "balance_cg-bps",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Public sector - Uruguay - Fiscal balance: public enterprises (% GDP) - Monthly": {
         "base": "balance_pe",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Public sector - Uruguay - Tax revenue by source (real, YoY % chg) - Monthly": {
         "base": "tax_revenue",
         "transformations": [
-            lambda x: transform.convert_real(x),
+            lambda x: transform.convert_real(x, pipeline=p),
             lambda x: transform.chg_diff(x, period="inter"),
         ],
     },
     "Public sector - Uruguay - General government debt: by contractual term, residual, currency and residence (% GDP) - Quarterly": {
         "base": "public_debt_gps",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Public sector - Uruguay - Non-monetary government debt: by contractual term, residual, currency and residence (% GDP) - Quarterly": {
         "base": "public_debt_nfps",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Public sector - Uruguay - Central bank debt: by contractual term, residual, currency and residence (% GDP) - Quarterly": {
         "base": "public_debt_cb",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Labor market - Uruguay - Real wages: total, public and private (YoY % chg) - Monthly": {
         "base": "real_wages",
@@ -97,11 +98,11 @@ TRANSFORMATIONS = {
     },
     "Financial sector - Uruguay - Bank deposits (% GDP) - Monthly": {
         "base": "deposits",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Financial sector - Uruguay - Bank credits to non-financial sector (% GDP) - Monthly": {
         "base": "credit",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Prices - Uruguay - Consumer price index - CPI (YoY % chg) - Monthly": {
         "base": "cpi",
@@ -140,11 +141,11 @@ TRANSFORMATIONS = {
     },
     "Public sector - Uruguay - Fiscal balance: all aggregations, inc. FSS adjustment (% GDP) - Monthly": {
         "base": "balance_summary",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Public sector - Uruguay - Net public debt excluding bank deposits (% GDP) - Quarterly": {
         "base": "net_public_debt",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "Labor market - Uruguay - Labor force participation, employment and unemployment: extended series of rates and people (seasonally adjusted) - Monthly": {
         "base": "labor_rates_people",
@@ -160,7 +161,7 @@ TRANSFORMATIONS = {
     },
     "External sector - Uruguay - Trade balance by country (% GDP) - Monthly": {
         "base": "trade_balance",
-        "transformations": [lambda x: transform.convert_gdp(x)],
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
     },
     "External sector - Uruguay - Terms of trade (YoY % chg) - Monthly": {
         "base": "terms_of_trade",
@@ -240,7 +241,6 @@ def upload_transformed_datasets():
         returnIdIfExists=True,
     )
     repo_id = repo_details["id"]
-    p = Pipeline(location=eng, download=False)
 
     for name, dataset_dict in TRANSFORMATIONS.items():
         p.get(dataset_dict["base"])
@@ -277,44 +277,7 @@ def upload_dataset(dataset, name, repo_id, full_name=None):
     return
 
 
-def upload_test_datasets():
-    repo_details = alphacast.repository.create(
-        "test",
-        repo_description="this is a test",
-        slug="test-repo",
-        privacy="Private",
-        returnIdIfExists=True,
-    )
-    repo_id = repo_details["id"]
-
-    s = Session(location=eng, download=False)
-    s.get(["cpi", "cpi_measures"])
-    for name, dataset in s.datasets.items():
-        aux = dataset.copy()
-        dataset_name = build_dataset_name(aux, name)
-        aux.columns = aux.columns.get_level_values(0)
-        aux.insert(0, column="country", value="Uruguay")
-        aux.reset_index(inplace=True)
-        aux.rename(columns={"index": "Date"}, inplace=True)
-        try:
-            dataset_details = alphacast.datasets.create(dataset_name, repo_id)
-            dataset_id = dataset_details["id"]
-        except KeyError:
-            dataset_id = alphacast.datasets.read_by_name(dataset_name)["id"]
-        alphacast.datasets.dataset(dataset_id).initialize_columns(
-            dateColumnName="Date",
-            entitiesColumnNames=["country"],
-            dateFormat="%Y-%m-%d",
-        )
-        alphacast.datasets.dataset(dataset_id).upload_data_from_df(
-            aux, deleteMissingFromDB=False, onConflictUpdateDB=True, uploadIndex=False
-        )
-
-    return
-
-
 if __name__ == "__main__":
     upload_public_datasets()
     upload_private_datasets()
     upload_transformed_datasets()
-    # upload_test_datasets()
