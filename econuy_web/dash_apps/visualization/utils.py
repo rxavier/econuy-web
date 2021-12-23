@@ -22,7 +22,9 @@ def get_labels(tables: List[str]) -> List[str]:
     return label_tables
 
 
-def dedup_colnames(dfs: List[pd.DataFrame], tables: List[str]) -> Dict[str, pd.DataFrame]:
+def dedup_colnames(
+    dfs: List[pd.DataFrame], tables: List[str]
+) -> Dict[str, pd.DataFrame]:
     label_tables = get_labels(tables)
     tables_nodup = []
     counter = Counter(label_tables)
@@ -41,8 +43,9 @@ def dedup_colnames(dfs: List[pd.DataFrame], tables: List[str]) -> Dict[str, pd.D
     indicator_names = [col for df in dfs for col in df.columns.get_level_values(0)]
     if len(indicator_names) > len(set(indicator_names)):
         for name, df in zip(tables_nodup, dfs):
-            df.columns = df.columns.set_levels(f"{name} | " + df.columns.get_level_values(0),
-                                               level=0)
+            df.columns = df.columns.set_levels(
+                f"{name} | " + df.columns.get_level_values(0), level=0
+            )
 
     return dfs
 
@@ -52,8 +55,7 @@ def concat(dfs: List[pd.DataFrame]) -> List[pd.DataFrame]:
     if all(freq == freqs[0] for freq in freqs):
         combined = pd.concat(dfs, axis=1)
     else:
-        for freq_opt in ["A-DEC", "A", "Q-DEC", "Q",
-                         "M", "2W-SUN", "W-SUN"]:
+        for freq_opt in ["A-DEC", "A", "Q-DEC", "Q", "M", "2W-SUN", "W-SUN"]:
             if freq_opt in freqs:
                 output = []
                 for df in dfs:
@@ -64,16 +66,19 @@ def concat(dfs: List[pd.DataFrame]) -> List[pd.DataFrame]:
                         type_df = df.columns.get_level_values("Tipo")[0]
                         unit_df = df.columns.get_level_values("Unidad")[0]
                         if type_df == "Stock":
-                            df_match = transform.resample(df, rule=freq_opt,
-                                                            operation="last")
-                        elif (type_df == "Flujo" and
-                                not any(x in unit_df for
-                                        x in ["%", "=", "Cambio"])):
-                            df_match = transform.resample(df, rule=freq_opt,
-                                                            operation="sum")
+                            df_match = transform.resample(
+                                df, rule=freq_opt, operation="last"
+                            )
+                        elif type_df == "Flujo" and not any(
+                            x in unit_df for x in ["%", "=", "Cambio"]
+                        ):
+                            df_match = transform.resample(
+                                df, rule=freq_opt, operation="sum"
+                            )
                         else:
-                            df_match = transform.resample(df, rule=freq_opt,
-                                                            operation="mean")
+                            df_match = transform.resample(
+                                df, rule=freq_opt, operation="mean"
+                            )
                     output.append(df_match)
                 combined = pd.concat(output, axis=1)
                 break

@@ -90,5 +90,5 @@ table_options = {
     "regional_embi_spreads": "EMBI spread (JP Morgan) de Argentina y Brasil (11-dic-98, D)",
     "regional_embi_yields": "EMBI yield (JP Morgan) de Argentina y Brasil (11-dic-98, D)",
     "regional_stocks": "Índices bursátiles en USD de Argentina y Brasil (9-abr-02, D)",
-    "regional_policy_rates": "Tasas de interés de política monetaria de Argentina y Brasil (4-jun-86, D)"
+    "regional_policy_rates": "Tasas de interés de política monetaria de Argentina y Brasil (4-jun-86, D)",
 }

@@ -8,16 +8,24 @@ from econuy_web.dash_apps.monitor.callbacks import register_callbacks
 
 pio.templates.default = "plotly_white"
 
+
 def add_dash(server):
-    app = Dash(server=server, url_base_pathname="/monitor/", suppress_callback_exceptions=True,
-               external_stylesheets=[dbc.themes.BOOTSTRAP], title="Monitor económico",
-               meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1"},
-    ])
-    app.layout = html.Div([
-        dcc.Location(id="url", refresh=False),
-        html.Div(id="page-layout"),
-    ])
+    app = Dash(
+        server=server,
+        url_base_pathname="/monitor/",
+        suppress_callback_exceptions=True,
+        external_stylesheets=[dbc.themes.BOOTSTRAP],
+        title="Monitor económico",
+        meta_tags=[
+            {"name": "viewport", "content": "width=device-width, initial-scale=1"},
+        ],
+    )
+    app.layout = html.Div(
+        [
+            dcc.Location(id="url", refresh=False),
+            html.Div(id="page-layout"),
+        ]
+    )
 
     register_callbacks(app)
 

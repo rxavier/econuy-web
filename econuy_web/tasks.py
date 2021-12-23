@@ -5,9 +5,9 @@ from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy import inspect
 
 
-def full_update(con: Union[Connection, Engine],
-                functions: List, run: int = 1,
-                output: List = None) -> List:
+def full_update(
+    con: Union[Connection, Engine], functions: List, run: int = 1, output: List = None
+) -> List:
     print(f"*** RUN: {run} ***")
     if output is None:
         output = []
@@ -31,8 +31,7 @@ def full_update(con: Union[Connection, Engine],
             continue
     if len(failed) > 0 and run < 3:
         run += 1
-        return full_update(con=con, functions=failed, run=run,
-                           output=output)
+        return full_update(con=con, functions=failed, run=run, output=output)
     if len(failed) > 0:
         failed_text = f" {len(failed)} datasets could not be updated."
     else:

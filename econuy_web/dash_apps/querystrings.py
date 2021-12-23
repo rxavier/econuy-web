@@ -16,14 +16,14 @@ def encode_state(component_ids_zipped, values):
           ?tabs=value&tabs=cs_tab
     """
 
-    statelist = [(component_ids_zipped[0][i],
-                    (component_ids_zipped[1][i],
-                    values[i]))
-                    for i in range(len(values))
-                    if  values[i] is not None]
+    statelist = [
+        (component_ids_zipped[0][i], (component_ids_zipped[1][i], values[i]))
+        for i in range(len(values))
+        if values[i] is not None
+    ]
 
-    params = urlencode(statelist,  doseq=True)
-    return f'?{params}'
+    params = urlencode(statelist, doseq=True)
+    return f"?{params}"
 
 
 def parse_state(url):
@@ -54,21 +54,23 @@ def parse_state(url):
             # or a number and cast appropriately:
             for pv in statedict[key]:
                 # if it's a list
-                if isinstance(pv[1], str) and pv[1][0]=='[':
+                if isinstance(pv[1], str) and pv[1][0] == "[":
                     pv[1] = ast.literal_eval(pv[1])
 
                 if pv[1] in ["True", "False"]:
                     pv[1] = ast.literal_eval(pv[1])
 
-                #if it's a number
-                if (isinstance(pv[1], str) and
-                    pv[1].lstrip('-').replace('.','',1).isdigit()):
+                # if it's a number
+                if (
+                    isinstance(pv[1], str)
+                    and pv[1].lstrip("-").replace(".", "", 1).isdigit()
+                ):
 
                     if pv[1].isdigit():
                         pv[1] = int(pv[1])
                     else:
                         pv[1] = float(pv[1])
-    else: #return empty dict
+    else:  # return empty dict
         statedict = dict()
     return statedict
 
@@ -84,12 +86,15 @@ def apply_qs(params):
     in this function in order for the saved parameters to be assigned
     during loading.
     """
+
     def wrapper(func):
         def apply_value(*args, **kwargs):
-            if 'id' in kwargs and kwargs['id'] in params:
-                param_values = params[kwargs['id']]
+            if "id" in kwargs and kwargs["id"] in params:
+                param_values = params[kwargs["id"]]
                 for pv in param_values:
                     kwargs[pv[0]] = pv[1]
             return func(*args, **kwargs)
+
         return apply_value
+
     return wrapper

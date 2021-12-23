@@ -5,7 +5,8 @@ from flask import current_app as app
 
 @app.route("/", methods=["GET", "POST"])
 def landing():
-    return render_template('landing.html')
+    return render_template("landing.html")
+
 
 @app.route("/sobre", methods=["GET"])
 def about():
