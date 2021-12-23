@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
--e git+https://github.com/rxavier/econuy.git@469186afdd361a78faac97ea978634515f62c93d#egg=econuy
+-e git+https://github.com/rxavier/econuy.git@cb65961c65aca39b7f15a0f0a15896d066478bbf#egg=econuy
     # via -r requirements.in
 alphacast==0.1.1
     # via -r requirements.in
