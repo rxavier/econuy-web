@@ -175,6 +175,40 @@ TRANSFORMATIONS = {
         "base": "rxr_custom",
         "transformations": [lambda x: transform.chg_diff(x, period="inter")],
     },
+    "External sector - Uruguay - Balance of payments (% GDP) - Quarterly": {
+        "base": "bop",
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
+    },
+    "External sector - Uruguay - Balance of payments summary and capital flows (% GDP) - Quarterly": {
+        "base": "bop_summary",
+        "transformations": [lambda x: transform.convert_gdp(x, pipeline=p)],
+    },
+    "Prices - Uruguay - Produce price index - PPI (YoY % chg) - Monthly": {
+        "base": "ppi",
+        "transformations": [lambda x: transform.chg_diff(x, period="inter")],
+    },
+    "Prices - Uruguay - Producer price index - PPI (MoM % chg, seasonally adjusted) - Monthly": {
+        "base": "ppi",
+        "transformations": [
+            lambda x: transform.chg_diff(x, period="last"),
+            lambda x: transform.decompose(x, component="seas", force_x13=True),
+        ],
+    },
+    "Prices - Uruguay - CPI by division - CPI (YoY % chg) - Monthly": {
+        "base": "cpi_divisions",
+        "transformations": [lambda x: transform.chg_diff(x, period="inter")],
+    },
+    "Prices - Uruguay - CPI by division - CPI (MoM % chg, seasonally adjusted) - Monthly": {
+        "base": "cpi_divisions",
+        "transformations": [
+            lambda x: transform.chg_diff(x, period="last"),
+            lambda x: transform.decompose(x, component="seas", force_x13=True),
+        ],
+    },
+    "Prices - Uruguay - Utilities' price index (YoY % chg) - Monthly": {
+        "base": "utilities",
+        "transformations": [lambda x: transform.chg_diff(x, period="inter")],
+    },
 }
 
 
