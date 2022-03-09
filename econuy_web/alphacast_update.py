@@ -306,7 +306,7 @@ def upload_dataset(dataset, name, repo_id, full_name=None):
         dateColumnName="Date", entitiesColumnNames=["country"], dateFormat="%Y-%m-%d"
     )
     alphacast.datasets.dataset(dataset_id).upload_data_from_df(
-        aux, deleteMissingFromDB=False, onConflictUpdateDB=True, uploadIndex=False
+        aux, deleteMissingFromDB=True, onConflictUpdateDB=True, uploadIndex=False
     )
     return
 
