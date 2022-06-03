@@ -6,7 +6,7 @@
 #
 -e git+https://github.com/rxavier/econuy.git@ff70301d6b6fb489c2415a39d265285022e640da#egg=econuy
     # via -r requirements.in
-alphacast==0.1.1
+alphacast==0.1.3
     # via -r requirements.in
 async-generator==1.10
     # via

@@ -298,7 +298,7 @@ def upload_dataset(dataset, name, repo_id, full_name=None):
     aux.reset_index(inplace=True)
     aux.rename(columns={"index": "Date"}, inplace=True)
     try:
-        dataset_details = alphacast.datasets.create(dataset_name, repo_id)
+        dataset_details = alphacast.datasets.create(dataset_name, repo_id, returnIdIfExists=True)
         dataset_id = dataset_details["id"]
     except KeyError:
         dataset_id = alphacast.datasets.read_by_name(dataset_name)["id"]
