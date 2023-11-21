@@ -3,16 +3,16 @@ from io import StringIO
 
 import pandas as pd
 import plotly.express as px
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import html
+from dash import dcc
 import dash_bootstrap_components as dbc
-import dash_table as dt
+from dash import dash_table as dt
 from PIL import Image
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash_table.Format import Format, Scheme, Group
-from econuy.utils import sqlutil
-from econuy.core import Pipeline
+from dash.dash_table.Format import Format, Scheme, Group
+from econuy.utils import sql as sqlutil
+from econuy import Pipeline
 from econuy.transform import (
     chg_diff,
     convert_usd,
@@ -31,7 +31,6 @@ from econuy_web.dash_apps.visualization import utils
 
 
 def register_general_callbacks(app):
-
     from econuy_web import db
 
     @app.callback(
@@ -83,9 +82,7 @@ def register_general_callbacks(app):
     ]
     zipped_id_values = list(zip(*id_values))
 
-    @app.callback(
-        Output("url", "search"), [Input(id, param) for (id, param) in id_values]
-    )
+    @app.callback(Output("url", "search"), [Input(id, param) for (id, param) in id_values])
     def update_url_state(*values):
         """
         When any of the (id, param) values changes, this callback gets triggered.
@@ -233,9 +230,7 @@ def register_general_callbacks(app):
     ):
         if not final_data_record:
             return dcc.Graph(id="graph"), "", "d-inline btn btn-primary disabled"
-        data = pd.DataFrame.from_records(
-            final_data_record, coerce_float=True, index="index"
-        )
+        data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
         final_metadata = pd.DataFrame.from_records(final_metadata_record)
         data.index = pd.to_datetime(data.index)
         start_date = start_date or "1970-01-01"
@@ -435,16 +430,12 @@ def register_general_callbacks(app):
     def download_csv(n, final_data_record, final_metadata_record):
         if not final_data_record:
             raise PreventUpdate
-        data = pd.DataFrame.from_records(
-            final_data_record, coerce_float=True, index="index"
-        )
+        data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
         final_metadata = pd.DataFrame.from_records(final_metadata_record)
         data.index = pd.to_datetime(data.index)
         data.columns = pd.MultiIndex.from_frame(final_metadata)
         data.rename_axis(None, axis=0, inplace=True)
-        return dcc.send_bytes(
-            str.encode(data.to_csv(), encoding="latin1"), "econuy-data.csv"
-        )
+        return dcc.send_bytes(str.encode(data.to_csv(), encoding="latin1"), "econuy-data.csv")
 
     @app.callback(
         Output("download-data-xlsx", "data"),
@@ -455,9 +446,7 @@ def register_general_callbacks(app):
     def download_xlsx(n, final_data_record, final_metadata_record):
         if not final_data_record:
             raise PreventUpdate
-        data = pd.DataFrame.from_records(
-            final_data_record, coerce_float=True, index="index"
-        )
+        data = pd.DataFrame.from_records(final_data_record, coerce_float=True, index="index")
         final_metadata = pd.DataFrame.from_records(final_metadata_record)
         data.index = pd.to_datetime(data.index)
         data.columns = pd.MultiIndex.from_frame(final_metadata)
@@ -466,7 +455,6 @@ def register_general_callbacks(app):
 
 
 def register_tabs_callbacks(app, i: int):
-
     from econuy_web import db
 
     @app.callback(
@@ -598,10 +586,7 @@ def register_tabs_callbacks(app, i: int):
             or ("rolling" in order and (not rolling_periods or not rolling_operation))
             or ("chg-diff" in order and (not chg_diff_operation or not chg_diff_period))
             or ("rebase" in order and (not rebase_start or not rebase_base))
-            or (
-                "decompose" in order
-                and (not decompose_method or not decompose_component)
-            )
+            or ("decompose" in order and (not decompose_method or not decompose_component))
         ):
             raise PreventUpdate
         data = pd.DataFrame.from_records(query_data, coerce_float=True, index="index")
@@ -616,12 +601,8 @@ def register_tabs_callbacks(app, i: int):
                 x, start_date=real_start, end_date=real_end, pipeline=p, errors="ignore"
             ),
             "gdp": lambda x: convert_gdp(x, pipeline=p, errors="ignore"),
-            "resample": lambda x: resample(
-                x, rule=resample_freq, operation=resample_operation
-            ),
-            "rolling": lambda x: rolling(
-                x, window=rolling_periods, operation=rolling_operation
-            ),
+            "resample": lambda x: resample(x, rule=resample_freq, operation=resample_operation),
+            "rolling": lambda x: rolling(x, window=rolling_periods, operation=rolling_operation),
             "chg-diff": lambda x: chg_diff(
                 x, operation=chg_diff_operation, period=chg_diff_period
             ),
@@ -644,6 +625,4 @@ def register_tabs_callbacks(app, i: int):
         transformed_data.columns = transformed_data.columns.get_level_values(0)
         transformed_data.reset_index(inplace=True)
 
-        return transformed_data.to_dict("records"), transformed_metadata.to_dict(
-            "records"
-        )
+        return transformed_data.to_dict("records"), transformed_metadata.to_dict("records")

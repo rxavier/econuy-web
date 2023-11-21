@@ -1,7 +1,7 @@
 import plotly.io as pio
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash import Dash
 
 from econuy_web.dash_apps.monitor.callbacks import register_callbacks
@@ -14,7 +14,10 @@ def add_dash(server):
         server=server,
         url_base_pathname="/monitor/",
         suppress_callback_exceptions=True,
-        external_stylesheets=[dbc.themes.BOOTSTRAP],
+        external_stylesheets=[
+            dbc.themes.BOOTSTRAP,
+            "https://fonts.googleapis.com/css2?family=Montserrat&family=Roboto&display=swap",
+        ],
         title="Monitor económico",
         meta_tags=[
             {"name": "viewport", "content": "width=device-width, initial-scale=1"},

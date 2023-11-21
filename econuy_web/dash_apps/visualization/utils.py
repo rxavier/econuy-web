@@ -2,29 +2,23 @@ import re
 from typing import Dict, List
 from collections import Counter
 from econuy import transform
-from econuy.utils import datasets
+
+# from econuy.utils import datasets
+from econuy.utils.operations import DATASETS
 
 import pandas as pd
 
 
 def get_labels(tables: List[str]) -> List[str]:
-    original_tables = datasets.original()
-    original_tables = {k: v["description"] for k, v in original_tables.items()}
-    custom_tables = datasets.custom()
-    custom_tables = {k: v["description"] for k, v in custom_tables.items()}
+    all_tables = {k: v["description"] for k, v in DATASETS.items()}
     label_tables = []
     for table in tables:
-        try:
-            label_tables.append(original_tables[table])
-        except KeyError:
-            label_tables.append(custom_tables[table])
+        label_tables.append(all_tables[table])
     label_tables = [re.sub(r" \(([^)]+)\)$", "", table) for table in label_tables]
     return label_tables
 
 
-def dedup_colnames(
-    dfs: List[pd.DataFrame], tables: List[str]
-) -> Dict[str, pd.DataFrame]:
+def dedup_colnames(dfs: List[pd.DataFrame], tables: List[str]) -> Dict[str, pd.DataFrame]:
     label_tables = get_labels(tables)
     tables_nodup = []
     counter = Counter(label_tables)
@@ -66,19 +60,13 @@ def concat(dfs: List[pd.DataFrame]) -> List[pd.DataFrame]:
                         type_df = df.columns.get_level_values("Tipo")[0]
                         unit_df = df.columns.get_level_values("Unidad")[0]
                         if type_df == "Stock":
-                            df_match = transform.resample(
-                                df, rule=freq_opt, operation="last"
-                            )
+                            df_match = transform.resample(df, rule=freq_opt, operation="last")
                         elif type_df == "Flujo" and not any(
                             x in unit_df for x in ["%", "=", "Cambio"]
                         ):
-                            df_match = transform.resample(
-                                df, rule=freq_opt, operation="sum"
-                            )
+                            df_match = transform.resample(df, rule=freq_opt, operation="sum")
                         else:
-                            df_match = transform.resample(
-                                df, rule=freq_opt, operation="mean"
-                            )
+                            df_match = transform.resample(df, rule=freq_opt, operation="mean")
                     output.append(df_match)
                 combined = pd.concat(output, axis=1)
                 break

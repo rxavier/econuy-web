@@ -1,8 +1,8 @@
 import datetime as dt
 
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 import dash_daq as daq
 
 from econuy_web.app_strings import table_options
@@ -103,7 +103,7 @@ def build_layout(params):
                                     ]
                                 ),
                                 dbc.Form(
-                                    dbc.FormGroup(
+                                    html.Div(
                                         [
                                             dbc.Label(
                                                 "Fechas",
@@ -171,7 +171,6 @@ def build_layout(params):
                 ],
                 justify="center",
                 className="mx-0 mx-md-3",
-                no_gutters=True,
             ),
             html.Div(id="html-div", hidden=True),
             dcc.Download(id="download-data-csv"),
@@ -308,7 +307,7 @@ def form_builder(i: int, params):
                         dbc.CardBody(
                             [
                                 dbc.Form(
-                                    dbc.FormGroup(
+                                    html.Div(
                                         [
                                             dbc.Label(
                                                 "Período",
@@ -335,7 +334,6 @@ def form_builder(i: int, params):
                 md=6,
             ),
         ],
-        form=True,
         className="mb-0 mb-md-2",
     )
 
@@ -363,7 +361,7 @@ def form_builder(i: int, params):
                             dbc.Row(
                                 [
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Frecuencia",
@@ -404,7 +402,7 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Método de agregación",
@@ -441,7 +439,6 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                 ],
-                                form=True,
                             ),
                             className="p-2",
                         ),
@@ -471,7 +468,7 @@ def form_builder(i: int, params):
                             dbc.Row(
                                 [
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Períodos",
@@ -488,7 +485,7 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Método de acumulación",
@@ -517,7 +514,6 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                 ],
-                                form=True,
                             ),
                             className="p-2",
                         ),
@@ -527,7 +523,6 @@ def form_builder(i: int, params):
             ),
         ],
         className="mb-0 mb-md-2",
-        form=True,
     )
 
     third_form = dbc.Row(
@@ -538,9 +533,7 @@ def form_builder(i: int, params):
                         dbc.CardHeader(
                             dbc.Row(
                                 [
-                                    dbc.Col(
-                                        html.H6("Calcular variaciones o diferencias")
-                                    ),
+                                    dbc.Col(html.H6("Calcular variaciones o diferencias")),
                                     dbc.Col(
                                         apply_qs(params)(daq.BooleanSwitch)(
                                             id=f"chg-diff-switch-{i}", color="#0275d8"
@@ -556,7 +549,7 @@ def form_builder(i: int, params):
                             dbc.Row(
                                 [
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Período",
@@ -585,7 +578,7 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Período de referencia",
@@ -619,7 +612,6 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                 ],
-                                form=True,
                             ),
                             className="p-2",
                         ),
@@ -649,7 +641,7 @@ def form_builder(i: int, params):
                             dbc.Row(
                                 [
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Período",
@@ -668,7 +660,7 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Valor de base",
@@ -685,7 +677,6 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                 ],
-                                form=True,
                             ),
                             className="p-2",
                         ),
@@ -694,7 +685,6 @@ def form_builder(i: int, params):
                 md=6,
             ),
         ],
-        form=True,
         className="mb-0 mb-md-2",
     )
 
@@ -722,7 +712,7 @@ def form_builder(i: int, params):
                             dbc.Row(
                                 [
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Método",
@@ -755,7 +745,7 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                     dbc.Col(
-                                        dbc.FormGroup(
+                                        html.Div(
                                             [
                                                 dbc.Label(
                                                     "Componente",
@@ -784,7 +774,6 @@ def form_builder(i: int, params):
                                         md=6,
                                     ),
                                 ],
-                                form=True,
                             ),
                             className="p-2",
                         ),
@@ -793,15 +782,12 @@ def form_builder(i: int, params):
                 md=6,
             )
         ],
-        form=True,
         className="mb-0 mb-md-2",
     )
 
-    order = dbc.FormGroup(
+    order = html.Div(
         [
-            dbc.Label(
-                html.H6("Definir orden de transformaciones"), html_for=f"order-{i}"
-            ),
+            dbc.Label(html.H6("Definir orden de transformaciones"), html_for=f"order-{i}"),
             apply_qs(params)(dcc.Dropdown)(
                 id=f"order-{i}",
                 disabled=True,

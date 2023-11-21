@@ -1,7 +1,7 @@
 import datetime as dt
 
 import dash_bootstrap_components as dbc
-import dash_html_components as html
+from dash import html
 
 NAVBAR = dbc.Navbar(
     [
@@ -19,20 +19,13 @@ NAVBAR = dbc.Navbar(
             dbc.Row(
                 dbc.Nav(
                     [
+                        dbc.NavItem(dbc.NavLink("Monitor", href="/monitor/", external_link=True)),
                         dbc.NavItem(
-                            dbc.NavLink("Monitor", href="/monitor/", external_link=True)
+                            dbc.NavLink("Interactivo", href="/interactive/", external_link=True)
                         ),
-                        dbc.NavItem(
-                            dbc.NavLink(
-                                "Interactivo", href="/interactive/", external_link=True
-                            )
-                        ),
-                        dbc.NavItem(
-                            dbc.NavLink("Inicio", href="/", external_link=True)
-                        ),
+                        dbc.NavItem(dbc.NavLink("Inicio", href="/", external_link=True)),
                     ]
                 ),
-                no_gutters=True,
                 className="ml-auto flex-nowrap mt-3 mt-md-0",
                 align="center",
             ),

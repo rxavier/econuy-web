@@ -10,7 +10,7 @@ gunicorn
 xlsxwriter
 dash
 dash-bootstrap-components
--e git+https://github.com/rxavier/econuy.git@ff70301d6b6fb489c2415a39d265285022e640da#egg=econuy
+-e git+https://github.com/rxavier/econuy.git@936042c1b127a78191ad6ea4165811fe25e95333#egg=econuy
 dash-daq
 orjson
 Pillow

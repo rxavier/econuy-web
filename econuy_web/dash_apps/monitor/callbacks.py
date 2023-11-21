@@ -4,13 +4,11 @@ from typing import Sequence
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import dash_html_components as html
-import dash_core_components as dcc
+
 from dash.dependencies import Input, Output, State
-from econuy.core import Pipeline
-from econuy.session import Session
-from econuy import transform
-from econuy.utils import sqlutil
+from econuy import Pipeline
+from econuy import Session
+from econuy.utils import sql as sqlutil
 from flask import current_app
 
 from econuy_web.dash_apps.querystrings import encode_state, parse_state
@@ -18,7 +16,6 @@ from econuy_web.dash_apps.monitor.components import build_layout
 
 
 def register_callbacks(app):
-
     from econuy_web import db
 
     @app.callback(
@@ -34,9 +31,7 @@ def register_callbacks(app):
     id_values = [("dates", "start_date"), ("dates", "end_date")]
     zipped_id_values = list(zip(*id_values))
 
-    @app.callback(
-        Output("url", "search"), [Input(id, param) for (id, param) in id_values]
-    )
+    @app.callback(Output("url", "search"), [Input(id, param) for (id, param) in id_values])
     def update_url_state(*values):
         """
         When any of the (id, param) values changes, this callback gets triggered.
@@ -64,7 +59,7 @@ def register_callbacks(app):
     )
     def build_demand(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("natacc_gas_con_nsa_long")
+        p.get("national_accounts_demand_constant_nsa_extended")
         # p.chg_diff(period="inter")
         demand = p.dataset
         demand.columns = demand.columns.get_level_values(0)
@@ -101,7 +96,7 @@ def register_callbacks(app):
     )
     def build_supply(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("natacc_ind_con_nsa_long")
+        p.get("national_accounts_supply_constant_nsa_extended")
         # p.chg_diff(period="inter")
         supply = p.dataset
         supply.columns = supply.columns.get_level_values(0)
@@ -130,7 +125,7 @@ def register_callbacks(app):
     )
     def build_gdp(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("gdp_con_idx_sa_long")
+        p.get("gdp_index_constant_sa_extended")
         p.chg_diff(period="last")
         gdp = p.dataset
         gdp.columns = gdp.columns.get_level_values(0)
@@ -150,7 +145,7 @@ def register_callbacks(app):
     )
     def build_industrial(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("core_industrial")
+        p.get("core_industrial_production")
         p.chg_diff(period="inter")
         industrial = p.dataset
         industrial.columns = industrial.columns.get_level_values(0)
@@ -190,13 +185,13 @@ def register_callbacks(app):
     )
     def build_cpi_measures(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("cpi_measures")
+        p.get("cpi_divisions")
         p.chg_diff(period="inter")
         cpi_measures = p.dataset
         cpi_measures.columns = cpi_measures.columns.get_level_values(0)
         cpi_measures_plot = build_chart(
             cpi_measures,
-            title="IPC transable, no transable y subyacente",
+            title="IPC por división",
             subtitle="Variación interanual",
             kind="line",
             y=cpi_measures.columns[:-2],
@@ -234,7 +229,7 @@ def register_callbacks(app):
     )
     def build_fiscal_balance(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("balance_summary")
+        p.get("fiscal_balance_summary")
         p.convert(flavor="gdp")
         balance = p.dataset
         balance.columns = balance.columns.get_level_values(0)
@@ -315,7 +310,7 @@ def register_callbacks(app):
     )
     def build_debt(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("net_public_debt")
+        p.get("net_public_debt_global_public_sector")
         p.convert(flavor="gdp")
         debt = p.dataset
         debt.columns = debt.columns.get_level_values(0)
@@ -338,10 +333,10 @@ def register_callbacks(app):
     )
     def build_labor_rates(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("labor_rates_people")
+        p.get("labor_rates_persons")
         nsa = p.dataset
         nsa.columns = nsa.columns.get_level_values(0)
-        trends = sqlutil.read(con=db.engine, table_name="labor_rates_people_seas")
+        trends = sqlutil.read(con=db.engine, table_name="labor_rates_persons_seas")
         trends.columns = trends.columns.get_level_values(0) + [" (tendencia-ciclo)"]
         data = pd.concat([nsa, trends], axis=1)
         activity_employment_plot = build_chart(
@@ -397,7 +392,7 @@ def register_callbacks(app):
     )
     def build_expimp(start, end):
         s = Session(location=db.engine, download=False)
-        s.get(["trade_x_prod_val", "trade_m_sect_val"])
+        s.get(["trade_exports_sector_value", "trade_imports_category_value"])
         s.convert(flavor="gdp")
         s.concat(concat_name="expimp")
         data = s.datasets["concat_expimp"]
@@ -445,7 +440,7 @@ def register_callbacks(app):
         rxr.columns = rxr.columns.get_level_values(0)
         rxr_plot = build_chart(
             rxr,
-            title=f"Tipo de cambio real",
+            title="Tipo de cambio real",
             subtitle=f"1980-{dt.date.today().year}=100",
             kind="line",
             start=start,
@@ -479,7 +474,7 @@ def register_callbacks(app):
     )
     def build_ubi(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("sovereign_risk")
+        p.get("sovereign_risk_index")
         ubi = p.dataset
         ubi.columns = ubi.columns.get_level_values(0)
         ubi_plot = build_chart(
@@ -498,7 +493,7 @@ def register_callbacks(app):
     )
     def build_bonds(start, end):
         p = Pipeline(location=db.engine, download=False)
-        p.get("bonds")
+        p.get("sovereign_bond_yields")
         bonds = p.dataset
         bonds.columns = bonds.columns.get_level_values(0)
         bonds_plot = build_chart(

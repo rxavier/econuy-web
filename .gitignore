@@ -11,3 +11,6 @@ econuy_web/.flaskenv
 
 econuy_web/x13as
 /econuy_web/export/
+
+.env
+.DS_Store

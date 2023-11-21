@@ -1,8 +1,8 @@
 import datetime as dt
 
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 
 from econuy_web.dash_apps.querystrings import apply_qs
 from econuy_web.dash_apps.general_components import NAVBAR, FOOTER
@@ -143,9 +143,7 @@ tab_prices = [
             ),
             dbc.Col(
                 dbc.Spinner(
-                    dcc.Graph(
-                        id="chart-inflation-measures", config={"displayModeBar": False}
-                    ),
+                    dcc.Graph(id="chart-inflation-measures", config={"displayModeBar": False}),
                     color="primary",
                     type="grow",
                 ),
@@ -170,9 +168,7 @@ tab_fiscal = [
         [
             dbc.Col(
                 dbc.Spinner(
-                    dcc.Graph(
-                        id="chart-primary-global", config={"displayModeBar": False}
-                    ),
+                    dcc.Graph(id="chart-primary-global", config={"displayModeBar": False}),
                     color="primary",
                     type="grow",
                 ),
@@ -180,9 +176,7 @@ tab_fiscal = [
             ),
             dbc.Col(
                 dbc.Spinner(
-                    dcc.Graph(
-                        id="chart-balance-sectors", config={"displayModeBar": False}
-                    ),
+                    dcc.Graph(id="chart-balance-sectors", config={"displayModeBar": False}),
                     color="primary",
                     type="grow",
                 ),
@@ -217,9 +211,7 @@ tab_labor = [
         [
             dbc.Col(
                 dbc.Spinner(
-                    dcc.Graph(
-                        id="chart-activity-employment", config={"displayModeBar": False}
-                    ),
+                    dcc.Graph(id="chart-activity-employment", config={"displayModeBar": False}),
                     color="primary",
                     type="grow",
                 ),
@@ -227,9 +219,7 @@ tab_labor = [
             ),
             dbc.Col(
                 dbc.Spinner(
-                    dcc.Graph(
-                        id="chart-unemployment", config={"displayModeBar": False}
-                    ),
+                    dcc.Graph(id="chart-unemployment", config={"displayModeBar": False}),
                     color="primary",
                     type="grow",
                 ),
@@ -284,9 +274,7 @@ tab_external = [
             ),
             dbc.Col(
                 dbc.Spinner(
-                    dcc.Graph(
-                        id="chart-commodity-index", config={"displayModeBar": False}
-                    ),
+                    dcc.Graph(id="chart-commodity-index", config={"displayModeBar": False}),
                     color="primary",
                     type="grow",
                 ),
@@ -324,9 +312,7 @@ tab_regional = [
         [
             dbc.Col(
                 dbc.Spinner(
-                    dcc.Graph(
-                        id="chart-regional-gdp", config={"displayModeBar": False}
-                    ),
+                    dcc.Graph(id="chart-regional-gdp", config={"displayModeBar": False}),
                     color="primary",
                     type="grow",
                 ),
@@ -334,9 +320,7 @@ tab_regional = [
             ),
             dbc.Col(
                 dbc.Spinner(
-                    dcc.Graph(
-                        id="chart-regional-nxr", config={"displayModeBar": False}
-                    ),
+                    dcc.Graph(id="chart-regional-nxr", config={"displayModeBar": False}),
                     color="primary",
                     type="grow",
                 ),
